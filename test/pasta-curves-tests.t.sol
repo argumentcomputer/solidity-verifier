@@ -1,20 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "forge-std/Test.sol";
-import "../src/pasta/PastaContracts.sol";
-import "../src/pasta/PallasLib.sol";
-import "../src/pasta/VestaLib.sol";
+import "@std/Test.sol";
+import "src/pasta/Pallas.sol";
+import "src/pasta/Vesta.sol";
 
 contract PastaCurvesContractTests is Test {
-
-    PallasContract pallas;
-    VestaContract vesta;
-
-    function setUp() public {
-        pallas = new PallasContract();
-        vesta = new VestaContract();
-    }
 
     function testMSM() public {
         /*
@@ -78,7 +69,7 @@ contract PastaCurvesContractTests is Test {
         exponents[1] = scalar2;
         exponents[2] = scalar3;
 
-        Pallas.PallasAffinePoint memory msm = pallas.multiScalarMul(bases, exponents);
+        Pallas.PallasAffinePoint memory msm = Pallas.multiScalarMul(bases, exponents);
 
         uint256 xExpected = 0x2565de35a8233431d6123bfe0632643d807071cf5664b077c5da4df8e3c3f641;
         uint256 yExpected = 0x0915100ff05cc4b9bd3422980fd3e7c34c4635956fdbcb0f2a9f3267e082dc73;
@@ -108,7 +99,7 @@ contract PastaCurvesContractTests is Test {
         uint256 base = 0x3724def858c3d13a605830569046f39c0f3572895076481fa07174fb682a6b54;
         uint256 exponent = 0x0000000000000000000000000000000000000000000000000000000000000002;
 
-        uint256 result = pallas.powSmall(base, exponent, Pallas.R_MOD);
+        uint256 result = Pallas.powSmall(base, exponent, Pallas.R_MOD);
 
         uint256 expected = 0x3ac7fb6ca64a328ead7f613f9d96f06b10b229c6e9a5f6d93e7c0746d82909d3;
 
@@ -132,15 +123,15 @@ contract PastaCurvesContractTests is Test {
         */
 
         bytes32 scalarBytes = 0x38124caf446d50036fc4b72373d76c0e400030829c82a4e8a0b0af80abe3a80f;
-        uint256 scalar = pallas.fromLeBytesModOrder(abi.encodePacked(scalarBytes));
+        uint256 scalar = Pallas.fromLeBytesModOrder(abi.encodePacked(scalarBytes));
 
         uint256 expected = 0x0fa8e3ab80afb0a0e8a4829c823000400e6cd77323b7c46f03506d44af4c1238;
         assertEq(expected, scalar);
     }
 
-    function testPallasScalarValidation() public view {
+    function testPallasScalarValidation() public pure {
         uint256 scalar = 0x35ab23a4edfce9b7c35cc32bf0cb9a8b0d7ed781772e31900fdb106430dcfeaa;
-        pallas.validateScalarField(scalar);
+        Pallas.validateScalarField(scalar);
     }
 
 
@@ -151,7 +142,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasProjectivePoint memory point = Pallas.PallasProjectivePoint(x, y, z);
 
-        pallas.validateCurvePoint(pallas.toAffine(point));
+        Pallas.validateCurvePoint(Pallas.IntoAffine(point));
     }
 
     // TODO figure out why ScalarMul over projective point / scalar doesn't pass test vector
@@ -185,7 +176,7 @@ contract PastaCurvesContractTests is Test {
 
         uint256 scalar = 0x0716ea7ecbe554f483e62dc4a31ef8d080b35ea748906aa770491c144257819a;
 
-        Pallas.PallasProjectivePoint memory p1MulScalar = pallas.projectiveScalarMul(p1, scalar);
+        Pallas.PallasProjectivePoint memory p1MulScalar = Pallas.projectiveScalarMul(p1, scalar);
 
         uint256 x_expected = 0x35ea0d47490c86c70ce776259a0537323f498676a11358b8c91bea2eb00d5817;
         uint256 y_expected = 0x315dba1fbee5f02fcf5205349cb4d9ff9e64eed7bfc6ead3ce90cf7c359bf3e9;
@@ -225,7 +216,7 @@ contract PastaCurvesContractTests is Test {
 
         uint256 scalar = 0x22695b548e0b09140224ef3a292349f96ac26b2b82c6fd7c31b6da1742401c6d;
 
-        Pallas.PallasAffinePoint memory p1MulScalar = pallas.affineScalarMul(p1, scalar);
+        Pallas.PallasAffinePoint memory p1MulScalar = Pallas.scalarMul(p1, scalar);
 
         uint256 xExpected = 0x3a37cd0a53fd0550c75d4afde145611e65b17f568fd2965aab251dfe6d4e8de2;
         uint256 yExpected = 0x054f018342cc56e49348af0dcca916f084f153a88f5da1ad8318144b7f8dbbcf;
@@ -264,7 +255,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasAffinePoint memory p2 = Pallas.PallasAffinePoint(x2, y2);
 
-        Pallas.PallasAffinePoint memory p1p2Add = pallas.affineAdd(p1, p2);
+        Pallas.PallasAffinePoint memory p1p2Add = Pallas.add(p1, p2);
 
         uint256 xExpected = 0x1d67782d21f44a1780ae2f480a01a332089105ca6c2636f1586dff07d7b103a1;
         uint256 yExpected = 0x253aa575691f2d132d816147b2f09c33372a12ca361b879c8511b163c1988624;
@@ -306,7 +297,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasProjectivePoint memory p2 = Pallas.PallasProjectivePoint(x2, y2, z2);
 
-        Pallas.PallasProjectivePoint memory p1p2Add = pallas.projectiveAdd(p1, p2);
+        Pallas.PallasProjectivePoint memory p1p2Add = Pallas.add(p1, p2);
 
         uint256 xExpected = 0x1450ca1656c299a3a68682867bf546d518ac9c9ae912fb4ab6a2d8997ea1bddb;
         uint256 yExpected = 0x3ffd1bac970c51adbfbdf72d42040653b1faa42283d81391e47cb6942f63d49b;
@@ -341,7 +332,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasProjectivePoint memory p = Pallas.PallasProjectivePoint(x, y, z);
 
-        Pallas.PallasProjectivePoint memory doubleP = pallas.projectiveDouble(p);
+        Pallas.PallasProjectivePoint memory doubleP = Pallas.double(p);
 
         uint256 xExpected = 0x24dea599222651e4cd2252a7a30ec18be8b637f303edc329cc4b4422dfda8103;
         uint256 yExpected = 0x2154fb21e4af89269b0ffa144dc7a39c5bf124a47462917a050d9d398db1b8d7;
@@ -370,7 +361,7 @@ contract PastaCurvesContractTests is Test {
         */
 
         uint256 scalar = 0x2e9db40a60ed61b6e7adbdade0b08d35c60eb72d500f24a054c634a66fe0b331;
-        uint256 minusScalar = pallas.negateScalar(scalar);
+        uint256 minusScalar = Pallas.negate(scalar);
 
         uint256 expected = 0x11624bf59f129e49185242521f4f72ca5c37e1ceb985843d3780b67a901f4cd0;
         assertEq(bytes32(expected), bytes32(minusScalar));
@@ -398,7 +389,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasAffinePoint memory p = Pallas.PallasAffinePoint(x, y);
 
-        Pallas.PallasAffinePoint memory minusP = pallas.affineNegate(p);
+        Pallas.PallasAffinePoint memory minusP = Pallas.negate(p);
 
         uint256 xExpected = 0x21f2cbf70ab36a05d7bb34b6b64ae2f51cc58c9f6f43e38c384bd3a44e02ee76;
         uint256 yExpected = 0x3f4aaefe3dd2dd8c4ddc0627012879c6ba46f70759b79e436998aa06152e158c;
@@ -430,7 +421,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasProjectivePoint memory p = Pallas.PallasProjectivePoint(x, y, z);
 
-        Pallas.PallasProjectivePoint memory minusP = pallas.projectiveNegate(p);
+        Pallas.PallasProjectivePoint memory minusP = Pallas.negate(p);
 
         uint256 xExpected = 0x3e9ccc4bed28364439802d73e01b1371bfe6d94e4fab63c0cad0f660abaeb5f0;
         uint256 yExpected = 0x0af9182bc497e08ad40792f0a5a7e56115864451cc10cdac31704a3ccd6adc36;
@@ -465,7 +456,7 @@ contract PastaCurvesContractTests is Test {
 
         Pallas.PallasProjectivePoint memory pointProjective = Pallas.PallasProjectivePoint(x, y, z);
 
-        Pallas.PallasAffinePoint memory pointAffine = pallas.toAffine(pointProjective);
+        Pallas.PallasAffinePoint memory pointAffine = Pallas.IntoAffine(pointProjective);
 
         uint256 xExpected = 0x01c296ffab785ef499226010ea6cca1829c705b28e104342ba5337701379c54a;
         uint256 yExpected = 0x12aed2775c0c1d07489f129b07eb86d7c12d3147cfcb5d6ab54ab6a39d362334;
@@ -488,7 +479,7 @@ contract PastaCurvesContractTests is Test {
         uint256 pallasGeneratorYexpected = 0x0000000000000000000000000000000000000000000000000000000000000002;
         uint256 pallasGeneratorZexpected = 0x0000000000000000000000000000000000000000000000000000000000000001;
 
-        Pallas.PallasProjectivePoint memory point = pallas.projectiveGenerator();
+        Pallas.PallasProjectivePoint memory point = Pallas.ProjectiveGenerator();
         assertEq(bytes32(point.x), bytes32(pallasGeneratorXexpected));
         assertEq(bytes32(point.y), bytes32(pallasGeneratorYexpected));
         assertEq(bytes32(point.z), bytes32(pallasGeneratorZexpected));
@@ -508,7 +499,7 @@ contract PastaCurvesContractTests is Test {
         uint256 pallasGeneratorXexpected = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000;
         uint256 pallasGeneratorYexpected = 0x0000000000000000000000000000000000000000000000000000000000000002;
 
-        Pallas.PallasAffinePoint memory point = pallas.affineGenerator();
+        Pallas.PallasAffinePoint memory point = Pallas.AffineGenerator();
         assertEq(bytes32(point.x), bytes32(pallasGeneratorXexpected));
         assertEq(bytes32(point.y), bytes32(pallasGeneratorYexpected));
     }
@@ -532,7 +523,7 @@ contract PastaCurvesContractTests is Test {
         */
 
         uint256 pallasScalar = 0x241485a5238caca98c32f3113a90f0fd5e7f62f4caecb639b938d7a0a4e08867;
-        uint256 inverted = pallas.invertFr(pallasScalar);
+        uint256 inverted = Pallas.invert(pallasScalar, Pallas.R_MOD);
         assertEq(bytes32(inverted), bytes32(0x1ec5d74264fcb22d01cb7c46b1f129637e5fd7990100b3b64e7e937360bcbfac));
     }
 
@@ -566,7 +557,7 @@ contract PastaCurvesContractTests is Test {
         uint256 yExpected = 0x3366fc096d6a773f90c4aefab527576a6c0855aefa25e88e3d958fcba2ee9168;
         uint256 zExpected = 0x2c5de6da0e072c6ff4934cdd283460d6080cf2b266d400a8cdad1a2158024cb3;
 
-        Pallas.PallasProjectivePoint memory actual = pallas.projectiveScalarMul(pallasPoint, pallasScalar);
+        Pallas.PallasProjectivePoint memory actual = Pallas.scalarMul(pallasPoint, pallasScalar);
 
         assertEq(bytes32(xExpected), bytes32(actual.x));
         assertEq(bytes32(yExpected), bytes32(actual.y));
@@ -581,7 +572,7 @@ contract PastaCurvesContractTests is Test {
         Pallas.PallasProjectivePoint memory pallasPoint = Pallas.PallasProjectivePoint(x_, y_, z_);
 
         uint256 pallasScalar = 0x0000000000000000000000000000000000000000000000000000000000000001;
-        pallas.validateScalarField(pallasScalar);
+        Pallas.validateScalarField(pallasScalar);
 
         uint256 x = 0x02807566a47b423db7b3c63b2d7eb090384a13af6f7b08dec55d498a3e1e2e4a;
         uint256 y = 0x1879f1b3da88f5619e1c7162fcc3703ace2a46d4a69b79ae5d7c40fc7d3213b7;
@@ -589,19 +580,19 @@ contract PastaCurvesContractTests is Test {
         Pallas.PallasProjectivePoint memory expected = Pallas.PallasProjectivePoint(x, y, z);
 
         // checking that P * 1 = P
-        Pallas.PallasProjectivePoint memory actual = pallas.projectiveScalarMul(pallasPoint, pallasScalar);
+        Pallas.PallasProjectivePoint memory actual = Pallas.scalarMul(pallasPoint, pallasScalar);
 
         assertEq(expected.x, actual.x);
         assertEq(expected.y, actual.y);
         assertEq(expected.z, actual.z);
 
         // checking that P + P = P * 2
-        Pallas.PallasProjectivePoint memory addition1 = pallas.projectiveAdd(expected, actual);
+        Pallas.PallasProjectivePoint memory addition1 = Pallas.add(expected, actual);
 
         uint256 pallasScalarTwo = 0x0000000000000000000000000000000000000000000000000000000000000002;
-        pallas.validateScalarField(pallasScalarTwo);
+        Pallas.validateScalarField(pallasScalarTwo);
 
-        Pallas.PallasProjectivePoint memory addition2 = pallas.projectiveScalarMul(expected, pallasScalarTwo);
+        Pallas.PallasProjectivePoint memory addition2 = Pallas.scalarMul(expected, pallasScalarTwo);
 
         assertEq(addition1.x, addition2.x);
         assertEq(addition1.y, addition2.y);

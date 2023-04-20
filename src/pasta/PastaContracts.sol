@@ -63,6 +63,15 @@ contract PallasContract {
         return P.negate(p);
     }
 
+    // Added function
+    function negateScalar(uint256 fr)
+    public
+    pure
+    returns (uint256 output)
+    {
+        return P.negate(fr);
+    }
+
     function affineDouble(P.PallasAffinePoint memory p)
     public
     view
@@ -143,7 +152,7 @@ contract PallasContract {
         return P.powSmall(base, exponent, modulus);
     }
 
-    function testMultiScalarMul(P.PallasAffinePoint[] memory bases, uint256[] memory scalars)
+    function multiScalarMul(P.PallasAffinePoint[] memory bases, uint256[] memory scalars)
     public
     view
     returns (P.PallasAffinePoint memory)

@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// This contract is for testing purposes
+// This contract is a building block for Nova
 library PoseidonU24
 {
     struct HashInputs25

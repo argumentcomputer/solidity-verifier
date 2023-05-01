@@ -36,3 +36,13 @@ forge script script/PastaInteraction.s.sol:PastaInteraction --rpc-url https://ap
 ```
 
 More details about Foundry tooling is [here](https://book.getfoundry.sh/).
+
+# Constants generator
+
+This application (`src/poseidon/neptune-constants-generator`) generates Poseidon's constants using Neptune (which is a reference Rust implementation of Poseidon used in Nova). The output format is JSON, as soon as
+Python (the script that generates actual Poseidon contract) is very JSON friendly.
+
+To generate and output Neptune constants (which can be then feed to contract generator):
+```
+cargo clean && cargo run --package neptune-constants-generator --release -- --security-level standard --hash-type sponge --out-json-path neptune-constants-U24.json
+```

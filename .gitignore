@@ -4,6 +4,7 @@
 # Compiler files
 cache/
 out/
+target/
 
 # Ignores development broadcast logs (generated while interacting with contracts)
 broadcast/

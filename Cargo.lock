@@ -657,6 +657,7 @@ dependencies = [
  "clap",
  "generic-array",
  "neptune",
+ "pasta_curves",
  "serde_json",
 ]
 

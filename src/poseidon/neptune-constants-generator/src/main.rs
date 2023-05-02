@@ -2,6 +2,8 @@ use std::process::exit;
 use neptune::hash_type::HashType;
 use neptune::poseidon::PoseidonConstants;
 use neptune::Strength;
+use pasta_curves::{Fp, Fq};
+use pasta_curves::group::ff::PrimeField;
 use blstrs::Scalar as Fr;
 use clap::Parser;
 use generic_array::typenum::U24;
@@ -53,9 +55,29 @@ fn main() {
     // state_size equals to Arity + 1
     let state_size = 25usize;
 
-    let constants: PoseidonConstants<Fr, Arity> =
+    // TODO: add field_element configuring with a help of additional cli flag
+    //type FieldElement = Fr;
+    //type FieldElement = Fq;
+    type FieldElement = Fp;
+
+    let constants: PoseidonConstants<FieldElement, Arity> =
         PoseidonConstants::new_with_strength_and_type(security_level, hash_type.clone());
 
+    fn format_scalar(scalar: Fp) -> String {
+        let mut scalar_string = String::new();
+        // For Fr
+        //let be_bytes = scalar.to_bytes_be();
+
+        // For Fp / Fq
+        let mut be_bytes = scalar.to_repr();
+        be_bytes.reverse();
+
+        write!(scalar_string, "0x").unwrap();
+        for &b in be_bytes.iter() {
+            write!(scalar_string, "{:02x}", b).unwrap();
+        }
+        scalar_string
+    }
 
     let round_constants = constants.round_constants.clone().unwrap().into_iter().map(|scalar| {
        format_scalar(scalar)
@@ -82,14 +104,4 @@ fn main() {
     println!("output JSON path: {:?}", std::fs::canonicalize(out_json_path));
 
     exit(0);
-}
-
-fn format_scalar(scalar: Fr) -> String {
-    let mut scalar_string = String::new();
-    let be_bytes = scalar.to_bytes_be();
-    write!(scalar_string, "0x").unwrap();
-    for &b in be_bytes.iter() {
-        write!(scalar_string, "{:02x}", b).unwrap();
-    }
-    scalar_string
 }

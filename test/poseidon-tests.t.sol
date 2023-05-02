@@ -2,12 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/poseidon/PoseidonNeptuneU6.sol";
-import "src/poseidon/PoseidonNeptuneU24.sol";
+import "src/poseidon/PoseidonNeptuneU6bls.sol";
+import "src/poseidon/PoseidonNeptuneU24bls.sol";
+import "src/poseidon/PoseidonNeptuneU24vesta.sol";
+import "src/poseidon/PoseidonNeptuneU24pallas.sol";
 
 contract PoseidonContractTest is Test {
 
-    function testPoseidonNeptuneU6Compatibility() public {
+    function testPoseidonNeptuneU6BlsCompatibility() public {
         /*
             let domain_separation = HashType::Encryption;
             let security_level = Strength::Standard;
@@ -32,7 +34,7 @@ contract PoseidonContractTest is Test {
         uint bls12CurveModulus = uint(bytes32(0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001));
 
         // In neptune we use domain separation, so first field element doesn't hold actual data - rather service information
-        PoseidonU6.HashInputs7 memory state = PoseidonU6.HashInputs7 (
+        PoseidonU6Bls.HashInputs7 memory state = PoseidonU6Bls.HashInputs7 (
             0x0000000000000000000000000000000000000000000000000000000100000000,
             0x4eda116c5395cf1a8c45a5bfca8d6f0b02cd2a581700b5dcdb7bc8aab66f78eb,
             0x5ab9ba8f9693639e230657a66daa7b3f2c0409ed77fe2d09fa76f8ee3f69717e,
@@ -42,7 +44,7 @@ contract PoseidonContractTest is Test {
             0x47ca0a5a9a5dfe0a8e08614565605d330a9bba17537b781bb77cf8da948657c5
         );
 
-        uint actual = PoseidonU6.hash(state, bls12CurveModulus);
+        uint actual = PoseidonU6Bls.hash(state, bls12CurveModulus);
 
         uint expected = 0x67cc1a9381c717d9b92cb82a5eb625c9e836351074a9ae8e0fa75b3d063ae6c0;
 
@@ -50,7 +52,7 @@ contract PoseidonContractTest is Test {
     }
 
     /// This is how Neptune is used in Nova context - e.g. via SAFE API with variable number of absorbs and one squeeze. Arity is U24.
-    function testPoseidonNeptuneU24Compatibility() public {
+    function testPoseidonNeptuneU24BlsCompatibility() public {
         /*
             let domain_separation = HashType::Sponge;
             let security_level = Strength::Standard;
@@ -74,7 +76,7 @@ contract PoseidonContractTest is Test {
 
         uint bls12CurveModulus = uint(bytes32(0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001));
         // In neptune we use domain separation, so first field element doesn't hold actual data - rather service information
-        PoseidonU24.HashInputs25 memory state = PoseidonU24.HashInputs25 (
+        PoseidonU24Bls.HashInputs25 memory state = PoseidonU24Bls.HashInputs25 (
             0x0000000000000000000000000000000000000000000000000000000000000000,
             0x240379f1568ff9ed9906fe7d7094d69b0ed3f5dcbb78b0485e069f74f8f5ff3b,
             0x5907ad407be50278d3944ed2530e63fb25cbfc366d31f8965510a946a893cbab,

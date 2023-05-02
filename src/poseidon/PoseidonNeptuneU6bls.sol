@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 // This contract is for debugging/testing purposes
-library PoseidonU6
+library PoseidonU6Bls
 {
     struct HashInputs7
     {

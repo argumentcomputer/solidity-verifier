@@ -7,7 +7,69 @@ import "src/poseidon/Sponge.sol";
 // TODO: add other sponge (in simplex mode) tests from neptune: https://github.com/lurk-lab/neptune/blob/master/src/sponge/vanilla.rs#L501
 contract SpongeContractTest is Test {
 
-    function testSpongeApiUsageInNova() public {
+    function testSpongeVestaApiUsageInNova() public {
+        /*
+            let constants = Sponge::<Fq, U24>::api_constants(Strength::Standard);
+
+            let mut sponge = Sponge::new_with_constants(&constants, Mode::Simplex);
+
+            // start
+            let absorb_len = 189u32;
+            let squeeze_len = 1u32;
+
+            let io_pattern = IOPattern(vec![SpongeOp::Absorb(absorb_len), SpongeOp::Squeeze(squeeze_len)]);
+            let domain_separator = Some(1212312312u32);
+            let accumulator = &mut ();
+
+            SpongeAPI::start(&mut sponge, io_pattern, domain_separator, accumulator);
+
+            // absorb
+            let mut scalars = Vec::<Fq>::with_capacity(absorb_len as usize);
+            for element in 0u64..absorb_len as u64 {
+                scalars.push(Fq::from(element));
+            }
+
+            SpongeAPI::absorb(&mut sponge, absorb_len, &scalars, accumulator);
+
+            // squeeze
+            let output = SpongeAPI::squeeze(&mut sponge, squeeze_len, accumulator);
+
+            println!("output: {:?}", output);
+
+            // finish
+            sponge.finish(accumulator).expect("couldn't finish");
+        */
+
+        uint32 absorbLen = 189;
+        uint32 sqeezeLen = 1;
+        uint32 domainSeparator = 1212312312;
+
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, sqeezeLen);
+        SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
+        pattern[0] = absorb;
+        pattern[1] = squeeze;
+        IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
+
+        NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(p, domainSeparator);
+
+        uint256[] memory scalars = new uint256[](absorbLen);
+        for (uint32 i = 0; i < absorbLen; i++) {
+            scalars[i] = uint256(i);
+        }
+
+        sponge = NovaSpongeVestaLib.absorb(sponge, scalars);
+
+        (NovaSpongeVestaLib.SpongeU24Vesta memory updatedSponge, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, sqeezeLen);
+
+        assertEq(output.length, sqeezeLen);
+        assertEq(output[0], uint256(0x0142edde0a42918f63c603295391c6d33c1007522c28177d8f1759a9b19b202a));
+
+        updatedSponge = NovaSpongeVestaLib.finish(updatedSponge);
+        sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
+    }
+
+    function testSpongePallasApiUsageInNova() public {
         /*
             let constants = Sponge::<Fp, U24>::api_constants(Strength::Standard);
             let mut sponge = Sponge::new_with_constants(&constants, Mode::Simplex);

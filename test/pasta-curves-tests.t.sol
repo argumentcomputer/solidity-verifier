@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
+import "../src/pasta/Pallas.sol";
+import "../src/pasta/Vesta.sol";
 
 contract PastaCurvesContractTests is Test {
 

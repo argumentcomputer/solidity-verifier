@@ -7,7 +7,7 @@ import "../src/pasta/Vesta.sol";
 
 contract PastaCurvesContractTests is Test {
 
-    function testMSM() public {
+    function testPallasMSM() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
@@ -78,30 +78,93 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(yExpected), bytes32(msm.y));
     }
 
-    // TODO: add test for pow small with random exponent
+    function testVestaMSM() public {
+        /*
+        s/pallas/vesta 
+        */
+
+        uint256 x1 = 0x0b4a189e3b8aca95da758002798a9c66489a35d64ea6eb9bdc76a5500552aea4;
+        uint256 y1 = 0x12068e83a1f78f55517f56ca69d269d4e072283e0d51faec94236960507e0d1e;
+
+        Vesta.VestaAffinePoint memory point1 = Vesta.VestaAffinePoint(x1, y1);
+
+        uint256 x2 = 0x3bb1f5d26c0899db391a66eac5b16722df026c6df555d246fc8fa813bb1818de;
+        uint256 y2 = 0x0f56136af171934139893b3546b94b0567e0725986fe8a9986093bc1904eefee;
+
+        Vesta.VestaAffinePoint memory point2 = Vesta.VestaAffinePoint(x2, y2);
+
+        uint256 x3 = 0x36146c04e77073b469bea50fdf80334eca8b3412bf97d513fe1c3f186a114f51;
+        uint256 y3 = 0x310bd3f23087ee568ebaaadeec05af0153f961b9102b96808fa56e48a4c463a5;
+
+        Vesta.VestaAffinePoint memory point3 = Vesta.VestaAffinePoint(x3, y3);
+
+        uint256 scalar1 = 0x15fe7f7b29cf2597419c7c48f75fb204f4b082b6a8e0bd2d73a2f2446b4e6100;
+        uint256 scalar2 = 0x014f43fed74133e645256d60ea6fddb3f5db61e4e7bfc490bf85cb9c458c9ae5;
+        uint256 scalar3 = 0x0e0d197668b07d988f1f5b11c94ff67287ba79d951cc8416a29c849a3ecca0f4;
+
+        Vesta.VestaAffinePoint[] memory bases = new Vesta.VestaAffinePoint[](3);
+        bases[0] = point1;
+        bases[1] = point2;
+        bases[2] = point3;
+
+        uint256[] memory exponents = new uint256[](3);
+        exponents[0] = scalar1;
+        exponents[1] = scalar2;
+        exponents[2] = scalar3;
+
+        Vesta.VestaAffinePoint memory msm = Vesta.multiScalarMul(bases, exponents);
+
+        uint256 xExpected = 0x2f690641193272e1add95189f83e9fd0609fa7f764da7d39519248237a8972a6;
+        uint256 yExpected = 0x0effd976d3c3922fe6778e373e7347648cafbd213b0622201d6685392c8b08e0;
+
+        assertEq(bytes32(xExpected), bytes32(msm.x));
+        assertEq(bytes32(yExpected), bytes32(msm.y));
+    }
+
     function testPallasPowSmall() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
 
-            type PallasPoint = pasta_curves::pallas::Point;
             type PallasScalar = pasta_curves::pallas::Scalar;
 
             let mut rng = OsRng;
 
-            let p = PallasScalar::random(&mut rng);
-            println!("p: {:?}", p);
+            let q = PallasScalar::random(&mut rng);
+            println!("q: {:?}", q);
 
-            let exp_p = p.pow_vartime([2, 0, 0, 0]);
-            println!("exp_p: {:?}", exp_p);
+            let exponent: u64 = rand::random(); 
+
+            println!("exponent: {:?}", exponent);
+
+            let exp_q = q.pow_vartime([exponent]);
+
+            println!("exp_q: {:?}", exp_q);
         */
 
-        uint256 base = 0x3724def858c3d13a605830569046f39c0f3572895076481fa07174fb682a6b54;
-        uint256 exponent = 0x0000000000000000000000000000000000000000000000000000000000000002;
+        uint256 base = 0x2bd477403f0713e5b5028dd7b3b0c2a6f21a606ebd5a19a9dd00f7e4149ca4c7;
+
+        uint64 exponent = 12024954401023057353;
 
         uint256 result = Pallas.powSmall(base, exponent, Pallas.R_MOD);
 
-        uint256 expected = 0x3ac7fb6ca64a328ead7f613f9d96f06b10b229c6e9a5f6d93e7c0746d82909d3;
+        uint256 expected = 0x362242b2a1f2674375360e8398bdab0d1cc56f295be9ac6e39c17bc8bbc4a114;
+
+        assertEq(bytes32(expected), bytes32(result));
+    }
+
+    function testVestaPowSmall() public {
+        /*
+        s/pallas/vesta
+        */
+
+        uint256 base = 0x28a66bbc0fd68c99ca92677d02d515daeddcebd8440b568bf32ba9a5d56b37c5;
+
+        uint64 exponent = 771196355631305937;
+
+        uint256 result = Pallas.powSmall(base, exponent, Vesta.R_MOD);
+
+        uint256 expected = 0x3f0ca3245ac5c4dfe10dce43c1694588c2f4f8bc144bca88ed622987acb8ac25;
 
         assertEq(bytes32(expected), bytes32(result));
     }
@@ -125,7 +188,21 @@ contract PastaCurvesContractTests is Test {
         bytes32 scalarBytes = 0x38124caf446d50036fc4b72373d76c0e400030829c82a4e8a0b0af80abe3a80f;
         uint256 scalar = Pallas.fromLeBytesModOrder(abi.encodePacked(scalarBytes));
 
-        uint256 expected = 0x0fa8e3ab80afb0a0e8a4829c823000400e6cd77323b7c46f03506d44af4c1238;
+        uint256 expected = 0x0fa8e3ab80afb0a0e8a4829c823000400e6cd77323b7c46f03506d44af4c1238 % Pallas.R_MOD;
+        assertEq(expected, scalar);
+    }
+
+    // TODO: Failing test
+    function testVestaFromLeBytesModOrder() public {
+        /*
+            s/pallas/vesta
+        */
+
+        bytes32 scalarBytes = 0x12a1307a83385802344c8cb32387e0b2c5e615cdb7ee2b2d149c88b52b6e667b;
+        uint256 scalar = Vesta.fromLeBytesModOrder(abi.encodePacked(scalarBytes));
+
+        uint256 expected = 0x7b666e2bb5889c142d2beeb7cd15e6c5b2e08723b38c4c34025838837a30a112 % Vesta.R_MOD;
+
         assertEq(expected, scalar);
     }
 
@@ -134,19 +211,32 @@ contract PastaCurvesContractTests is Test {
         Pallas.validateScalarField(scalar);
     }
 
+    function testVestaScalarValidation() public pure {
+        uint256 scalar = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000;
+        Vesta.validateScalarField(scalar);
+    }
 
     function testPallasPointValidation() public view {
-        uint256 x = 0x31a201b68c15156c487099a0235ad9638cfe5a928344cbbb29a228656c045bc2;
-        uint256 y = 0x110bc29083e7d40ea6508ae8a17466252b3d12e0aaba29744a12355b15ae3a40;
-        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+        uint256 x = 0x37545db1df518ef152bba8c07080f4e6b08c08e7df487e732c5d799b664eb40f;
+        uint256 y = 0x08dabd54ca47f62acb28f69a58d9b4f9fb27772af2df39a03cd644d8d4f260a2;
+        uint256 z = 0x0d5eb59526c449a73c58ac4fc612f2564327992d7b23effec4dcff257e3e1ccb;
 
         Pallas.PallasProjectivePoint memory point = Pallas.PallasProjectivePoint(x, y, z);
 
         Pallas.validateCurvePoint(Pallas.IntoAffine(point));
     }
 
-    // TODO figure out why ScalarMul over projective point / scalar doesn't pass test vector
-    //function testPallasScalarMulProjective() public {
+    function testVestaPointValidation() public view {
+        uint256 x = 0x0c1eff5c6ebcca3f5cb7d8a2092d70c435161001ae673eaa0262ba979a27b569;
+        uint256 y = 0x3f8d12cf3e81157519f5fb4df86fcd343b95de07dec3d558833ba1e4c4e03640;
+        uint256 z = 0x3510c77a94bf0481de019e4cc4f3e5d50b93d6f3cb175029c561c022ed89b28a;
+
+        Vesta.VestaProjectivePoint memory point = Vesta.VestaProjectivePoint(x, y, z);
+
+        Vesta.validateCurvePoint(Vesta.IntoAffine(point));
+    }
+
+    function testPallasScalarMulProjective() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
@@ -167,7 +257,6 @@ contract PastaCurvesContractTests is Test {
             println!("p_mul_scalar: {:?}", p_mul_scalar);
         */
 
-        /*
         uint256 x1 = 0x2a9787a5e39f9f8e97ea234ece859b7d657e6fa4a1feaf08e61ebaf32463e87e;
         uint256 y1 = 0x3cfba0ca6a9ee846fa0957f89035c29d1fdd1fc62693b7027198360c3588d6dc;
         uint256 z1 = 0x0000000000000000000000000000000000000000000000000000000000000001;
@@ -176,17 +265,49 @@ contract PastaCurvesContractTests is Test {
 
         uint256 scalar = 0x0716ea7ecbe554f483e62dc4a31ef8d080b35ea748906aa770491c144257819a;
 
-        Pallas.PallasProjectivePoint memory p1MulScalar = Pallas.projectiveScalarMul(p1, scalar);
+        Pallas.PallasProjectivePoint memory p1MulScalar = Pallas.scalarMul(p1, scalar);
+
+        Pallas.PallasAffinePoint memory affineMulScalar = Pallas.IntoAffine(p1MulScalar);
 
         uint256 x_expected = 0x35ea0d47490c86c70ce776259a0537323f498676a11358b8c91bea2eb00d5817;
         uint256 y_expected = 0x315dba1fbee5f02fcf5205349cb4d9ff9e64eed7bfc6ead3ce90cf7c359bf3e9;
         uint256 z_expected = 0x13990e37fa334265f5f33d8c941c28dcd07a6e8219b79417ea30ba8ae162867f;
-        */
-        //assertEq(bytes32(x_expected), bytes32(p1MulScalar.x));
-        //assertEq(bytes32(y_expected), bytes32(p1MulScalar.y));
-        //assertEq(bytes32(z_expected), bytes32(p1MulScalar.z));
-    //}
 
+        Pallas.PallasProjectivePoint memory projectiveExpected = Pallas.PallasProjectivePoint(x_expected, y_expected, z_expected);
+
+        Pallas.PallasAffinePoint memory affineExpected = Pallas.IntoAffine(projectiveExpected);
+
+
+        assertEq(affineExpected.x, affineMulScalar.x);
+        assertEq(affineExpected.y, affineMulScalar.y);
+    }
+
+    function testVestaScalarMulProjective() public {
+        /* s/pallas/vesta */
+
+        uint256 x1 = 0x21dc4147b0cb6ca7758d06850805c267f3df620523f722fcffa431bb318f937c;
+        uint256 y1 = 0x13de5d8a0acf66f23f7e19551f9e46ad93e38ea2004e01fc1a7b11cb98f5932d;
+        uint256 z1 = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory p1 = Vesta.VestaProjectivePoint(x1, y1, z1);
+
+        uint256 scalar = 0x396e4cc77da6e0f032a25401ff736ae97bd2a1dfe64424691cd4eb3bb368584f;
+
+        Vesta.VestaProjectivePoint memory p1MulScalar = Vesta.scalarMul(p1, scalar);
+
+        Vesta.VestaAffinePoint memory affineMulScalar = Vesta.IntoAffine(p1MulScalar);
+
+        uint256 x_expected = 0x3ed2b341f78f5d6843901fdb2036829d8d42af46562f4bd780dc262d5923e3de;
+        uint256 y_expected = 0x1eff69777059ffde342e3ed2ecee022ec0ab5bb85e0e2ba5209ccdfc75ca8a10;
+        uint256 z_expected = 0x1318d38989ad52549f1c1a50b5b02fdc58fb01e906aa5259d0e0dc199f5e7acc;
+
+        Vesta.VestaProjectivePoint memory projectiveExpected = Vesta.VestaProjectivePoint(x_expected, y_expected, z_expected);
+
+        Vesta.VestaAffinePoint memory affineExpected = Vesta.IntoAffine(projectiveExpected);
+
+        assertEq(affineExpected.x, affineMulScalar.x);
+        assertEq(affineExpected.y, affineMulScalar.y);
+    }
 
     function testPallasScalarMulAffine() public {
         /*
@@ -224,7 +345,27 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(xExpected), bytes32(p1MulScalar.x));
         assertEq(bytes32(yExpected), bytes32(p1MulScalar.y));
     }
-    function testPallasAddAffine() public {
+
+    function testVestaScalarMulAffine() public {
+        /* s/pallas/vesta */
+
+        uint256 x1 = 0x15e5a524d9a5ce0ae02f4e048c5167363713069c3d8786c51592561b0c04d4a6;
+        uint256 y1 = 0x2e028c219748d860869acc4c1874ee48515efe88fb69e896e428be8bb64c9eb2;
+
+        Vesta.VestaAffinePoint memory p1 = Vesta.VestaAffinePoint(x1, y1);
+
+        uint256 scalar = 0x21366b48aa43e1aca96125e97285e90792c92a2b734a390d4ebbaace8bd16769;
+
+        Vesta.VestaAffinePoint memory p1MulScalar = Vesta.scalarMul(p1, scalar);
+
+        uint256 xExpected = 0x29e6674d46e202f27de4bdf1b79869f0646eed86911c639595082a1a1be86b60;
+        uint256 yExpected = 0x09051f62bd70626044f77f9aba1b6863faae64a3f83195a28230d3a402ce80b4;
+
+        assertEq(bytes32(xExpected), bytes32(p1MulScalar.x));
+        assertEq(bytes32(yExpected), bytes32(p1MulScalar.y));
+    }
+
+    function testPallasAddAfine() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
@@ -259,6 +400,46 @@ contract PastaCurvesContractTests is Test {
 
         uint256 xExpected = 0x1d67782d21f44a1780ae2f480a01a332089105ca6c2636f1586dff07d7b103a1;
         uint256 yExpected = 0x253aa575691f2d132d816147b2f09c33372a12ca361b879c8511b163c1988624;
+
+        assertEq(bytes32(xExpected), bytes32(p1p2Add.x));
+        assertEq(bytes32(yExpected), bytes32(p1p2Add.y));
+    }
+
+    function testVestaddAffine() public {
+        /*
+            use rand_core::OsRng;
+            use pasta_curves::group::Group;
+            use pasta_curves::group::Curve;
+
+            type PallasPoint = pasta_curves::pallas::Point;
+            type PallasScalar = pasta_curves::pallas::Scalar;
+
+            let mut rng = OsRng;
+
+            let p1 = PallasPoint::random(&mut rng).to_affine();
+            println!("p1: {:?}", p1);
+
+            let p2 = PallasPoint::random(&mut rng).to_affine();
+            println!("p2: {:?}", p2);
+
+            let p1_p2_add = p1.add(p2).to_affine();
+            println!("p1_p2_add: {:?}", p1_p2_add);
+        */
+
+        uint256 x1 = 0x0b23575e0bff63fc07130201ad378ab781952963ef8aef83788b798aebf08d72;
+        uint256 y1 = 0x2352d9f36ab6a44ac5260c668e06e7f3a14fc1ea01e161f006774586c1c3ff3b;
+
+        Vesta.VestaAffinePoint memory p1 = Vesta.VestaAffinePoint(x1, y1);
+
+        uint256 x2 = 0x2d094f40c6baf06b82d1b3ba45d2343686ae578521b170e29bf5e67c54c8fe6b;
+        uint256 y2 = 0x22cf0a75c77dc3eac20d8c1bd4d421d1e99e0dfe24d3dba3aebb874926e8a9b7;
+
+        Vesta.VestaAffinePoint memory p2 = Vesta.VestaAffinePoint(x2, y2);
+
+        Vesta.VestaAffinePoint memory p1p2Add = Vesta.add(p1, p2);
+
+        uint256 xExpected = 0x115f0fa26e2c1bd2a9eba7ecdf3e28c272f91451178bce4a97ab3273610682a0;
+        uint256 yExpected = 0x2914f54f20304abf0639a324f0775a3388b670e5592e99011ce63f07d857c9ce;
 
         assertEq(bytes32(xExpected), bytes32(p1p2Add.x));
         assertEq(bytes32(yExpected), bytes32(p1p2Add.y));
@@ -308,6 +489,32 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(zExpected), bytes32(p1p2Add.z));
     }
 
+    function testVestaAddProjective() public {
+        /* s/pallas/vesta */
+
+        uint256 x1 = 0x1cd1259dd4e44b5ee1663ba1b9c313021e315381a329a927e463cfe01653deb6;
+        uint256 y1 = 0x0381de6cd994d4b0b9bd3a061f7ae5dbfb2a21ab3b37b8ec60a0add85e72c01f;
+        uint256 z1 = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory p1 = Vesta.VestaProjectivePoint(x1, y1, z1);
+
+        uint256 x2 = 0x12b3feb505756a28fe167d2982cdad453a0941e0199ee66d995d95c71a989b6c;
+        uint256 y2 = 0x2f744a05548c9181fba3bec46de6744a2aff4f42abb76b464e29668af683393a;
+        uint256 z2 = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory p2 = Vesta.VestaProjectivePoint(x2, y2, z2);
+
+        Vesta.VestaProjectivePoint memory p1p2Add = Vesta.add(p1, p2);
+
+        uint256 xExpected = 0x0a7c9233bb5496f5d75648dc183a9c59b515d8dec0e58b53e94ed6375a9bd9e1;
+        uint256 yExpected = 0x2a78075dafbfc91732721c22e8aba94dde46397bee3a2ca48fcfd1f432e1563e;
+        uint256 zExpected = 0x2bc5b22e61223d943960830f9215348659f675b8f67f2368f63a76ef0889796d;
+
+        assertEq(bytes32(xExpected), bytes32(p1p2Add.x));
+        assertEq(bytes32(yExpected), bytes32(p1p2Add.y));
+        assertEq(bytes32(zExpected), bytes32(p1p2Add.z));
+    }
+
     function testPallasDoubleProjective() public {
         /*
             use rand_core::OsRng;
@@ -343,6 +550,26 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(zExpected), bytes32(doubleP.z));
     }
 
+    function testVestaDoubleProjective() public {
+        /* s/pallas/vesta */
+
+        uint256 x = 0x3e4b97b7166a00da0a7b681275edb719b2910c43ec178c0c8e8b624f28e59b9d;
+        uint256 y = 0x0dfbbf73b1098a34ab6bd6397d7acb68abf5910ab741d597389f8c424cb55b67;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory p = Vesta.VestaProjectivePoint(x, y, z);
+
+        Vesta.VestaProjectivePoint memory doubleP = Vesta.double(p);
+
+        uint256 xExpected = 0x1a8c3f39c4dff80d07e8ecf0605af7283247817b737eac4e8739bb33832f7070;
+        uint256 yExpected = 0x322c7e8c3381aff79076d30d3169cad46140659df7cd396127a1d67afd5a7381;
+        uint256 zExpected = 0x1bf77ee76213146956d7ac72faf596d157eb22156e83ab2e713f1884996ab6ce;
+
+        assertEq(bytes32(xExpected), bytes32(doubleP.x));
+        assertEq(bytes32(yExpected), bytes32(doubleP.y));
+        assertEq(bytes32(zExpected), bytes32(doubleP.z));
+    }
+
     function testPallasNegateScalar() public {
         /*
             use rand_core::OsRng;
@@ -364,6 +591,16 @@ contract PastaCurvesContractTests is Test {
         uint256 minusScalar = Pallas.negate(scalar);
 
         uint256 expected = 0x11624bf59f129e49185242521f4f72ca5c37e1ceb985843d3780b67a901f4cd0;
+        assertEq(bytes32(expected), bytes32(minusScalar));
+    }
+
+    function testVestaNegateScalar() public {
+        /* s/pallas/vesta */
+
+        uint256 scalar = 0x2d9c1fab594375189e3cda886533ff6007762c11ceeb4e2a908bb52935e55fae;
+        uint256 minusScalar = Vesta.negate(scalar);
+
+        uint256 expected = 0x1263e054a6bc8ae761c325779acc00a01ad06cea3a61aaf108a17bc3ca1aa053;
         assertEq(bytes32(expected), bytes32(minusScalar));
     }
 
@@ -393,6 +630,23 @@ contract PastaCurvesContractTests is Test {
 
         uint256 xExpected = 0x21f2cbf70ab36a05d7bb34b6b64ae2f51cc58c9f6f43e38c384bd3a44e02ee76;
         uint256 yExpected = 0x3f4aaefe3dd2dd8c4ddc0627012879c6ba46f70759b79e436998aa06152e158c;
+
+        assertEq(bytes32(xExpected), bytes32(minusP.x));
+        assertEq(bytes32(yExpected), bytes32(minusP.y));
+    }
+
+    function testVestaNegateAffine() public {
+        /* s/pallas/vesta */
+
+        uint256 x = 0x1a128fbcb7e495cb5eb3904494f1eafa30caf9b4ad31ed29a6c51004bbe1abc3;
+        uint256 y = 0x1f5628e50b707f3b95b2b55a87f6bbb9bf6be717282c8a98cd189d7a12457041;
+
+        Vesta.VestaAffinePoint memory p = Vesta.VestaAffinePoint(x, y);
+
+        Vesta.VestaAffinePoint memory minusP = Vesta.negate(p);
+
+        uint256 xExpected = 0x1a128fbcb7e495cb5eb3904494f1eafa30caf9b4ad31ed29a6c51004bbe1abc3;
+        uint256 yExpected = 0x20a9d71af48f80c46a4d4aa57809444662dab1e4e1681e44bf2e4da6edba8fc0;
 
         assertEq(bytes32(xExpected), bytes32(minusP.x));
         assertEq(bytes32(yExpected), bytes32(minusP.y));
@@ -432,6 +686,26 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(zExpected), bytes32(minusP.z));
     }
 
+    function testVestaNegateProjective() public {
+        /* s/pallas/vesta */
+
+        uint256 x = 0x0b2c3f43b9dd807ce942cb6322b46ac4fee411d9ce17289f5bdae1fac5d01035;
+        uint256 y = 0x03a3e8a25a983fe5104a269b05da77d7a5750a163de7d18acd84b45256d90dc2;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory p = Vesta.VestaProjectivePoint(x, y, z);
+
+        Vesta.VestaProjectivePoint memory minusP = Vesta.negate(p);
+
+        uint256 xExpected = 0x0b2c3f43b9dd807ce942cb6322b46ac4fee411d9ce17289f5bdae1fac5d01035;
+        uint256 yExpected = 0x3c5c175da567c01aefb5d964fa2588287cd18ee5cbacd752bec236cea926f23f;
+        uint256 zExpected = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        assertEq(bytes32(xExpected), bytes32(minusP.x));
+        assertEq(bytes32(yExpected), bytes32(minusP.y));
+        assertEq(bytes32(zExpected), bytes32(minusP.z));
+    }
+
     // TODO add test when projective point has non-zero Z coordinate
     function testPallasToAffine() public {
         /*
@@ -464,6 +738,23 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(yExpected), bytes32(pointAffine.y));
     }
 
+    function testVestaToAffine() public {
+        /* s/pallas/vesta */
+        
+        uint256 x = 0x0e1f9acd0f17819e1f2eaaafe11c430789a939dacf5ff33f0ae6c4a5b706e5dc;
+        uint256 y = 0x1988bff490069754e66a11f37ac87a7895eb10978a6cf9592b3e6c0faf0f5d94;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory pointProjective = Vesta.VestaProjectivePoint(x, y, z);
+
+        Vesta.VestaAffinePoint memory pointAffine = Vesta.IntoAffine(pointProjective);
+
+        uint256 xExpected = 0x0e1f9acd0f17819e1f2eaaafe11c430789a939dacf5ff33f0ae6c4a5b706e5dc;
+        uint256 yExpected = 0x1988bff490069754e66a11f37ac87a7895eb10978a6cf9592b3e6c0faf0f5d94;
+        assertEq(bytes32(xExpected), bytes32(pointAffine.x));
+        assertEq(bytes32(yExpected), bytes32(pointAffine.y));
+    }
+
     function testPallasProjectiveGenerator() public {
         /*
             use pasta_curves::group::Group;
@@ -485,6 +776,19 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(point.z), bytes32(pallasGeneratorZexpected));
     }
 
+    function testVestaProjectiveGenerator() public {
+        /* s/pallas/vesta */
+
+        uint256 vestaGeneratorXexpected = 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000000;
+        uint256 vestaGeneratorYexpected = 0x0000000000000000000000000000000000000000000000000000000000000002;
+        uint256 vestaGeneratorZexpected = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory point = Vesta.ProjectiveGenerator();
+        assertEq(bytes32(point.x), bytes32(vestaGeneratorXexpected));
+        assertEq(bytes32(point.y), bytes32(vestaGeneratorYexpected));
+        assertEq(bytes32(point.z), bytes32(vestaGeneratorZexpected));
+    }
+
     function testPallasAffineGenerator() public {
         /*
             use pasta_curves::group::Group;
@@ -502,6 +806,17 @@ contract PastaCurvesContractTests is Test {
         Pallas.PallasAffinePoint memory point = Pallas.AffineGenerator();
         assertEq(bytes32(point.x), bytes32(pallasGeneratorXexpected));
         assertEq(bytes32(point.y), bytes32(pallasGeneratorYexpected));
+    }
+
+    function testVestaAffineGenerator() public {
+        /* s/pallas/vesta */
+
+        uint256 vestaGeneratorXexpected = 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000000;
+        uint256 vestaGeneratorYexpected = 0x0000000000000000000000000000000000000000000000000000000000000002;
+
+        Vesta.VestaAffinePoint memory point = Vesta.AffineGenerator();
+        assertEq(bytes32(point.x), bytes32(vestaGeneratorXexpected));
+        assertEq(bytes32(point.y), bytes32(vestaGeneratorYexpected));
     }
 
     function testPallasInvertFr() public {
@@ -525,6 +840,14 @@ contract PastaCurvesContractTests is Test {
         uint256 pallasScalar = 0x241485a5238caca98c32f3113a90f0fd5e7f62f4caecb639b938d7a0a4e08867;
         uint256 inverted = Pallas.invert(pallasScalar, Pallas.R_MOD);
         assertEq(bytes32(inverted), bytes32(0x1ec5d74264fcb22d01cb7c46b1f129637e5fd7990100b3b64e7e937360bcbfac));
+    }
+
+    function testVestaInvertFr() public {
+        /* s/pallas/vesta */
+
+        uint256 vestaScalar = 0x32642babe229d616c0221a7c8fb94f442088f6947752b98115240705ca7d15ec;
+        uint256 inverted = Vesta.invert(vestaScalar, Vesta.R_MOD);
+        assertEq(bytes32(inverted), bytes32(0x130b3c43d6025758f4e5ed60d9e70fa5f7f5a40ec523584f696237878975aa6f));
     }
 
     function testPallasScalarMulProjective_1() public {
@@ -564,6 +887,28 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(zExpected), bytes32(actual.z));
     }
 
+    function testVestaScalarMulProjective_1() public {
+        /* s/pallas/vesta */
+
+        uint256 x = 0x05bf0832f25e66ea75be3af90fcd28c0232756458625a40a2d9cfeaa9b4f032a;
+        uint256 y = 0x236d3a1f6f901f16355d9a7be3f1425575e3b022e584365af1c6a46d4fcb37d7;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory vestaPoint = Vesta.VestaProjectivePoint(x, y, z);
+
+        uint256 vestaScalar = 0x0000000000000000000000000000000000000000000000000000000000000002;
+
+        uint256 xExpected = 0x0b644f389adada02f4c689d58b0d3ccc33659850b35c8a1c6a758bead81fc2c3;
+        uint256 yExpected = 0x06ed4ad17e5e869cdca91e94c2e584cf4998288ed00de3233647df64b51837f6;
+        uint256 zExpected = 0x06da743edf203e2c6abb34f7c7e284aac980c749c173c3d857465db99f966fad;
+
+        Vesta.VestaProjectivePoint memory actual = Vesta.scalarMul(vestaPoint, vestaScalar);
+
+        assertEq(bytes32(xExpected), bytes32(actual.x));
+        assertEq(bytes32(yExpected), bytes32(actual.y));
+        assertEq(bytes32(zExpected), bytes32(actual.z));
+    }
+
     function testPallasScalarMulProjective_2() public {
         uint256 x_ = 0x02807566a47b423db7b3c63b2d7eb090384a13af6f7b08dec55d498a3e1e2e4a;
         uint256 y_ = 0x1879f1b3da88f5619e1c7162fcc3703ace2a46d4a69b79ae5d7c40fc7d3213b7;
@@ -593,6 +938,41 @@ contract PastaCurvesContractTests is Test {
         Pallas.validateScalarField(pallasScalarTwo);
 
         Pallas.PallasProjectivePoint memory addition2 = Pallas.scalarMul(expected, pallasScalarTwo);
+
+        assertEq(addition1.x, addition2.x);
+        assertEq(addition1.y, addition2.y);
+        assertEq(addition1.z, addition2.z);
+    }
+
+    function testVestaScalarMulProjective_2() public {
+        uint256 x_ = 0x31a8602af8e58990004c7176317f9fc14e4d3758719c03bbe2b77fb3736883b2;
+        uint256 y_ = 0x3fdbe932ebc2a0e21d14387572006097a53d79eb8ea24d2f1f64adf45f32ddbd;
+        uint256 z_ = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Vesta.VestaProjectivePoint memory vestaPoint = Vesta.VestaProjectivePoint(x_, y_, z_);
+
+        uint256 vestaScalar = 0x0000000000000000000000000000000000000000000000000000000000000001;
+        Vesta.validateScalarField(vestaScalar);
+
+        uint256 x = 0x31a8602af8e58990004c7176317f9fc14e4d3758719c03bbe2b77fb3736883b2;
+        uint256 y = 0x3fdbe932ebc2a0e21d14387572006097a53d79eb8ea24d2f1f64adf45f32ddbd;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+        Vesta.VestaProjectivePoint memory expected = Vesta.VestaProjectivePoint(x, y, z);
+
+        // checking that P * 1 = P
+        Vesta.VestaProjectivePoint memory actual = Vesta.scalarMul(vestaPoint, vestaScalar);
+
+        assertEq(expected.x, actual.x);
+        assertEq(expected.y, actual.y);
+        assertEq(expected.z, actual.z);
+
+        // checking that P + P = P * 2
+        Vesta.VestaProjectivePoint memory addition1 = Vesta.add(expected, actual);
+
+        uint256 vestaScalarTwo = 0x0000000000000000000000000000000000000000000000000000000000000002;
+        Vesta.validateScalarField(vestaScalarTwo);
+
+        Vesta.VestaProjectivePoint memory addition2 = Vesta.scalarMul(expected, vestaScalarTwo);
 
         assertEq(addition1.x, addition2.x);
         assertEq(addition1.y, addition2.y);

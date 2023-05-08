@@ -72,9 +72,11 @@ library Vesta {
             return VestaAffinePoint(0, 0);
         }
 
-        uint256 x = invert(point.z, P_MOD);
-        uint256 y = mulmod(point.y, x, P_MOD);
-        x = mulmod(point.x, x, P_MOD);
+        uint256 zinv = invert(point.z, P_MOD);
+        uint256 zinv2 = mulmod(zinv, zinv, P_MOD);
+        uint256 x = mulmod(point.x, zinv2, P_MOD);
+        zinv2 = mulmod(zinv, zinv2, P_MOD);
+        uint256 y = mulmod(point.y, zinv2, P_MOD);
 
         return VestaAffinePoint(x, y);
     }
@@ -325,7 +327,6 @@ library Vesta {
         // TODO! The most trivial recommendation for such errors is reducing number of ingtermediate variables, so original assembly block is commented and
         // TODO! refactored one is used, with less variables introduced, which sacrifices code readability. It would be nice to revisit this weird fix.
 
-        /*
         assembly {
         // H = U2-U1
             let h := add(u2, sub(P_MOD, u1))
@@ -359,25 +360,24 @@ library Vesta {
             z3 := add(z3, sub(doubleP, add(z1z1, z2z2)))
             z3 := mulmod(z3, h, P_MOD)
         }
-        */
 
-        assembly {
-            let i := addmod(add(u2, sub(P_MOD, u1)), add(u2, sub(P_MOD, u1)), P_MOD)
-            i := mulmod(i, i, P_MOD)
-            let r := add(s2, sub(P_MOD, s1))
-            r := addmod(r, r, P_MOD)
-            x3 := mulmod(r, r, P_MOD)
-            x3 := addmod(x3, sub(mul(P_MOD, 3), add(mulmod(add(u2, sub(P_MOD, u1)), i, P_MOD), add(mulmod(u1, i, P_MOD), mulmod(u1, i, P_MOD)))), P_MOD)
-            y3 := add(mulmod(u1, i, P_MOD), sub(P_MOD, x3))
-            y3 := mulmod(r, y3, P_MOD)
-            s1 := mul(s1, 2)
-            s1 := mulmod(s1, mulmod(add(u2, sub(P_MOD, u1)), i, P_MOD), P_MOD)
-            y3 := addmod(y3, sub(P_MOD, s1), P_MOD)
-            z3 := add(mload(add(p1, 0x40)), mload(add(p2, 0x40)))
-            z3 := mulmod(z3, z3, P_MOD)
-            z3 := add(z3, sub(mul(P_MOD, 2), add(z1z1, z2z2)))
-            z3 := mulmod(z3, add(u2, sub(P_MOD, u1)), P_MOD)
-        }
+        // assembly {
+        //     let i := addmod(add(u2, sub(P_MOD, u1)), add(u2, sub(P_MOD, u1)), P_MOD)
+        //     i := mulmod(i, i, P_MOD)
+        //     let r := add(s2, sub(P_MOD, s1))
+        //     r := addmod(r, r, P_MOD)
+        //     x3 := mulmod(r, r, P_MOD)
+        //     x3 := addmod(x3, sub(mul(P_MOD, 3), add(mulmod(add(u2, sub(P_MOD, u1)), i, P_MOD), add(mulmod(u1, i, P_MOD), mulmod(u1, i, P_MOD)))), P_MOD)
+        //     y3 := add(mulmod(u1, i, P_MOD), sub(P_MOD, x3))
+        //     y3 := mulmod(r, y3, P_MOD)
+        //     s1 := mul(s1, 2)
+        //     s1 := mulmod(s1, mulmod(add(u2, sub(P_MOD, u1)), i, P_MOD), P_MOD)
+        //     y3 := addmod(y3, sub(P_MOD, s1), P_MOD)
+        //     z3 := add(mload(add(p1, 0x40)), mload(add(p2, 0x40)))
+        //     z3 := mulmod(z3, z3, P_MOD)
+        //     z3 := add(z3, sub(mul(P_MOD, 2), add(z1z1, z2z2)))
+        //     z3 := mulmod(z3, add(u2, sub(P_MOD, u1)), P_MOD)
+        // }
 
         return VestaProjectivePoint(x3, y3, z3);
     }

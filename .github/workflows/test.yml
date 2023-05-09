@@ -32,3 +32,9 @@ jobs:
         run: |
           forge test -vvv
         id: test
+
+      - name: Get sizes of compiled contracts
+        run: |
+          forge --version
+          forge build --sizes || true
+        id: build

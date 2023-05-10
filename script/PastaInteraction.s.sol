@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Script.sol";
-import "../src/pasta/Pallas.sol";
+import "src/pasta/Pallas.sol";
 
 contract PastaInteraction is Script {
     function run() external {

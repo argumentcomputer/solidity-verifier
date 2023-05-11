@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
+import "src/verifier/step1/Step1Logic.sol";
 import "src/verifier/step1/Step1Data.sol";
 
 contract NovaVerifierContractTest is Test {

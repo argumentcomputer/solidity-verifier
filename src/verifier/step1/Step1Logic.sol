@@ -19,15 +19,15 @@ library NovaVerifierStep1Lib {
         uint256[] memory l_u_secondary_X,
         uint256[] memory r_U_primary_X,
         uint256[] memory r_U_secondary_X
-    ) public returns (CompressedSnarkStep1 memory) {
+    ) public pure returns (CompressedSnarkStep1 memory) {
         return CompressedSnarkStep1(l_u_primary_X, l_u_secondary_X, r_U_primary_X, r_U_secondary_X);
     }
 
-    function loadVerifierKeyStep1() public returns (VerifierKeyStep1 memory) {
+    function loadVerifierKeyStep1() public pure returns (VerifierKeyStep1 memory) {
         return VerifierKeyStep1(0);
     }
 
-    function verify(CompressedSnarkStep1 memory proofDataStep1, VerifierKeyStep1 memory vkStep1, uint32 numSteps) public {
+    function verify(CompressedSnarkStep1 memory proofDataStep1, VerifierKeyStep1 memory vkStep1, uint32 numSteps) public pure {
         // check if number of steps is not zero
         require(numSteps != 0, "ProofVerifyError");
 

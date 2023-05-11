@@ -9,7 +9,7 @@ def step1DataContractGen(data):
     o = o + "library NovaVerifierStep1DataLib {\n"
 
     # get_r_u_primary_X
-    o = o + "function get_r_u_primary_X() public returns (uint256[] memory) {\n"
+    o = o + "function get_r_u_primary_X() public pure returns (uint256[] memory) {\n"
     o = o + "uint256[] memory r_u_primary_X = new uint256[](" + str(len(data.r_u_primary_X)) + ");\n"
     index = 0
     for x in data.r_u_primary_X:
@@ -20,7 +20,7 @@ def step1DataContractGen(data):
     o = o + "\n}\n"
 
     # get_l_u_primary_X
-    o = o + "function get_l_u_primary_X() public returns (uint256[] memory) {\n"
+    o = o + "function get_l_u_primary_X() public pure returns (uint256[] memory) {\n"
     o = o + "uint256[] memory l_u_primary_X = new uint256[](" + str(len(data.l_u_primary_X)) + ");\n"
     index = 0
     for x in data.l_u_primary_X:
@@ -31,7 +31,7 @@ def step1DataContractGen(data):
     o = o + "\n}\n"
 
     # get_r_u_secondary_X
-    o = o + "function get_r_u_secondary_X() public returns (uint256[] memory) {\n"
+    o = o + "function get_r_u_secondary_X() public pure returns (uint256[] memory) {\n"
     o = o + "uint256[] memory r_u_secondary_X = new uint256[](" + str(len(data.r_u_secondary_X)) + ");\n"
     index = 0
     for x in data.r_u_secondary_X:
@@ -42,7 +42,7 @@ def step1DataContractGen(data):
     o = o + "\n}\n"
 
     # get_l_u_secondary_X
-    o = o + "function get_l_u_secondary_X() public returns (uint256[] memory) {\n"
+    o = o + "function get_l_u_secondary_X() public pure returns (uint256[] memory) {\n"
     o = o + "uint256[] memory l_u_secondary_X = new uint256[](" + str(len(data.l_u_secondary_X)) + ");\n"
     index = 0
     for x in data.l_u_secondary_X:

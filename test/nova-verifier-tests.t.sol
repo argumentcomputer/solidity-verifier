@@ -6,7 +6,7 @@ import "src/verifier/step1/Step1Logic.sol";
 import "src/verifier/step1/Step1Data.sol";
 
 contract NovaVerifierContractTest is Test {
-    function testVerificationStep1() public {
+    function testVerificationStep1() public pure {
         NovaVerifierStep1Lib.VerifierKeyStep1 memory verifierKeyStep1 = NovaVerifierStep1Lib.loadVerifierKeyStep1();
 
         uint256[] memory r_u_primary_X = NovaVerifierStep1DataLib.get_r_u_primary_X();

@@ -1,3 +1,6 @@
+# VSCode
+.vscode
+
 # IntelliJ IDEA
 .idea
 
@@ -7,3 +10,6 @@ out/
 
 # Ignores development broadcast logs (generated while interacting with contracts)
 broadcast/
+
+# Build artifacts
+**/artifacts

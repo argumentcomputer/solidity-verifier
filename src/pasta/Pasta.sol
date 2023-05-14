@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 contract PastaCurve {
-    uint256 immutable P_MOD;
-    uint256 immutable R_MOD;
-    uint256 immutable _THREE_OVER_TWO;
+    uint256 immutable public P_MOD;
+    uint256 immutable public R_MOD;
+    uint256 immutable public _THREE_OVER_TWO;
 
     constructor(uint256 P, uint256 R) {
       P_MOD = P;

@@ -7,6 +7,155 @@ import "src/pasta/Vesta.sol";
 
 contract PastaCurvesContractTests is Test {
 
+    function testPallasMontgomeryReduction1() public {
+        uint64 p0 = 0x9A7CC2391CAC3425;
+        uint64 p1 = 0x5194A1FB010270F7;
+        uint64 p2 = 0x99963F974D26E386;
+        uint64 p3 = 0x39739C42CB4811FD;
+
+        uint256 actual = Pallas.montgomeryReduce(p0, p1, p2, p3, 0, 0, 0, 0);
+
+        uint256 expected = 0x14a8c2482d6b86d13f78a74bf6685239357b57a40f1c904b8f550d39087eea57;
+
+        assertEq(expected, actual);
+    }
+
+    function testPallasMontgomeryReduction2() public {
+        uint64 p0 = 0x3a8db33d67e972fd;
+        uint64 p1 = 0x3241f0e3cda157e7;
+        uint64 p2 = 0x7418e7693932c58d;
+        uint64 p3 = 0x109c50e4689b17d1;
+
+        uint256 actual = Pallas.montgomeryReduce(p0, p1, p2, p3, 0, 0, 0, 0);
+
+        uint256 expected = 0x3f7af5c222f72df831a229e08c66802757d9cc3f3b4269201945a0439bd51b7b;
+
+        assertEq(expected, Pallas.toRepr(actual));
+    }
+
+    /*
+    function testPallasCompression1() public {
+        uint256 x = 0x0413e112c2e370ba85929f5df18eadf28d4d912de34cdaff087f0bd8a982976e;
+        uint256 y = 0x0adec6975fb9062654d1578087d1739980c6108e026a437b5dac9193dc91f656;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Pallas.PallasProjectivePoint memory point = Pallas.PallasProjectivePoint(x, y, z);
+
+        uint256 compressedActual = Pallas.compress(point);
+
+        uint256 compressedExpected = 0x6e9782a9d80b7f08ffda4ce32d914d8df2ad8ef15d9f9285ba70e3c212e11304;
+
+        assertEq(compressedActual, compressedExpected);
+    }*/
+
+    function testPallasCompression2() public {
+        uint256 x = 0x14a8c2482d6b86d13f78a74bf6685239357b57a40f1c904b8f550d39087eea57;
+        uint256 y = 0x0de8173c9a340f4052f5c5dd35be6375bf3250588dbe236d4d495b54bbac2db4;
+        uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Pallas.PallasProjectivePoint memory point = Pallas.PallasProjectivePoint(x, y, z);
+
+        uint256 compressedActual = Pallas.compress(point);
+
+        uint256 compressedExpected = 0x57ea7e08390d558f4b901c0fa4577b35395268f64ba7783fd1866b2d48c2a814;
+
+        assertEq(compressedActual, compressedExpected);
+    }
+
+    function testPallasDecompress2() public {
+        uint256 compressed = 0x57ea7e08390d558f4b901c0fa4577b35395268f64ba7783fd1866b2d48c2a814;
+
+        uint256 xExpected = 0x14a8c2482d6b86d13f78a74bf6685239357b57a40f1c904b8f550d39087eea57;
+        uint256 yExpected = 0x0de8173c9a340f4052f5c5dd35be6375bf3250588dbe236d4d495b54bbac2db4;
+        uint256 zExpected = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Pallas.PallasProjectivePoint memory point = Pallas.decompress(compressed, 0x2000000000000000000000000000000011234c7e04ca546ec623759080000001);
+
+        //console.log("test output: ");
+        //console.logBytes32(bytes32(xExpected));
+        //console.logBytes32(bytes32(yExpected));
+        //console.logBytes32(bytes32(zExpected));
+    }
+
+
+    function testDebug() public {
+        //uint256 x = 0x0000000000000000000000000000000000000000000000000000000000000051;
+        //uint256 result = Pallas.sqrt(x, 0x2000000000000000000000000000000011234c7e04ca546ec623759080000001);
+        //console.logBytes32(bytes32(result));
+    }
+    /*
+    function testPallasToLimbs() public {
+        uint256 x = 0x57ea7e08390d558f4b901c0fa4577b35395268f64ba7783fd1866b2d48c2a814;
+
+        (uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) = Pallas.toLimbs(x);
+
+        uint64 expectedLimb3 = 0x8f550d39087eea57;
+        uint64 expectedLimb2 = 0x357b57a40f1c904b;
+        uint64 expectedLimb1 = 0x3f78a74bf6685239;
+        uint64 expectedLimb0 = 0x14a8c2482d6b86d1;
+
+        assertEq(limb0, expectedLimb0);
+        assertEq(limb1, expectedLimb1);
+        assertEq(limb2, expectedLimb2);
+        assertEq(limb3, expectedLimb3);
+    }*/
+
+    /*
+    function testPallasFromLimbs1() public {
+        uint64 limb0 = 0x8f550d39087eea57;
+        uint64 limb1 = 0x357b57a40f1c904b;
+        uint64 limb2 = 0x3f78a74bf6685239;
+        uint64 limb3 = 0x14a8c2482d6b86d1;
+
+        uint256 actual = Pallas.fromLimbs(limb0, limb1, limb2, limb3);
+
+        uint256 expected = 0x57ea7e08390d558f4b901c0fa4577b35395268f64ba7783fd1866b2d48c2a814;
+
+        assertEq(actual, expected);
+    }*/
+
+    /*
+    function testPallasFromLimbs2() public {
+        uint64 limb0 = 0x4d495b54bbac2db4;
+        uint64 limb1 = 0xbf3250588dbe236d;
+        uint64 limb2 = 0x52f5c5dd35be6375;
+        uint64 limb3 = 0x0de8173c9a340f40;
+
+        uint256 actual = Pallas.fromLimbs(limb0, limb1, limb2, limb3);
+
+        console.logBytes32(bytes32(actual));
+    }*/
+
+
+    function testR2() public {
+        uint64 limb0 = 0x8c78ecb30000000f;
+        uint64 limb1 = 0xd7d30dbd8b0de0e7;
+        uint64 limb2 = 0x7797a99bc3c95d18;
+        uint64 limb3 = 0x096d41af7b9cb714;
+
+        uint256 R2 = Pallas.montgomeryReduce(limb0, limb1, limb2, limb3, 0, 0, 0, 0);
+        console.log(R2);
+        assertEq(R2, 0x3fffffffffffffffffffffffffffffff992c350be41914ad34786d38fffffffd);
+    }
+
+    /*
+    function testPallasDecompression() public {
+
+        uint256 compressedPoint = 0x9ACC609FBD60493D88AEC94BD4C0647CA1EC708064DCD7D7C2B1835D73B7429D
+
+
+        uint256 xExpected = 0x095ddd7740c6921709e899b2f19837809ea1b271ae1787f7575f1a8ba00ad5be;
+        uint256 yExpected = 0x08acc24e684b4094ae5a026bca8df4b2366cced332df15f55caeec562237b01d;
+        uint256 zExpected = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+        Pallas.PallasProjectivePoint memory point = Pallas.PallasProjectivePoint(x, y, z);
+
+        uint256 compressedActual = Pallas.compress(point);
+
+        uint256 compressedExpected = 0x9ACC609FBD60493D88AEC94BD4C0647CA1EC708064DCD7D7C2B1835D73B7429D;
+    }*/
+
+
     function testMSM() public {
         /*
             use rand_core::OsRng;

@@ -254,6 +254,32 @@ library NovaSpongePallasLib {
         return sponge;
     }
 
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public returns (bool){
+        if (mix.length < 25) {
+            return false;
+        }
+        if (arc.length < 25) {
+            return false;
+        }
+
+        (uint256[] memory mix_expected, uint256[] memory arc_expected) = PoseidonU24Pallas.getConstants();
+
+        if (mix_expected.length != 25) {
+            return false;
+        }
+        if (arc_expected.length != 25) {
+            return false;
+        }
+
+        for (uint32 i = 0; i < 25; i++) {
+            if (mix_expected[i] != mix[i] || arc_expected[i] != arc[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     function squeeze(SpongeU24Pallas memory sponge, uint32 length) public pure returns (SpongeU24Pallas memory, uint256[] memory){
         uint32 rate = STATE_SIZE - 1;
 
@@ -485,6 +511,37 @@ library NovaSpongeVestaLib {
 
         // TODO: for some reasons, we need to return modified sponge and reassign it on caller side, in order to recognize modifications
         return sponge;
+    }
+
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public returns (bool){
+        if (mix.length < 25) {
+            console.log("here");
+            return false;
+        }
+        if (arc.length < 25) {
+            console.log("here1");
+            return false;
+        }
+
+        (uint256[] memory mix_expected, uint256[] memory arc_expected) = PoseidonU24Vesta.getConstants();
+
+        if (mix_expected.length != 25) {
+            console.log("here2");
+            return false;
+        }
+        if (arc_expected.length != 25) {
+            console.log("here3");
+            return false;
+        }
+
+        for (uint32 i = 0; i < 25; i++) {
+            if (mix_expected[i] != mix[i] || arc_expected[i] != arc[i]) {
+                console.log("here4");
+                return false;
+            }
+        }
+
+        return true;
     }
 
     function squeeze(SpongeU24Vesta memory sponge, uint32 length) public pure returns (SpongeU24Vesta memory, uint256[] memory){

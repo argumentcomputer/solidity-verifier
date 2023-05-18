@@ -31,36 +31,97 @@ library PoseidonU24Vesta
         uint t23;
         uint t24;
     }
+
+    function getConstants() public pure returns (uint256[] memory, uint256[] memory) {
+        uint256[] memory mixConstantsVesta = new uint256[](25);
+        mixConstantsVesta[0] = 0x2b851eb851eb851eb851eb851eb851eb9c6d7244fc465e59366daa20ae147ae2;
+        mixConstantsVesta[1] = 0x33b13b13b13b13b13b13b13b13b13b13ccea407ccca94d507b259686f6276277;
+        mixConstantsVesta[2] = 0x12f684bda12f684bda12f684bda12f685601f4709a8adcb36bef1642aaaaaaab;
+        mixConstantsVesta[3] = 0x19249249249249249249249249249249320972f54ce81dc4c0406ea864924925;
+        mixConstantsVesta[4] = 0x0f72c234f72c234f72c234f72c234f72ca7af8ca13f7bed45fa72fed7b9611a8;
+        mixConstantsVesta[5] = 0x2444444444444444444444444444444457b089e4278ff94a58060dc5e6666667;
+        mixConstantsVesta[6] = 0x0c6318c6318c6318c6318c6318c6318c69bb155a125ed65c6dbb2540318c6319;
+        mixConstantsVesta[7] = 0x3e00000000000000000000000000000021346434294803969fe4b3c7f8000001;
+        mixConstantsVesta[8] = 0x20f83e0f83e0f83e0f83e0f83e0f83e109e64ecf69c8b4150a340c855d1745d2;
+        mixConstantsVesta[9] = 0x01e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e3f570d31af5e8660215f970f0f0f1;
+        mixConstantsVesta[10] = 0x3a83a83a83a83a83a83a83a83a83a83aa2feb7c1dcdfb05587914c00ea0ea0eb;
+        mixConstantsVesta[11] = 0x3e38e38e38e38e38e38e38e38e38e38e5a366a117b17a42cba28810ac0000001;
+        mixConstantsVesta[12] = 0x03759f22983759f22983759f22983759f403d0eb076fd1c6c94ff108b3e45307;
+        mixConstantsVesta[13] = 0x0f286bca1af286bca1af286bca1af286c4bfe0dd6095bc3478cd6d954a1af287;
+        mixConstantsVesta[14] = 0x0d20d20d20d20d20d20d20d20d20d20d27d9f7ff2fe9fb412356c0a44ec4ec4f;
+        mixConstantsVesta[15] = 0x0b3333333333333333333333333333333932c12c1b46d0c05ef2cf8c2ccccccd;
+        mixConstantsVesta[16] = 0x1a895da895da895da895da895da895da9793e80499d37e3665def7589c18f9c2;
+        mixConstantsVesta[17] = 0x10c30c30c30c30c30c30c30c30c30c30cc064ca3889abe832ad59f1aedb6db6e;
+        mixConstantsVesta[18] = 0x3594d653594d653594d653594d653594f305860896e79f3c7570f47ae23b88ef;
+        mixConstantsVesta[19] = 0x38ba2e8ba2e8ba2e8ba2e8ba2e8ba2e8d89007999420db7e8dca7ef485d1745e;
+        mixConstantsVesta[20] = 0x182d82d82d82d82d82d82d82d82d82d83a75b142c50aa6319004092e9999999a;
+        mixConstantsVesta[21] = 0x121642c8590b21642c8590b21642c85914d12b3c18f7ecf0b2c6210ee42c8591;
+        mixConstantsVesta[22] = 0x015c9882b9310572620ae4c415c9882b93cb08b3a90e0e7c8b27a2f5cefa8d9e;
+        mixConstantsVesta[23] = 0x3eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacc3a75cc1eb6e558eeb01b9050000001;
+        mixConstantsVesta[24] = 0x29cbc14e5e0a72f05397829cbc14e5e0bd915eaf0b7b34cf60d57f6e5e0a72f1;
+
+        uint256[] memory addRoundConstantsVesta = new uint256[](25);
+        addRoundConstantsVesta[0] = 0x2c21df040fb486eda5e1b307392ad7917e2ae2eff450fd49a0f58b056dceb6b1;
+        addRoundConstantsVesta[1] = 0x06dd0930c41e65275f824307c57550b7712f02affcc2b202ff65458152f81e5b;
+        addRoundConstantsVesta[2] = 0x0f86feed14cf5ca45e38f023fe7d21bfeedab7cbc8ff68a194eb462acb868fed;
+        addRoundConstantsVesta[3] = 0x04e38ddcaf70374cd798d71b838412f3b685c12d0b8567ff1a849694626c0136;
+        addRoundConstantsVesta[4] = 0x3137015ea0699e21dc15eaea588aa6476babfff62c69a648930d6f599dbfd98a;
+        addRoundConstantsVesta[5] = 0x27b4ee7fcad7373eaf24dcc0d5ca838d5b2b67ffcc30320f913aba0099ba23b4;
+        addRoundConstantsVesta[6] = 0x0b25d3b8417075fe6fa1819f8252912b7cc2642c72e225dc6c3e59eb1014cb39;
+        addRoundConstantsVesta[7] = 0x1077a74d28bec60bbcebb879ed8778209a314827fdcbb838cf5fa396844cc744;
+        addRoundConstantsVesta[8] = 0x3020f64d9081ab756563512341a3cad5f74fbc0635421032ad15e8b0592d8f07;
+        addRoundConstantsVesta[9] = 0x3bb4d029a81d20c6c79f657b080d30f65ecd31d3ed47c963709364dceb5491ee;
+        addRoundConstantsVesta[10] = 0x3446e2e18ae8f55e4e51e1f8dcc93a0733dc01d37c68ff39773e6f18024953e2;
+        addRoundConstantsVesta[11] = 0x20193dec48c8686b543bb3561193df86675a449f01dc1daced860373f3b0ca07;
+        addRoundConstantsVesta[12] = 0x38767b551e6ab98296fb149d39792dc00ff333ab99562a5f5859cffd00f4127e;
+        addRoundConstantsVesta[13] = 0x22e00037b03a4bff29c042f5d5a5f66220f0296895d6699250b8820ba904e947;
+        addRoundConstantsVesta[14] = 0x2340cc0dc53743a48dae0f62420598c543b1ccd9b06885ab90c5bee68697de4f;
+        addRoundConstantsVesta[15] = 0x0912c078ff3316f34d17e8fd81dff91e754d03f2e71c2fc0077c8011a4c0a43b;
+        addRoundConstantsVesta[16] = 0x1befc1dc02a5153ccf17fa1fedce0e141a5639414d37190d03315d1a93376874;
+        addRoundConstantsVesta[17] = 0x2da148454a1783e8da2944df41c285ba76426d7dbee627d1c17af160d1bcce01;
+        addRoundConstantsVesta[18] = 0x1bc7f3d8f64effde6c9cfac1fcabf471d443ab4106c85c3d7f0e671eba1ac20f;
+        addRoundConstantsVesta[19] = 0x3d5a6dc890f4fecf6d3a9960ffc6d6754a5dbf88a0250e3358aa40ce63382ae0;
+        addRoundConstantsVesta[20] = 0x1f569abd6fc91f4a5e009ae3d8a6d0170ec74c986ef91d34299681e90aac79b3;
+        addRoundConstantsVesta[21] = 0x233e1bf16944f2889c616777c1b072202e42b7b216b8d4c9973157ecea58487a;
+        addRoundConstantsVesta[22] = 0x091c5fd8c64a3fa466d33c38303cfb0f07c141e4a8848ef899fb91385d62eaba;
+        addRoundConstantsVesta[23] = 0x3bdac8c3cda0b615c6f58c0d16ed58b8cf349b69f101925881f8b62d1fe6ca91;
+        addRoundConstantsVesta[24] = 0x02d9fc7d215eab28d1fb7c066fb9cb0c590ea899c10b3bd7a94394a732a23584;
+
+        return (mixConstantsVesta, addRoundConstantsVesta);
+    }
+
     function mix(HashInputs25 memory i, uint q) internal pure
     {
         HashInputs25 memory o;
 
+        (uint256[] memory mixConstants, ) = getConstants();
+
         o.t0 = 0;
-        o.t0 = addmod(o.t0, mulmod(i.t0, 0x2b851eb851eb851eb851eb851eb851eb9c6d7244fc465e59366daa20ae147ae2, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t1, 0x33b13b13b13b13b13b13b13b13b13b13ccea407ccca94d507b259686f6276277, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t2, 0x12f684bda12f684bda12f684bda12f685601f4709a8adcb36bef1642aaaaaaab, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t3, 0x19249249249249249249249249249249320972f54ce81dc4c0406ea864924925, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t4, 0x0f72c234f72c234f72c234f72c234f72ca7af8ca13f7bed45fa72fed7b9611a8, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t5, 0x2444444444444444444444444444444457b089e4278ff94a58060dc5e6666667, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t6, 0x0c6318c6318c6318c6318c6318c6318c69bb155a125ed65c6dbb2540318c6319, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t7, 0x3e00000000000000000000000000000021346434294803969fe4b3c7f8000001, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t8, 0x20f83e0f83e0f83e0f83e0f83e0f83e109e64ecf69c8b4150a340c855d1745d2, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t9, 0x01e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e3f570d31af5e8660215f970f0f0f1, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t10, 0x3a83a83a83a83a83a83a83a83a83a83aa2feb7c1dcdfb05587914c00ea0ea0eb, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t11, 0x3e38e38e38e38e38e38e38e38e38e38e5a366a117b17a42cba28810ac0000001, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t12, 0x03759f22983759f22983759f22983759f403d0eb076fd1c6c94ff108b3e45307, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t13, 0x0f286bca1af286bca1af286bca1af286c4bfe0dd6095bc3478cd6d954a1af287, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t14, 0x0d20d20d20d20d20d20d20d20d20d20d27d9f7ff2fe9fb412356c0a44ec4ec4f, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t15, 0x0b3333333333333333333333333333333932c12c1b46d0c05ef2cf8c2ccccccd, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t16, 0x1a895da895da895da895da895da895da9793e80499d37e3665def7589c18f9c2, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t17, 0x10c30c30c30c30c30c30c30c30c30c30cc064ca3889abe832ad59f1aedb6db6e, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t18, 0x3594d653594d653594d653594d653594f305860896e79f3c7570f47ae23b88ef, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t19, 0x38ba2e8ba2e8ba2e8ba2e8ba2e8ba2e8d89007999420db7e8dca7ef485d1745e, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t20, 0x182d82d82d82d82d82d82d82d82d82d83a75b142c50aa6319004092e9999999a, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t21, 0x121642c8590b21642c8590b21642c85914d12b3c18f7ecf0b2c6210ee42c8591, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t22, 0x015c9882b9310572620ae4c415c9882b93cb08b3a90e0e7c8b27a2f5cefa8d9e, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t23, 0x3eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacc3a75cc1eb6e558eeb01b9050000001, q), q);
-        o.t0 = addmod(o.t0, mulmod(i.t24, 0x29cbc14e5e0a72f05397829cbc14e5e0bd915eaf0b7b34cf60d57f6e5e0a72f1, q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t0, mixConstants[0], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t1, mixConstants[1], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t2, mixConstants[2], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t3, mixConstants[3], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t4, mixConstants[4], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t5, mixConstants[5], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t6, mixConstants[6], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t7, mixConstants[7], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t8, mixConstants[8], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t9, mixConstants[9], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t10, mixConstants[10], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t11, mixConstants[11], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t12, mixConstants[12], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t13, mixConstants[13], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t14, mixConstants[14], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t15, mixConstants[15], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t16, mixConstants[16], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t17, mixConstants[17], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t18, mixConstants[18], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t19, mixConstants[19], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t20, mixConstants[20], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t21, mixConstants[21], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t22, mixConstants[22], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t23, mixConstants[23], q), q);
+        o.t0 = addmod(o.t0, mulmod(i.t24, mixConstants[24], q), q);
 
         o.t1 = 0;
         o.t1 = addmod(o.t1, mulmod(i.t0, 0x33b13b13b13b13b13b13b13b13b13b13ccea407ccca94d507b259686f6276277, q), q);
@@ -941,32 +1002,34 @@ library PoseidonU24Vesta
         require(i.t23 < q, "INVALID_INPUT");
         require(i.t24 < q, "INVALID_INPUT");
 
+        (, uint256[] memory arcConstants) = getConstants();
+
         // round 0
-        ark(i, q, HashInputs25(0x2c21df040fb486eda5e1b307392ad7917e2ae2eff450fd49a0f58b056dceb6b1,
-            0x06dd0930c41e65275f824307c57550b7712f02affcc2b202ff65458152f81e5b,
-            0x0f86feed14cf5ca45e38f023fe7d21bfeedab7cbc8ff68a194eb462acb868fed,
-            0x04e38ddcaf70374cd798d71b838412f3b685c12d0b8567ff1a849694626c0136,
-            0x3137015ea0699e21dc15eaea588aa6476babfff62c69a648930d6f599dbfd98a,
-            0x27b4ee7fcad7373eaf24dcc0d5ca838d5b2b67ffcc30320f913aba0099ba23b4,
-            0x0b25d3b8417075fe6fa1819f8252912b7cc2642c72e225dc6c3e59eb1014cb39,
-            0x1077a74d28bec60bbcebb879ed8778209a314827fdcbb838cf5fa396844cc744,
-            0x3020f64d9081ab756563512341a3cad5f74fbc0635421032ad15e8b0592d8f07,
-            0x3bb4d029a81d20c6c79f657b080d30f65ecd31d3ed47c963709364dceb5491ee,
-            0x3446e2e18ae8f55e4e51e1f8dcc93a0733dc01d37c68ff39773e6f18024953e2,
-            0x20193dec48c8686b543bb3561193df86675a449f01dc1daced860373f3b0ca07,
-            0x38767b551e6ab98296fb149d39792dc00ff333ab99562a5f5859cffd00f4127e,
-            0x22e00037b03a4bff29c042f5d5a5f66220f0296895d6699250b8820ba904e947,
-            0x2340cc0dc53743a48dae0f62420598c543b1ccd9b06885ab90c5bee68697de4f,
-            0x0912c078ff3316f34d17e8fd81dff91e754d03f2e71c2fc0077c8011a4c0a43b,
-            0x1befc1dc02a5153ccf17fa1fedce0e141a5639414d37190d03315d1a93376874,
-            0x2da148454a1783e8da2944df41c285ba76426d7dbee627d1c17af160d1bcce01,
-            0x1bc7f3d8f64effde6c9cfac1fcabf471d443ab4106c85c3d7f0e671eba1ac20f,
-            0x3d5a6dc890f4fecf6d3a9960ffc6d6754a5dbf88a0250e3358aa40ce63382ae0,
-            0x1f569abd6fc91f4a5e009ae3d8a6d0170ec74c986ef91d34299681e90aac79b3,
-            0x233e1bf16944f2889c616777c1b072202e42b7b216b8d4c9973157ecea58487a,
-            0x091c5fd8c64a3fa466d33c38303cfb0f07c141e4a8848ef899fb91385d62eaba,
-            0x3bdac8c3cda0b615c6f58c0d16ed58b8cf349b69f101925881f8b62d1fe6ca91,
-            0x02d9fc7d215eab28d1fb7c066fb9cb0c590ea899c10b3bd7a94394a732a23584)
+        ark(i, q, HashInputs25(arcConstants[0],
+            arcConstants[1],
+            arcConstants[2],
+            arcConstants[3],
+            arcConstants[4],
+            arcConstants[5],
+            arcConstants[6],
+            arcConstants[7],
+            arcConstants[8],
+            arcConstants[9],
+            arcConstants[10],
+            arcConstants[11],
+            arcConstants[12],
+            arcConstants[13],
+            arcConstants[14],
+            arcConstants[15],
+            arcConstants[16],
+            arcConstants[17],
+            arcConstants[18],
+            arcConstants[19],
+            arcConstants[20],
+            arcConstants[21],
+            arcConstants[22],
+            arcConstants[23],
+            arcConstants[24])
         );
         sbox_full(i, q);
         mix(i, q);

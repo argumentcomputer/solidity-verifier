@@ -8,6 +8,8 @@
 
 pragma solidity ^0.8.0;
 
+import "@std/Test.sol";
+
 library Pallas {
     //
     // Pallas curve:
@@ -24,6 +26,17 @@ library Pallas {
     uint256 private constant _THREE_OVER_TWO =
     14474011154664524427946373126085988481681528240970780357977338382174983815170;
 
+    uint64 private constant INV = 0x992d30ecffffffff;
+    uint64 private constant MODULUS_0 = 0x992d30ed00000001;
+    uint64 private constant MODULUS_1 = 0x224698fc094cf91b;
+    uint64 private constant MODULUS_2 = 0x0000000000000000;
+    uint64 private constant MODULUS_3 = 0x4000000000000000;
+
+    uint256 public constant R2 = 0x3fffffffffffffffffffffffffffffff992c350be41914ad34786d38fffffffd;
+
+    uint256 public constant PALLAS_CONSTANT_B = 0x0000000000000000000000000000000000000000000000000000000000000005;
+
+
     struct PallasAffinePoint {
         uint256 x;
         uint256 y;
@@ -33,6 +46,312 @@ library Pallas {
         uint256 x;
         uint256 y;
         uint256 z;
+    }
+
+
+    function decompress(uint256 compressedPoint, uint256 sqrt) public returns (PallasProjectivePoint memory) {
+        uint256 ysign = (compressedPoint & 0x00000000000000000000000000000000000000000000000000000000000000ff) >> 255;
+        console.logBytes32(bytes32(ysign));
+
+        console.logBytes32(bytes32(compressedPoint));
+
+        uint256 x = compressedPoint & 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe;
+
+        console.logBytes32(bytes32(x));
+
+        if ((x == 0) && (ysign == 0)) {
+            return PallasProjectivePoint(0, 0, 0);
+        }
+
+        uint256 x3 = reverse256(x);
+        //uint256 y;
+        assembly {
+            let x2 := mulmod(x3, x3, P_MOD)
+            x3 := mulmod(x2, x3, P_MOD)
+            x3 := addmod(x3, PALLAS_CONSTANT_B, P_MOD)
+        }
+
+
+        console.logBytes32(bytes32(x3));
+
+        uint256 y = sqrt;
+
+        console.logBytes32(bytes32(y));
+
+        //if ((result == 0) & (ysign == 1)) {
+        //    return PallasProjectivePoint(0, 0, 0);
+        //}
+
+        return PallasProjectivePoint(0, 0, 0);
+    }
+
+    function montgomeryReduce(uint64 r0, uint64 r1, uint64 r2, uint64 r3, uint64 r4, uint64 r5, uint64 r6, uint64 r7) internal returns (uint256){
+        // Montgomery reduction
+        assembly {
+            function mac(a, b, c, carry) -> ret1, ret2 {
+                let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc := addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry := addmod(addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_bc_add_carry)
+            }
+
+            function adc(a, b, carry) -> ret1, ret2 {
+                let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
+                let a_add_b_add_carry := addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_b_add_carry)
+            }
+
+            let k := mulmod(r0, INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            let carry := 0
+            let carry2 := 0
+
+            carry2, carry := mac(r0, k, MODULUS_0, 0) // carry2 is used as a stub
+            r1, carry := mac(r1, k, MODULUS_1, carry)
+            r2, carry := mac(r2, k, MODULUS_2, carry)
+            r3, carry := mac(r3, k, MODULUS_3, carry)
+            r4, carry2 := adc(r4, 0, carry)
+
+            k := mulmod(r1, INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r1, k, MODULUS_0, 0) // r0 used as a stub
+            r2, carry := mac(r2, k, MODULUS_1, carry)
+            r3, carry := mac(r3, k, MODULUS_2, carry)
+            r4, carry := mac(r4, k, MODULUS_3, carry)
+            r5, carry2 := adc(r5, carry2, carry)
+
+            k := mulmod(r2, INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r2, k, MODULUS_0, 0) // r0 used as a stub
+            r3, carry := mac(r3, k, MODULUS_1, carry)
+            r4, carry := mac(r4, k, MODULUS_2, carry)
+            r5, carry := mac(r5, k, MODULUS_3, carry)
+            r6, carry2 := adc(r6, carry2, carry)
+
+            k := mulmod(r3, INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r3, k, MODULUS_0, 0) // r0 used as a stub
+            r4, carry := mac(r4, k, MODULUS_1, carry)
+            r5, carry := mac(r5, k, MODULUS_2, carry)
+            r6, carry := mac(r6, k, MODULUS_3, carry)
+            r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            // Result may be within MODULUS of the correct value
+
+            // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+            carry2 := 0
+            r0, carry2 := sbb(r4, MODULUS_0, carry2)
+            r1, carry2 := sbb(r5, MODULUS_1, carry2)
+            r2, carry2 := sbb(r6, MODULUS_2, carry2)
+            r3, carry2 := sbb(r7, MODULUS_3, carry2)
+
+            // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+            // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+            carry := 0
+            r0, carry := adc(r0, and(MODULUS_0, carry2), carry)
+            r1, carry := adc(r1, and(MODULUS_1, carry2), carry)
+            r2, carry := adc(r2, and(MODULUS_2, carry2), carry)
+            r3, carry := adc(r3, and(MODULUS_3, carry2), carry)
+        }
+
+        return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
+    }
+
+    function getSign(uint256 val) internal returns (uint256) {
+        //console.logBytes32(bytes32(reverse256(val)));
+        uint256 valReprZeroByte = (reverse256(val) & 0xff00000000000000000000000000000000000000000000000000000000000000) >> 248;
+        return (valReprZeroByte & 1) << 7;
+    }
+
+    function toRepr(uint256 val) internal returns (uint256) {
+        (uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) = toLimbs(val);
+
+        return montgomeryReduce(limb0, limb1, limb2, limb3, 0, 0, 0, 0);
+    }
+
+    function reverse256(uint256 input) internal pure returns (uint256 v) {
+        v = input;
+
+        // swap bytes
+        v = ((v & 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
+        ((v & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+
+        // swap 2-byte long pairs
+        v = ((v & 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
+        ((v & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+
+        // swap 4-byte long pairs
+        v = ((v & 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000) >> 32) |
+        ((v & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
+
+        // swap 8-byte long pairs
+        v = ((v & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) >> 64) |
+        ((v & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
+
+        // swap 16-byte long pairs
+        v = (v >> 128) | (v << 128);
+    }
+
+    function reverse64(uint64 input) internal pure returns (uint64 v) {
+        v = input;
+
+        // swap bytes
+        v = ((v & 0xFF00FF00FF00FF00) >> 8) |
+        ((v & 0x00FF00FF00FF00FF) << 8);
+
+        // swap 2-byte long pairs
+        v = ((v & 0xFFFF0000FFFF0000) >> 16) |
+        ((v & 0x0000FFFF0000FFFF) << 16);
+
+        // swap 4-byte long pairs
+        v = (v >> 32) | (v << 32);
+    }
+
+    function fromLimbsReversed(uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) internal returns (uint256) {
+        return (uint256(reverse64(limb3)) << 192) ^ (uint256(reverse64(limb2)) << 128) ^ (uint256(reverse64(limb1)) << 64) ^ uint256(reverse64(limb0));
+    }
+
+    function fromLimbs(uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) internal returns (uint256) {
+        return (uint256(limb3) << 192) ^ (uint256(limb2) << 128) ^ (uint256(limb1) << 64) ^ uint256(limb0);
+    }
+
+    function toLimbs(uint256 val) internal returns(uint64, uint64, uint64, uint64) {
+        uint64 limb0 = uint64(val & 0x000000000000000000000000000000000000000000000000ffffffffffffffff);
+        uint64 limb1 = uint64((val & 0x00000000000000000000000000000000ffffffffffffffff0000000000000000) >> 64);
+        uint64 limb2 = uint64((val & 0x0000000000000000ffffffffffffffff00000000000000000000000000000000) >> 128);
+        uint64 limb3 = uint64((val & 0xffffffffffffffff000000000000000000000000000000000000000000000000) >> 192);
+
+        return (limb0, limb1, limb2, limb3);
+    }
+
+    function toLimbsReversed(uint256 val) internal returns(uint64, uint64, uint64, uint64) {
+        uint64 limb0 = uint64(val & 0x000000000000000000000000000000000000000000000000ffffffffffffffff);
+        uint64 limb1 = uint64((val & 0x00000000000000000000000000000000ffffffffffffffff0000000000000000) >> 64);
+        uint64 limb2 = uint64((val & 0x0000000000000000ffffffffffffffff00000000000000000000000000000000) >> 128);
+        uint64 limb3 = uint64((val & 0xffffffffffffffff000000000000000000000000000000000000000000000000) >> 192);
+
+        return (reverse64(limb3), reverse64(limb2), reverse64(limb1), reverse64(limb0));
+    }
+
+    function toReductedLimbs(uint256 val) internal returns(uint64, uint64, uint64, uint64) {
+        uint256 result = val;
+        (uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) = toLimbs(val);
+
+        //console.logBytes32(bytes32(toRepr(result)));
+        //console.logBytes8(bytes8(limb0));
+        //console.logBytes8(bytes8(limb1));
+        //console.logBytes8(bytes8(limb2));
+        //console.logBytes8(bytes8(limb3));
+
+        uint256 isSome;
+        assembly {
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            let borrow := 0
+            let temp := 0
+            temp, borrow := sbb(limb0, MODULUS_0, borrow)
+            temp, borrow := sbb(limb1, MODULUS_1, borrow)
+            temp, borrow := sbb(limb2, MODULUS_2, borrow)
+            temp, borrow := sbb(limb3, MODULUS_3, borrow)
+
+            // If the element is smaller than MODULUS then the
+            // subtraction will underflow, producing a borrow value
+            // of 0xffff...ffff. Otherwise, it'll be zero.
+            borrow := and(borrow, 0xff)
+            isSome := and(borrow, 0x01)
+
+            result := mulmod(result, R2, P_MOD)
+        }
+
+        //console.logBytes32(bytes32(toRepr(result)));
+
+        //uint256 reducted = montgomeryReduce(limb0, limb1, limb2, limb3, 0, 0, 0, 0);
+        //console.logBytes32(bytes32(reducted));
+
+        return toLimbs(result);
+    }
+
+    /*
+    function fromRawBytes(uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) internal returns (uint256) {
+        uint256 result = (uint256(limb0) << 192) ^ (uint256(limb1) << 128) ^ (uint256(limb2) << 64) ^ uint256(limb3);
+        //console.logBytes32(bytes32(result));
+        uint256 isSome;
+        assembly {
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            let borrow := 0
+            let temp := 0
+            temp, borrow := sbb(limb0, MODULUS_0, borrow)
+            temp, borrow := sbb(limb1, MODULUS_1, borrow)
+            temp, borrow := sbb(limb2, MODULUS_2, borrow)
+            temp, borrow := sbb(limb3, MODULUS_3, borrow)
+
+            // If the element is smaller than MODULUS then the
+            // subtraction will underflow, producing a borrow value
+            // of 0xffff...ffff. Otherwise, it'll be zero.
+            borrow := and(borrow, 0xff)
+            isSome := and(borrow, 0x01)
+
+            result := mulmod(result, R_MOD, P_MOD)
+        }
+
+        //console.log("isSome: ", isSome);
+
+        assert(isSome == 1);
+
+        return result;
+    }
+    */
+
+    /*
+    function toRepr(uint256 val) internal returns (uint64, uint64, uint64, uint64) {
+        (uint64 limb0, uint64 limb1, uint64 limb2, uint64 limb3) = getLimbs(val);
+
+        uint256 reduced = montgomeryReduce(limb0, limb1, limb2, limb3, 0, 0, 0, 0);
+
+        return getLimbs(reduced);
+    }
+    */
+
+    function compress(PallasProjectivePoint memory point) public returns (uint256){
+        // handle identity case
+        if (point.z == uint256(0)) {
+            return uint256(0);
+        }
+
+        uint256 x = point.x;
+        uint256 y = point.y;
+        uint256 sign = getSign(y);
+        uint256 xReversed = reverse256(x);
+
+        return xReversed |= sign;
     }
 
     /// @return the affine generator

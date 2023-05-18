@@ -254,7 +254,7 @@ library NovaSpongePallasLib {
         return sponge;
     }
 
-    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public returns (bool){
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public pure returns (bool){
         if (mix.length < 25) {
             return false;
         }
@@ -513,7 +513,7 @@ library NovaSpongeVestaLib {
         return sponge;
     }
 
-    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public returns (bool){
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public view returns (bool){
         if (mix.length < 25) {
             console.log("here");
             return false;

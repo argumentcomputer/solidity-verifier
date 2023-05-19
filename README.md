@@ -36,3 +36,21 @@ forge script script/PastaInteraction.s.sol:PastaInteraction --rpc-url https://ap
 ```
 
 More details about Foundry tooling is [here](https://book.getfoundry.sh/).
+
+# Solidity contracts generation
+
+Some contracts in this repository have been generated with a help of correspondent Python scripts.
+
+To re-generate Poseidon contracts (for Pallas and Vesta curves) compatible to Neptune and "sharpened" for usage in Nova:
+
+```
+python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/poseidon/PoseidonNeptuneU24pallas.sol
+python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/poseidon/PoseidonNeptuneU24vesta.sol
+```
+
+To re-generate contract-helper for correspondent step of Nova verification:
+
+```
+python src/verifier/step1/step1-data-contract-gen.py compressed-snark.json > src/verifier/step1/Step1Data.sol
+python src/verifier/step2/step2-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step2/Step2Data.sol
+```

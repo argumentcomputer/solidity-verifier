@@ -134,7 +134,7 @@ contract Field {
                     return(return_ptr, 0x20)
                 }
 
-                let gs := pow_mod(g, 1, _mod) // <- Fix this
+                let gs := pow_mod(g, exp(2, sub(r, add(m, 1))), _mod)
                 g := mulmod(gs, gs, _mod)
                 x := mulmod(x, gs, _mod)
                 b := mulmod(b, g, _mod)

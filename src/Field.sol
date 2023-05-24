@@ -121,7 +121,7 @@ contract Field {
             for { } 1 { } {
                 let t := b
                 let m := 0
-                for { let mm := 0 } lt(mm, r) { mm := add(mm, 1) } {
+                for { } lt(m, r) { m := add(m, 1) } {
                     if eq(t, 1) {
                         break
                     }

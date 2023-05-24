@@ -1,44 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-contract Field {
-    uint256 immutable MOD;
-
-    constructor(uint256 _MOD) {
-        MOD = _MOD;
-    }
-    
-    uint256 immutable ZERO = 0;
-    uint256 immutable ONE = 1;
-
-    function add(uint256 a, uint256 b) public view returns (uint256) {
-        return addmod(a, b, MOD);
-    }
-
-    function mul(uint256 a, uint256 b) public view returns (uint256) {
-        return mulmod(a, b, MOD);
-    }
+library Field {
+    uint256 constant ZERO = 0;
+    uint256 constant ONE = 1;
 
     /// @dev Compute f^-1 for f \in Fr scalar field
     /// @notice credit: Aztec, Spilsbury Holdings Ltd
-    function invert(uint256 fr, uint256 modulus) public view returns (uint256 output) {
+    function invert(uint256 _x, uint256 _mod) public view returns (uint256 output) {
         bool success;
         assembly {
             let mPtr := mload(0x40)
             mstore(mPtr, 0x20)
             mstore(add(mPtr, 0x20), 0x20)
             mstore(add(mPtr, 0x40), 0x20)
-            mstore(add(mPtr, 0x60), fr)
-            mstore(add(mPtr, 0x80), sub(modulus, 2))
-            mstore(add(mPtr, 0xa0), modulus)
-            success := staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)
+            mstore(add(mPtr, 0x60), _x)
+            mstore(add(mPtr, 0x80), sub(_mod, 2))
+            mstore(add(mPtr, 0xa0), _mod)
+            if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) {
+                revert(0, 0)
+            }
             output := mload(0x00)
         }
         require(success, "Pallas: pow precompile failed!");
     }
 
-    function fieldpow(uint256 _base, uint256 _exp) public returns (uint256 result) {
-        uint256 _mod = MOD;
+    function fieldpow(uint256 _base, uint256 _exp, uint256 _mod) public view returns (uint256 result) {
         assembly {
             // Free memory pointer
             let pointer := mload(0x40)
@@ -53,16 +40,14 @@ contract Field {
             // Store the result
             let value := mload(0xc0)
             // Call the precompiled contract 0x05 = bigModExp
-            if iszero(call(not(0), 0x05, 0, pointer, 0xc0, value, 0x20)) {
+            if iszero(staticcall(not(0), 0x05, pointer, 0xc0, value, 0x20)) {
                 revert(0, 0)
             }
             result := mload(value)
         }
     }
 
-    function sqrt(uint256 _x) public view returns (uint256) {
-        uint256 _mod = MOD;
-
+    function sqrt(uint256 _x, uint256 _mod) public view returns (uint256) {
         assembly {
             function pow_mod(base, exponent, modulus) -> answer 
             {

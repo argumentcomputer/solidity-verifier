@@ -5,6 +5,7 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import "../Field.sol";
 
 pragma solidity ^0.8.0;
 
@@ -45,11 +46,19 @@ library Pallas {
         return PallasProjectivePoint(P_MOD - 1, 2, 1);
     }
 
+    function AffineInfinity() internal pure returns (PallasAffinePoint memory) {
+        return PallasAffinePoint(0, 0);
+    }
+
+    function ProjectiveInfinity() internal pure returns (PallasProjectivePoint memory) {
+        return PallasProjectivePoint(0, 1, 0);
+    }
+
     /// @return the convert an affine point into projective
     // solhint-disable-next-line func-name-mixedcase
     function IntoProjective(PallasAffinePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
-            return PallasProjectivePoint(0, 0, 0);
+            return ProjectiveInfinity();
         }
 
         return PallasProjectivePoint(point.x, point.y, 1);
@@ -59,7 +68,7 @@ library Pallas {
     // solhint-disable-next-line func-name-mixedcase
     function IntoAffine(PallasProjectivePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
-            return PallasAffinePoint(0, 0);
+            return AffineInfinity();
         }
 
         uint256 zinv = invert(point.z, P_MOD);
@@ -84,7 +93,7 @@ library Pallas {
     }
 
     /// @dev check if a PallasProjectivePoint is Infinity
-    /// @notice (0, 0, 0) PallasProjectivePoint of Infinity,
+    /// @notice (0, 1, 0) PallasProjectivePoint of Infinity,
     /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
     /// just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
     function isInfinity(PallasProjectivePoint memory point) internal pure returns (bool result) {
@@ -92,7 +101,7 @@ library Pallas {
             let x := mload(point)
             let y := mload(add(point, 0x20))
             let z := mload(add(point, 0x20))
-            result := and(and(iszero(x), iszero(y)), iszero(z))
+            result := and(and(iszero(x), eq(y, 1)), iszero(z))
         }
     }
 
@@ -504,5 +513,33 @@ library Pallas {
         }
 
         return result;
+    }
+
+    function unCompress(uint256 compressed_x_coord) public view returns (PallasProjectivePoint memory point) {
+        bool y_sign = (compressed_x_coord >> 255) == 1;
+        uint256 x_coord = compressed_x_coord & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+
+        if ((x_coord == 0) && y_sign) {
+            return ProjectiveInfinity();
+        }
+
+        uint256 y_coord;
+        uint256 _mod = P_MOD;
+
+        assembly{
+            y_coord := mulmod(x_coord, x_coord, _mod)
+            y_coord := mulmod(y_coord, x_coord, _mod)
+            y_coord := addmod(y_coord, 5, _mod)
+        }
+
+        y_coord = Field.sqrt(y_coord, _mod);
+
+        point = PallasProjectivePoint(x_coord, y_coord, 1);
+
+        bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
+
+        if ((y_sign || y_coord_sign) && !(y_sign && y_coord_sign)) {
+            negate(point);
+        }
     }
 }

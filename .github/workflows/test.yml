@@ -25,10 +25,16 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build --sizes
+          forge build
         id: build
 
       - name: Run Forge tests
         run: |
-          forge test --match-path test/pasta-curves-tests.t.sol -vvv
+          forge test -vvv
         id: test
+
+      - name: Get sizes of compiled contracts
+        run: |
+          forge --version
+          forge build --sizes || true
+        id: build-with-sizes

@@ -15,8 +15,6 @@ contract NIFS {
         uint256[] E;
     }
 
-    Field field = new Field(MOD);
-
     constructor(uint256 _MOD) {
         MOD = _MOD;
     }
@@ -33,11 +31,11 @@ contract NIFS {
         uint256[] memory E = new uint256[](witnessLength);
 
         for (uint i = 0; i < witnessLength; i++) {
-            W[i] = field.add(acc.W[i], field.mul(r, witness.W[i])); 
+            W[i] = addmod(acc.W[i], mulmod(r, witness.W[i], MOD), MOD); 
         }
         
         for (uint i = 0; i < witnessLength; i++) {
-            E[i] = field.add(acc.E[i], field.mul(r, T[i])); 
+            E[i] = addmod(acc.E[i], mulmod(r, T[i], MOD),MOD); 
         }
 
         return RelaxedR1CSWitness(W, E);

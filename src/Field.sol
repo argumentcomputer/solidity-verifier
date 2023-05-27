@@ -8,7 +8,6 @@ library Field {
     /// @dev Compute f^-1 for f \in Fr scalar field
     /// @notice credit: Aztec, Spilsbury Holdings Ltd
     function invert(uint256 _x, uint256 _mod) public view returns (uint256 output) {
-        bool success;
         assembly {
             let mPtr := mload(0x40)
             mstore(mPtr, 0x20)
@@ -22,7 +21,6 @@ library Field {
             }
             output := mload(0x00)
         }
-        require(success, "Pallas: pow precompile failed!");
     }
 
     function fieldpow(uint256 _base, uint256 _exp, uint256 _mod) public view returns (uint256 result) {
@@ -45,6 +43,36 @@ library Field {
             }
             result := mload(value)
         }
+    }
+
+    // @dev Perform a modular exponentiation.
+    // @return base^exponent (mod modulus)
+    // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
+    // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
+    function powSmall(
+        uint256 base,
+        uint256 exponent,
+        uint256 modulus
+    ) internal pure returns (uint256) {
+        uint256 result = 1;
+        uint256 input = base;
+        uint256 count = 1;
+
+        assembly {
+            let endPoint := add(exponent, 0x01)
+            for {
+
+            } lt(count, endPoint) {
+                count := add(count, count)
+            } {
+                if and(exponent, count) {
+                    result := mulmod(result, input, modulus)
+                }
+                input := mulmod(input, input, modulus)
+            }
+        }
+
+        return result;
     }
 
     function sqrt(uint256 _x, uint256 _mod) public view returns (uint256) {

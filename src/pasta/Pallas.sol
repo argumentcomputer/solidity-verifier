@@ -71,7 +71,7 @@ library Pallas {
             return AffineInfinity();
         }
 
-        uint256 zinv = invert(point.z, P_MOD);
+        uint256 zinv = Field.invert(point.z, P_MOD);
         uint256 zinv2 = mulmod(zinv, zinv, P_MOD);
         uint256 x = mulmod(point.x, zinv2, P_MOD);
         zinv2 = mulmod(zinv, zinv2, P_MOD);
@@ -187,7 +187,7 @@ library Pallas {
         uint256 lambda;
         uint256 x = point.x;
         uint256 y = point.y;
-        uint256 yInv = invert(point.y, P_MOD);
+        uint256 yInv = Field.invert(point.y, P_MOD);
         uint256 xPrime;
         uint256 yPrime;
 
@@ -250,7 +250,7 @@ library Pallas {
         if (lambda > P_MOD) {
             lambda -= P_MOD;
         }
-        lambda = invert(lambda, P_MOD);
+        lambda = Field.invert(lambda, P_MOD);
         assembly {
             // lambda = (y1-y2)/(x1-x2)
             lambda := mulmod(lambda, tmp, P_MOD)
@@ -426,24 +426,6 @@ library Pallas {
         for (uint256 i = 1; i < scalars.length; i++) {
             r = add(r, scalarMul(bases[i], scalars[i]));
         }
-    }
-
-    /// @dev Compute f^-1 for f \in Fr scalar field
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
-    function invert(uint256 fr, uint256 modulus) internal view returns (uint256 output) {
-        bool success;
-        assembly {
-            let mPtr := mload(0x40)
-            mstore(mPtr, 0x20)
-            mstore(add(mPtr, 0x20), 0x20)
-            mstore(add(mPtr, 0x40), 0x20)
-            mstore(add(mPtr, 0x60), fr)
-            mstore(add(mPtr, 0x80), sub(modulus, 2))
-            mstore(add(mPtr, 0xa0), modulus)
-            success := staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)
-            output := mload(0x00)
-        }
-        require(success, "Pallas: pow precompile failed!");
     }
 
     /**

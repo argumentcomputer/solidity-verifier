@@ -5,6 +5,7 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import "src/Field.sol";
 
 pragma solidity ^0.8.0;
 
@@ -45,11 +46,19 @@ library Vesta {
         return VestaProjectivePoint(P_MOD - 1, 2, 1);
     }
 
+    function AffineInfinity() internal pure returns (VestaAffinePoint memory) {
+        return VestaAffinePoint(0, 0);
+    }
+
+    function ProjectiveInfinity() internal pure returns (VestaProjectivePoint memory) {
+        return VestaProjectivePoint(1, 1, 0);
+    }
+
     /// @return the convert an affine point into projective
     // solhint-disable-next-line func-name-mixedcase
     function IntoProjective(VestaAffinePoint memory point) internal pure returns (VestaProjectivePoint memory) {
         if (isInfinity(point)) {
-            return VestaProjectivePoint(0, 0, 0);
+            return ProjectiveInfinity();
         }
 
         return VestaProjectivePoint(point.x, point.y, 1);
@@ -59,10 +68,10 @@ library Vesta {
     // solhint-disable-next-line func-name-mixedcase
     function IntoAffine(VestaProjectivePoint memory point) internal view returns (VestaAffinePoint memory) {
         if (isInfinity(point)) {
-            return VestaAffinePoint(0, 0);
+            return AffineInfinity();
         }
 
-        uint256 zinv = invert(point.z, P_MOD);
+        uint256 zinv = Field.invert(point.z, P_MOD);
         uint256 zinv2 = mulmod(zinv, zinv, P_MOD);
         uint256 x = mulmod(point.x, zinv2, P_MOD);
         zinv2 = mulmod(zinv, zinv2, P_MOD);
@@ -91,8 +100,8 @@ library Vesta {
         assembly {
             let x := mload(point)
             let y := mload(add(point, 0x20))
-            let z := mload(add(point, 0x20))
-            result := and(and(iszero(x), iszero(y)), iszero(z))
+            let z := mload(add(point, 0x40))
+            result := and(eq(x, 1), iszero(z))
         }
     }
 
@@ -179,7 +188,7 @@ library Vesta {
         uint256 lambda;
         uint256 x = point.x;
         uint256 y = point.y;
-        uint256 yInv = invert(point.y, P_MOD);
+        uint256 yInv = Field.invert(point.y, P_MOD);
         uint256 xPrime;
         uint256 yPrime;
 
@@ -242,7 +251,7 @@ library Vesta {
         if (lambda > P_MOD) {
             lambda -= P_MOD;
         }
-        lambda = invert(lambda, P_MOD);
+        lambda = Field.invert(lambda, P_MOD);
         assembly {
             // lambda = (y1-y2)/(x1-x2)
             lambda := mulmod(lambda, tmp, P_MOD)
@@ -393,7 +402,7 @@ library Vesta {
         uint256 bit;
         uint256 i = 0;
         VestaProjectivePoint memory tmp = p;
-        r = VestaProjectivePoint(0, 0, 0);
+        r = ProjectiveInfinity();
 
         for (i = 0; i < 256; i++) {
             bit = s & 1;
@@ -418,24 +427,6 @@ library Vesta {
         for (uint256 i = 1; i < scalars.length; i++) {
             r = add(r, scalarMul(bases[i], scalars[i]));
         }
-    }
-
-    /// @dev Compute f^-1 for f \in Fr scalar field
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
-    function invert(uint256 fr, uint256 modulus) internal view returns (uint256 output) {
-        bool success;
-        assembly {
-            let mPtr := mload(0x40)
-            mstore(mPtr, 0x20)
-            mstore(add(mPtr, 0x20), 0x20)
-            mstore(add(mPtr, 0x40), 0x20)
-            mstore(add(mPtr, 0x60), fr)
-            mstore(add(mPtr, 0x80), sub(modulus, 2))
-            mstore(add(mPtr, 0xa0), modulus)
-            success := staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)
-            output := mload(0x00)
-        }
-        require(success, "Vesta: pow precompile failed!");
     }
 
     /**
@@ -487,23 +478,31 @@ library Vesta {
         return point.y < P_MOD / 2;
     }
 
-    // @dev Perform a modular exponentiation.
-    // @return base^exponent (mod modulus)
-    // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
-    // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
-    function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
-        uint256 result = 1;
-        uint256 input = base;
-        uint256 count = 1;
+    function unCompress(uint256 compressed_x_coord) public view returns (VestaProjectivePoint memory point) {
+        bool y_sign = (compressed_x_coord >> 255) == 1;
+        uint256 x_coord = compressed_x_coord & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 
-        assembly {
-            let endPoint := add(exponent, 0x01)
-            for {} lt(count, endPoint) { count := add(count, count) } {
-                if and(exponent, count) { result := mulmod(result, input, modulus) }
-                input := mulmod(input, input, modulus)
-            }
+        if ((x_coord == 0) && y_sign) {
+            return ProjectiveInfinity();
         }
 
-        return result;
+        uint256 y_coord;
+        uint256 _mod = P_MOD;
+
+        assembly{
+            y_coord := mulmod(x_coord, x_coord, _mod)
+            y_coord := mulmod(y_coord, x_coord, _mod)
+            y_coord := addmod(y_coord, 5, _mod)
+        }
+
+        y_coord = Field.sqrt(y_coord, _mod);
+
+        point = VestaProjectivePoint(x_coord, y_coord, 1);
+
+        bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
+
+        if ((y_sign || y_coord_sign) && !(y_sign && y_coord_sign)) {
+            negate(point);
+        }
     }
 }

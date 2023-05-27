@@ -364,7 +364,7 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(yExpected), bytes32(p1MulScalar.y));
     }
 
-    function testPallasAddAfine() public {
+    function testPallasAddAffine() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
@@ -816,37 +816,6 @@ contract PastaCurvesContractTests is Test {
         Vesta.VestaAffinePoint memory point = Vesta.AffineGenerator();
         assertEq(bytes32(point.x), bytes32(vestaGeneratorXexpected));
         assertEq(bytes32(point.y), bytes32(vestaGeneratorYexpected));
-    }
-
-    function testPallasInvertFr() public {
-        /*
-            use rand_core::OsRng;
-            use pasta_curves::group::Group;
-
-            type PallasPoint = pasta_curves::pallas::Point;
-            type PallasScalar = pasta_curves::pallas::Scalar;
-
-            let mut rng = OsRng;
-
-            let pallas_scalar = PallasScalar::random(&mut rng);
-            println!("pallas scalar: {:?}", pallas_scalar);
-
-            let pallas_scalar_inverted = pallas_scalar.invert().unwrap();
-            println!("pallas scalar inverted: {:?}", pallas_scalar_inverted);
-
-        */
-
-        uint256 pallasScalar = 0x241485a5238caca98c32f3113a90f0fd5e7f62f4caecb639b938d7a0a4e08867;
-        uint256 inverted = Pallas.invert(pallasScalar, Pallas.R_MOD);
-        assertEq(bytes32(inverted), bytes32(0x1ec5d74264fcb22d01cb7c46b1f129637e5fd7990100b3b64e7e937360bcbfac));
-    }
-
-    function testVestaInvertFr() public {
-        /* s/pallas/vesta */
-
-        uint256 vestaScalar = 0x32642babe229d616c0221a7c8fb94f442088f6947752b98115240705ca7d15ec;
-        uint256 inverted = Vesta.invert(vestaScalar, Vesta.R_MOD);
-        assertEq(bytes32(inverted), bytes32(0x130b3c43d6025758f4e5ed60d9e70fa5f7f5a40ec523584f696237878975aa6f));
     }
 
     function testPallasScalarMulProjective_1() public {

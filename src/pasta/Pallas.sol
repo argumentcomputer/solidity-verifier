@@ -477,26 +477,6 @@ library Pallas {
         return point.y < P_MOD / 2;
     }
 
-    // @dev Perform a modular exponentiation.
-    // @return base^exponent (mod modulus)
-    // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
-    // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
-    function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
-        uint256 result = 1;
-        uint256 input = base;
-        uint256 count = 1;
-
-        assembly {
-            let endpoint := add(exponent, 0x01)
-            for {} lt(count, endpoint) { count := add(count, count) } {
-                if and(exponent, count) { result := mulmod(result, input, modulus) }
-                input := mulmod(input, input, modulus)
-            }
-        }
-
-        return result;
-    }
-
     function unCompress(uint256 compressed_x_coord) public view returns (PallasProjectivePoint memory point) {
         bool y_sign = (compressed_x_coord >> 255) == 1;
         uint256 x_coord = compressed_x_coord & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;

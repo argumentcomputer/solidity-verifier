@@ -71,11 +71,11 @@ library NovaVerifierStep2Lib {
 
         // Step2 execution (compare Pallas-based Poseidon hashes)
         uint32 absorbLen = uint32(counter);
-        uint32 sqeezeLen = 1;
+        uint32 squeezeLen = 1;
         uint32 domainSeparator = 0;
 
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
-        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, sqeezeLen);
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, squeezeLen);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
         pattern[0] = absorb;
         pattern[1] = squeeze;
@@ -85,7 +85,7 @@ library NovaVerifierStep2Lib {
 
         sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);
 
-        (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, sqeezeLen);
+        (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, squeezeLen);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
         // in Nova only 250 bits of output hash are significant

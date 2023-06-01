@@ -478,9 +478,18 @@ library Vesta {
         return point.y < P_MOD / 2;
     }
 
-    function unCompress(uint256 compressed_x_coord) public view returns (VestaProjectivePoint memory point) {
-        bool y_sign = (compressed_x_coord >> 255) == 1;
-        uint256 x_coord = compressed_x_coord & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    function decompress(uint8[] calldata compressed_x_coord) public view returns (VestaProjectivePoint memory point) {
+        require(compressed_x_coord.length == 32, "Incorrect compressed length");
+
+        bool y_sign = (compressed_x_coord[31] & 0x7) == 1;
+
+        uint256 x_coord;
+
+        for (uint256 i = 0; i < 32; i++) {
+            x_coord += compressed_x_coord[i];
+            x_coord *= 2;
+        }
+
 
         if ((x_coord == 0) && y_sign) {
             return ProjectiveInfinity();

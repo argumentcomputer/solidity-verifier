@@ -113,27 +113,27 @@ library NIFSPallas {
         }
         counter++;
 
-        uint32 absorbLen = uint32(counter);
-        uint32 squeezeLen = 1;
-        uint32 domainSeparator = 0;
+        // uint32 absorbLen = uint32(counter);
+        // uint32 squeezeLen = 1;
+        // uint32 domainSeparator = 0;
 
-        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
-        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, squeezeLen);
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
         pattern[0] = absorb;
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
 
-        NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(p, domainSeparator);
+        NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(p, 0);
 
         sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);
 
-        (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, squeezeLen);
+        (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-        uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+        // uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 
-        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, r);
+        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
 
         return result;
     }
@@ -144,29 +144,29 @@ library NIFSPallas {
         Pallas.PallasAffinePoint memory comm_T,
         uint256 r
     ) public view returns (RelaxedR1CSInstance memory) {
-        uint256[] memory x1 = U1.X;
-        Pallas.PallasAffinePoint memory comm_W_1 = U1.comm_W;
-        Pallas.PallasAffinePoint memory comm_E_1 = U1.comm_E;
-        uint256 u1 = U1.u;
+        // uint256[] memory x1 = U1.X;
+        // Pallas.PallasAffinePoint memory comm_W_1 = U1.comm_W;
+        // Pallas.PallasAffinePoint memory comm_E_1 = U1.comm_E;
+        // uint256 u1 = U1.u;
 
         uint256[] memory x2 = u2.X;
         Pallas.PallasAffinePoint memory comm_W_2 = u2.comm_W;
 
-        require(x1.length == x2.length, "Witness vectors do not match length");
+        require(U1.X.length == x2.length, "Witness vectors do not match length");
 
-        uint256[] memory X = new uint256[](x1.length);
+        uint256[] memory X = new uint256[](U1.X.length);
 
-        for (uint256 i = 0; i < x1.length; i++) {
-            X[i] = x1[i] + r * x2[i];
+        for (uint256 i = 0; i < x2.length; i++) {
+            X[i] = U1.X[i] + r * x2[i];
         }
 
-        Pallas.PallasAffinePoint memory comm_W = Pallas.add(comm_W_1, Pallas.scalarMul(comm_W_2, r));
+        // Pallas.PallasAffinePoint memory comm_W = Pallas.add(comm_W_1, Pallas.scalarMul(comm_W_2, r));
 
-        Pallas.PallasAffinePoint memory comm_E = Pallas.add(comm_E_1, Pallas.scalarMul(comm_T, r));
+        // Pallas.PallasAffinePoint memory comm_E = Pallas.add(comm_E_1, Pallas.scalarMul(comm_T, r));
 
-        uint256 u = u1 + r;
+        // uint256 u = u1 + r;
 
-        return RelaxedR1CSInstance(comm_E, comm_W, X, u);
+        return RelaxedR1CSInstance(Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , X, U1.u + r);
     }
 }
 
@@ -277,22 +277,22 @@ library NIFSVesta {
         }
         counter++;
 
-        uint32 absorbLen = uint32(counter);
-        uint32 squeezeLen = 1;
-        uint32 domainSeparator = 0;
+        // uint32 absorbLen = uint32(counter);
+        // uint32 squeezeLen = 1;
+        // uint32 domainSeparator = 0;
 
-        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
-        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, squeezeLen);
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
         pattern[0] = absorb;
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
 
-        NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(p, domainSeparator);
+        NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(p, 0);
 
         sponge = NovaSpongeVestaLib.absorb(sponge, elementsToHash);
 
-        (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, squeezeLen);
+        (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, 1);
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
         uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;

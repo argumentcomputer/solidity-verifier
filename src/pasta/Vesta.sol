@@ -478,10 +478,10 @@ library Vesta {
         return point.y < P_MOD / 2;
     }
 
-    function decompress(uint8[] calldata compressed_x_coord) public view returns (VestaProjectivePoint memory point) {
+    function decompress(uint8[] calldata compressed_x_coord) public view returns (VestaAffinePoint memory point) {
         require(compressed_x_coord.length == 32, "Incorrect compressed length");
 
-        bool y_sign = (compressed_x_coord[31] & 0x7) == 1;
+        bool y_sign = (compressed_x_coord[31] & 0x80) == 1;
 
         uint256 x_coord;
 
@@ -492,7 +492,7 @@ library Vesta {
 
 
         if ((x_coord == 0) && y_sign) {
-            return ProjectiveInfinity();
+            return AffineInfinity();
         }
 
         uint256 y_coord;
@@ -506,7 +506,7 @@ library Vesta {
 
         y_coord = Field.sqrt(y_coord, _mod);
 
-        point = VestaProjectivePoint(x_coord, y_coord, 1);
+        point = VestaAffinePoint(x_coord, y_coord);
 
         bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
 

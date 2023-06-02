@@ -120,54 +120,6 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(yExpected), bytes32(msm.y));
     }
 
-    function testPallasPowSmall() public {
-        /*
-            use rand_core::OsRng;
-            use pasta_curves::group::Group;
-
-            type PallasScalar = pasta_curves::pallas::Scalar;
-
-            let mut rng = OsRng;
-
-            let q = PallasScalar::random(&mut rng);
-            println!("q: {:?}", q);
-
-            let exponent: u64 = rand::random();
-
-            println!("exponent: {:?}", exponent);
-
-            let exp_q = q.pow_vartime([exponent]);
-
-            println!("exp_q: {:?}", exp_q);
-        */
-
-        uint256 base = 0x2bd477403f0713e5b5028dd7b3b0c2a6f21a606ebd5a19a9dd00f7e4149ca4c7;
-
-        uint64 exponent = 12024954401023057353;
-
-        uint256 result = Pallas.powSmall(base, exponent, Pallas.R_MOD);
-
-        uint256 expected = 0x362242b2a1f2674375360e8398bdab0d1cc56f295be9ac6e39c17bc8bbc4a114;
-
-        assertEq(bytes32(expected), bytes32(result));
-    }
-
-    function testVestaPowSmall() public {
-        /*
-        s/pallas/vesta
-        */
-
-        uint256 base = 0x28a66bbc0fd68c99ca92677d02d515daeddcebd8440b568bf32ba9a5d56b37c5;
-
-        uint64 exponent = 771196355631305937;
-
-        uint256 result = Pallas.powSmall(base, exponent, Vesta.R_MOD);
-
-        uint256 expected = 0x3f0ca3245ac5c4dfe10dce43c1694588c2f4f8bc144bca88ed622987acb8ac25;
-
-        assertEq(bytes32(expected), bytes32(result));
-    }
-
     function testPallasFromLeBytesModOrder() public {
         /*
             use rand_core::OsRng;

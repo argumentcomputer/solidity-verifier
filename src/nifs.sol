@@ -8,7 +8,7 @@ import "src/poseidon/Sponge.sol";
 
 library NIFSPallas {
     uint256 constant private MOD = Pallas.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24;
+    uint256 constant private NUM_FE_FOR_RO = 24; // <-- This seems strange, I'm only counting 15...
 
     struct NIFS {
         uint8[] compressed_comm_T;
@@ -37,7 +37,7 @@ library NIFSPallas {
 
         uint256 counter = 0;
 
-        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO); // TODO: This is wrong
+        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO + U1.X.length + U2.X.length);
 
         elementsToHash[counter] = pp_digest;
         counter++;
@@ -172,7 +172,7 @@ library NIFSPallas {
 
 library NIFSVesta {
     uint256 constant private MOD = Vesta.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24;
+    uint256 constant private NUM_FE_FOR_RO = 24; // <--- Same here
 
     struct NIFS {
         uint8[] compressed_comm_T;
@@ -201,7 +201,7 @@ library NIFSVesta {
 
         uint256 counter = 0;
 
-        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO); // TODO: This is wrong
+        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO + U1.X.length + U2.X.length);
 
         elementsToHash[counter] = pp_digest;
         counter++;

@@ -102,15 +102,13 @@ contract EqEvaluationTest is Test {
         expectedEvals[6] =0x329198484407a31b972f171b2b28f4c259859864440049b81bf066f8d2e604fc;
         expectedEvals[7] =0x0a8496185c3002e47f4b749335065bd6885393f11b3b58acf6ea877d24010f26;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
             assertEq(bytes32(evals[i]), bytes32(expectedEvals[i]));
         }
     }
-
-
 
     function testEvalsSecondary2() public {
         uint256[] memory tau = new uint256[](4);
@@ -138,7 +136,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[14] =0x38d419f8507619aa864bf547f461b89b484fa52f183b68d4c114d0d875c19bf6;
         expectedEvals[15] =0x11b07c200bb9e939f8ff7f4b40a4a33b624a87be0c9498b5c21ca1c5ae3f7331;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -189,7 +187,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[30] =0x23ba308243e90dfcf16d3ae14e5616ff92736ec5d39502bba0aacc61bfb7983c;
         expectedEvals[31] =0x243c947f20c3f640a5050152eb7799ddcdb4a2895c0de769e462161e5d361ac8;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -220,7 +218,7 @@ contract EqEvaluationTest is Test {
         uint256 expected_12846 = 0x08a280a50f2d4253c17ed47c5edfed39560f5189a430c102ef00960514e3300a;
         uint256 expected_16000 = 0x264db57dbf9e8cda1752e7c88c2380f2604c140067d1d6c294c92901fd80a1f0;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, 2 ** tau.length);
         assertEq(evals[25], expected_25);
         assertEq(evals[380], expected_380);
@@ -246,7 +244,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[6] =0x2a989e96c121b6c28703b7c1d25f70999289edad14e61a2e75e1e19827e322d5;
         expectedEvals[7] =0x3d7934d32f5730a53a7d253443e80a39d81b07089588eb55bd4704d3c3528989;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -280,7 +278,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[14] =0x25e9154e274c6559fe95f6bc65f5c0b24f60e8ec9f3c3d47d78f143450ae95ac;
         expectedEvals[15] =0x17901f85080acb4b3be72e77ddf2498788ba1e1bf64cae0de5b7f09f72a3f3dd;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -311,12 +309,89 @@ contract EqEvaluationTest is Test {
         uint256 expected_10990 = 0x266112cd25ef3a6db1c5fd29c974623019b257d81d2d6030b1d86608a13ae827;
         uint256 expected_15998 = 0x39fc62e9d005e4ba23a27f29736dcb7a77c88aabda02ccaec49cc5591778da41;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, 2 ** tau.length);
         assertEq(evals[98], expected_98);
         assertEq(evals[284], expected_284);
         assertEq(evals[5492], expected_5492);
         assertEq(evals[10990], expected_10990);
         assertEq(evals[15998], expected_15998);
+    }
+
+    function testVectorEvalsFromMultiEvaluation1() public {
+        uint256[] memory r_x = new uint256[](14);
+        r_x[0] = 0x0f165407419e8c2e7685d7d70bf99a758d8d7fbea89da907b3aeaa7bee833a56;
+        r_x[1] = 0x29560c2a6cfae551d9c4dca9c51099996b3d3c2bdd2498e787f046506ba52814;
+        r_x[2] = 0x362da2eabc9f9e7d98621f197a1302f443ce859376ef1855b994adeed58fe545;
+        r_x[3] = 0x3cca5c7ea86a6a28fe166886c9170d6c5c11c0c3a62ec3542461ab9d4570db8e;
+        r_x[4] = 0x011032bc2a262b1177be0d1a0819af301f07b2526b482a642c044e9f1fb235e0;
+        r_x[5] = 0x2457b45828d84cbec89fe251bf00eef3eef83c892343349798c252ddfa6ed892;
+        r_x[6] = 0x1e75806536a945babea5f7c8f9919c044ecac67b97598cb833253aebea65f43a;
+        r_x[7] = 0x26ffb40cd04ebeee0ef0534d2e0ab8f3bab0b7965896acc89e8ca6d73fb7998f;
+        r_x[8] = 0x0204eda144c122b0dd23f2730444b643873d2dfd24b3d9f6e4120699f8d67f17;
+        r_x[9] = 0x2a5748db09c9d1253f8accba25f25e6cf536baadf655939b25f762251b238433;
+        r_x[10] = 0x006775e2804bb5851a122fb8d1023ff427e3614f93b9dc201811638c88ce449b;
+        r_x[11] = 0x1ff82c34a25a9521840fe3fce05a08766cf8236f214871de953ffed41f5312ba;
+        r_x[12] = 0x070bb7c8b02abf2d75ef8b6b8fb3997745d1c041991e0d3af11d78b11f879920;
+        r_x[13] = 0x0218ba00634e903a39bd7ed1388141981ac7aaa0572ba61802aaf2b580667bf1;
+
+        uint256[] memory T_x = EqPolinomialLib.evalsPallas(r_x);
+
+        uint256 expectedLen = 16384;
+        uint256 T_x_expected_0 = 0x3cac77591cd8693719d5c89c475a6c978fbeb6bdb3fffc9cb916a97d5c17f664;
+        uint256 T_x_expected_20 = 0x3c82227d64af6b102e74a400307763b86ac11841b050a8a4e4b1c193a38f1012;
+        uint256 T_x_expected_300 = 0x15629d69df11293f8ddb92b50e0ba9f70fd37c67a698603b296a6b4909431918;
+        uint256 T_x_expected_4000 = 0x0af59bd109a32676fd07269a18189c542ec83df497be7deab63be90d1c172fd5;
+        uint256 T_x_expected_10000 = 0x33f200d559bb7d102f29a8a66f6f4ce8e48d1b4c5784b5e38235626809177eb2;
+        uint256 T_x_expected_16000 = 0x2652db4337b9e14656054ecb597f7854b3f9968045a2691f024551639e731ebb;
+
+        assertEq(expectedLen, T_x.length);
+        assertEq(T_x_expected_0, T_x[0]);
+        assertEq(T_x_expected_20, T_x[20]);
+        assertEq(T_x_expected_300, T_x[300]);
+        assertEq(T_x_expected_4000, T_x[4000]);
+        assertEq(T_x_expected_10000, T_x[10000]);
+        assertEq(T_x_expected_16000, T_x[16000]);
+    }
+
+    function testVectorEvalsFromMultiEvaluation2() public {
+        uint256[] memory r_y = new uint256[](15);
+        r_y[0] = 0x133d7ae3ae852269542c5198e6d1054dfc720f32dc111075699e40f4bed9dc98;
+        r_y[1] = 0x3916fe320f183c1453d0e9bb3bfa7374793096fdf38379aedea66cc7dcaf7e08;
+        r_y[2] = 0x2a0d9fc4ae15bdce6a8e5a5471fb590535e9533508f035d90f9255fb48fc2e76;
+        r_y[3] = 0x01b240c33764723dece2cb1b9df078fa37358487b31b02566ff41185864a5e62;
+        r_y[4] = 0x17848bd9c88037915d94e8fce040d9ed50cfb2894c2fe9423f6dbe5c34d23cb3;
+        r_y[5] = 0x26f476c4734135d0f82908d3e78552efc3d0f283eaa8c09ab62b54ac7d14addc;
+        r_y[6] = 0x2a0fafde03242db9d319f8e09fff11a7e2f6124ed17cea107da09f36eb30dbbe;
+        r_y[7] = 0x17901b6eba9aa318f4865f1f920197823475f95d8f45869885cd1791dc165716;
+        r_y[8] = 0x300f98dcdf44099acb80516ec8ee48316df00cd09ccba21837a0cd906637778e;
+        r_y[9] = 0x2a252100fac6781457578c3f24510de75b67164a4c6fd26ea6e8f7b86689dba4;
+        r_y[10] = 0x3716a88a6fc03454b3527bb7ca8a0175ec71ec39a40de88f770dfe44ae611b1f;
+        r_y[11] = 0x3e464a14ffef67ca9d1bb49e9afa113bcc701884b3aaa68385f4e6f804c07500;
+        r_y[12] = 0x34169db7131567c40085024f4177f987cbcbf6168e630db10bd79f8d5775f37b;
+        r_y[13] = 0x1ed7da2e753c94332e034b046d37937577582b78c2cffa3ada412ac7d6446745;
+        r_y[14] = 0x3e69c1910a9263ddee4a0cec382a858a67e33f74de3d76058fd6248cd8257cc8;
+
+        uint256[] memory T_y = EqPolinomialLib.evalsPallas(r_y);
+
+        uint256 expectedLen = 32768;
+        uint256 T_y_expected_0 = 0x3d1442de6e207afdf8f0c86bc413471387757ee37ba9f7474637c24bd81f7500;
+        uint256 T_y_expected_20 = 0x0e42ea2ee239daf67c0ee48a3fbbe214e946ba15813eb4871db635a6857e3215;
+        uint256 T_y_expected_300 = 0x24ce4f356364f4f0e36e67c0c2da90abe9ea25f22d32138a0b974c2da2f38680;
+        uint256 T_y_expected_4000 = 0x0ede2724331fa10acb981810dad0d53c4d2859bbe26f78fbd826f5547ef8ea4f;
+        uint256 T_y_expected_10000 = 0x1c1a644b3601b80dd2eadb4abb80f9398e0005cd0e128342282eb70a7c3dde0d;
+        uint256 T_y_expected_16000 = 0x2d61fe510e673bb7f1e00150428641e727f1d733d2ee485f7cef64873ede1b2c;
+        uint256 T_y_expected_20000 = 0x0ee45b5e23300bc1ff255ea8065ba66916c311c7852a617f0e7d9f6e3732f797;
+        uint256 T_y_expected_30000 = 0x2065902c645f999cfc142528a078e577132bb5146f10209a7527c7f20aae0940;
+
+        assertEq(expectedLen, T_y.length);
+        assertEq(T_y_expected_0, T_y[0]);
+        assertEq(T_y_expected_20, T_y[20]);
+        assertEq(T_y_expected_300, T_y[300]);
+        assertEq(T_y_expected_4000, T_y[4000]);
+        assertEq(T_y_expected_10000, T_y[10000]);
+        assertEq(T_y_expected_16000, T_y[16000]);
+        assertEq(T_y_expected_20000, T_y[20000]);
+        assertEq(T_y_expected_30000, T_y[30000]);
     }
 }

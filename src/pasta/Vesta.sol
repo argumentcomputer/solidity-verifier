@@ -478,9 +478,7 @@ library Vesta {
         return point.y < P_MOD / 2;
     }
 
-    function decompress(uint8[] calldata compressed_x_coord) public view returns (VestaAffinePoint memory point) {
-        require(compressed_x_coord.length == 32, "Incorrect compressed length");
-
+    function decompress(uint8[32] calldata compressed_x_coord) public view returns (VestaAffinePoint memory point) {
         bool y_sign = (compressed_x_coord[31] & 0x80) == 1;
 
         uint256 x_coord;

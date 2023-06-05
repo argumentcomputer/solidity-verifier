@@ -11,7 +11,7 @@ library NIFSPallas {
     uint256 constant private NUM_FE_FOR_RO = 24; // <-- This seems strange, I'm only counting 15...
 
     struct NIFS {
-        uint8[] compressed_comm_T;
+        uint8[32] compressed_comm_T;
     }
 
     struct R1CSInstance {
@@ -175,7 +175,7 @@ library NIFSVesta {
     uint256 constant private NUM_FE_FOR_RO = 24; // <--- Same here
 
     struct NIFS {
-        uint8[] compressed_comm_T;
+        uint8[32] compressed_comm_T;
     }
 
     struct R1CSInstance {

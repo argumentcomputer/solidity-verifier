@@ -898,4 +898,37 @@ contract PastaCurvesContractTests is Test {
         assertEq(addition1.y, addition2.y);
         assertEq(addition1.z, addition2.z);
     }
+
+    function testPallasDecompress() public {
+    /*
+        let rng = OsRng;
+        let point = pallas::Point::random(rng);
+        println!("{:?}", point);
+        let bytes = point.to_bytes();
+        println!("{:?}", bytes);
+        }
+    */
+
+    uint8[32] memory input_bytes = [36, 3, 251, 196, 174, 40, 97, 142, 199, 201, 203, 164, 227, 247, 71, 79, 124, 227, 8, 26, 181, 189, 72, 227, 72, 144, 31, 203, 175, 178, 6, 163];
+
+    Pallas.PallasAffinePoint memory result = Pallas.decompress(input_bytes);
+
+    Pallas.PallasAffinePoint memory expected = Pallas.PallasAffinePoint(0x2306b2afcb1f9048e348bdb51a08e37c4f47f7e3a4cbc9c78e6128aec4fb0324, 0x0a5129c3eb600fd840dbd73a3f82a85a2d315806741c80f13138ca859f66e667);
+
+    assertEq(result.x, expected.x);
+    assertEq(result.y, expected.y);
+    }
+
+    function testVestaDecompress() public {
+    /* s/pallas/vesta */
+
+    uint8[32] memory input_bytes = [48, 220, 60, 247, 164, 130, 164, 111, 168, 221, 178, 103, 79, 117, 126, 213, 94, 185, 146, 242, 22, 104, 164, 190, 103, 225, 120, 156, 176, 209, 98, 5];
+
+    Vesta.VestaAffinePoint memory result = Vesta.decompress(input_bytes);
+
+    Vesta.VestaAffinePoint memory expected = Vesta.VestaAffinePoint(0x0562d1b09c78e167bea46816f292b95ed57e754f67b2dda86fa482a4f73cdc30, 0x0f0b2c7708937dc6b61af0a711ea9983a9eea7459a44711a21a8183293012ed4);
+
+    assertEq(result.x, expected.x);
+    assertEq(result.y, expected.y);
+    }
 }

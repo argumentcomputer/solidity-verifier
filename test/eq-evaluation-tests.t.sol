@@ -102,15 +102,13 @@ contract EqEvaluationTest is Test {
         expectedEvals[6] =0x329198484407a31b972f171b2b28f4c259859864440049b81bf066f8d2e604fc;
         expectedEvals[7] =0x0a8496185c3002e47f4b749335065bd6885393f11b3b58acf6ea877d24010f26;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
             assertEq(bytes32(evals[i]), bytes32(expectedEvals[i]));
         }
     }
-
-
 
     function testEvalsSecondary2() public {
         uint256[] memory tau = new uint256[](4);
@@ -138,7 +136,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[14] =0x38d419f8507619aa864bf547f461b89b484fa52f183b68d4c114d0d875c19bf6;
         expectedEvals[15] =0x11b07c200bb9e939f8ff7f4b40a4a33b624a87be0c9498b5c21ca1c5ae3f7331;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -189,7 +187,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[30] =0x23ba308243e90dfcf16d3ae14e5616ff92736ec5d39502bba0aacc61bfb7983c;
         expectedEvals[31] =0x243c947f20c3f640a5050152eb7799ddcdb4a2895c0de769e462161e5d361ac8;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -220,7 +218,7 @@ contract EqEvaluationTest is Test {
         uint256 expected_12846 = 0x08a280a50f2d4253c17ed47c5edfed39560f5189a430c102ef00960514e3300a;
         uint256 expected_16000 = 0x264db57dbf9e8cda1752e7c88c2380f2604c140067d1d6c294c92901fd80a1f0;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, 2 ** tau.length);
         assertEq(evals[25], expected_25);
         assertEq(evals[380], expected_380);
@@ -246,7 +244,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[6] =0x2a989e96c121b6c28703b7c1d25f70999289edad14e61a2e75e1e19827e322d5;
         expectedEvals[7] =0x3d7934d32f5730a53a7d253443e80a39d81b07089588eb55bd4704d3c3528989;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -280,7 +278,7 @@ contract EqEvaluationTest is Test {
         expectedEvals[14] =0x25e9154e274c6559fe95f6bc65f5c0b24f60e8ec9f3c3d47d78f143450ae95ac;
         expectedEvals[15] =0x17901f85080acb4b3be72e77ddf2498788ba1e1bf64cae0de5b7f09f72a3f3dd;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, expectedEvalsLen);
 
         for (uint256 i = 0; i < expectedEvalsLen; i++) {
@@ -311,7 +309,7 @@ contract EqEvaluationTest is Test {
         uint256 expected_10990 = 0x266112cd25ef3a6db1c5fd29c974623019b257d81d2d6030b1d86608a13ae827;
         uint256 expected_15998 = 0x39fc62e9d005e4ba23a27f29736dcb7a77c88aabda02ccaec49cc5591778da41;
 
-        uint256[] memory evals = EqPolinomialLib.evals(tau);
+        uint256[] memory evals = EqPolinomialLib.evalsVesta(tau);
         assertEq(evals.length, 2 ** tau.length);
         assertEq(evals[98], expected_98);
         assertEq(evals[284], expected_284);

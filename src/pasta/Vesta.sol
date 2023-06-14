@@ -478,18 +478,22 @@ library Vesta {
         return point.y < P_MOD / 2;
     }
 
-    function decompress(uint8[32] calldata compressed_x_coord) public view returns (VestaAffinePoint memory point) {
-        bool y_sign = (compressed_x_coord[31] & 0x80) == 1;
+    function decompress(uint8[32] memory compressed_x_coord) public view returns (VestaAffinePoint memory point) {
+        bool y_sign = (compressed_x_coord[31] & 0x80) > 0;
 
         uint256 x_coord;
+        
+        x_coord += uint(compressed_x_coord[31] & 0x7F);
+        x_coord *= 256;
 
-        for (uint256 i = 0; i < 32; i++) {
-            x_coord += compressed_x_coord[i];
-            x_coord *= 2;
+        for (uint256 i = 30; i > 0; i--) {
+            x_coord += uint(compressed_x_coord[i]);
+            x_coord *= 256;
         }
+        
+        x_coord += uint(compressed_x_coord[0]);
 
-
-        if ((x_coord == 0) && y_sign) {
+        if ((x_coord == 0) && !y_sign) {
             return AffineInfinity();
         }
 
@@ -509,7 +513,7 @@ library Vesta {
         bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
 
         if ((y_sign || y_coord_sign) && !(y_sign && y_coord_sign)) {
-            negate(point);
+            point = negate(point);
         }
     }
 }

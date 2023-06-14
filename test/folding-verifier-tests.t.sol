@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/nifs.sol";
+import "src/verifier/step3/Step3Logic.sol";
 
 contract FoldingVerifierTest is Test {
     function testVerify() public {

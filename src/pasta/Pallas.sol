@@ -6,6 +6,7 @@
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import "src/Field.sol";
+import "@std/Test.sol";
 
 pragma solidity ^0.8.0;
 
@@ -478,16 +479,21 @@ library Pallas {
     }
 
     function decompress(uint8[32] memory compressed_x_coord) public view returns (PallasAffinePoint memory point) {
-        bool y_sign = (compressed_x_coord[31] & 0x80) == 1;
+        bool y_sign = (compressed_x_coord[31] & 0x80) > 0;
 
         uint256 x_coord;
+        
+        x_coord += uint(compressed_x_coord[31] & 0x7F);
+        x_coord *= 256;
 
-        for (uint256 i = 0; i < 32; i++) {
-            x_coord += compressed_x_coord[i];
-            x_coord *= 2;
+        for (uint256 i = 30; i > 0; i--) {
+            x_coord += uint(compressed_x_coord[i]);
+            x_coord *= 256;
         }
+        
+        x_coord += uint(compressed_x_coord[0]);
 
-        if ((x_coord == 0) && y_sign) {
+        if ((x_coord == 0) && !y_sign) {
             return AffineInfinity();
         }
 
@@ -507,7 +513,7 @@ library Pallas {
         bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
 
         if ((y_sign || y_coord_sign) && !(y_sign && y_coord_sign)) {
-            negate(point);
+            point = negate(point);
         }
     }
 }

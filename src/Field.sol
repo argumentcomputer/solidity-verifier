@@ -74,7 +74,9 @@ library Field {
 
         return result;
     }
-
+    // Implementation of the Tonelli-Shanks square root algorithm
+    // NOTE: It is assumed that _mod is a prime for this algorithm to work, and when _mod is congruent to 3 mod 4 
+    // a direct calculation is used instead.
     function sqrt(uint256 _x, uint256 _mod) public view returns (uint256) {
         assembly {
             function pow_mod(base, exponent, modulus) -> answer 
@@ -94,6 +96,7 @@ library Field {
                 answer := mload(result_ptr)
             }
 
+            // This calculates the the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
             function is_square(base, modulus) -> isSquare
             {
                 let exponent := div(sub(modulus, 1),2)

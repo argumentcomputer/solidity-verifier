@@ -123,6 +123,7 @@ library NIFSPallas {
         pattern[0] = absorb;
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
+        
 
         NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(p, 0);
 
@@ -130,6 +131,7 @@ library NIFSPallas {
 
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
+
 
         // uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 

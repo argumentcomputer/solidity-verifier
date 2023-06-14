@@ -88,3 +88,27 @@ library PolyLib {
         return result;
     }
 }
+
+library Sumcheck {
+    struct CompressedUniPoly {
+        uint256[] coeffs_except_linear_term;
+    }
+
+    struct UniPoly {
+        uint256[] coeffs;
+    }
+
+    struct SumcheckProof {
+        CompressedUniPoly[] compressed_polys;
+    }
+
+    function verify(
+        SumcheckProof calldata proof,
+        uint256 claim,
+        uint256 num_rounds,
+        uint256 degree_bound //,
+        // Transcript
+    ) public pure returns (uint256, uint256[] memory) {
+        
+    }
+}

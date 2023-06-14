@@ -8,6 +8,9 @@
 
 pragma solidity ^0.8.0;
 
+import "src/pasta/Field.sol";
+import "src/pasta/Pallas.sol";
+
 library Vesta {
     //
     // Vesta curve is a short Weierstrass curve with Basefield F_p and ScalarField F_r for:
@@ -535,5 +538,36 @@ library Vesta {
         }
 
         return result;
+    }
+    function AffineInfinity() internal pure returns (VestaAffinePoint memory) {
+        return VestaAffinePoint(0, 0);
+    }
+
+    function decompress(uint256 x_coord) public view returns (VestaAffinePoint memory point) {
+        uint256 x = Field.reverse256(x_coord);
+        uint8 y_sign = (uint8(x >> 248) & 0xff) >> 7;
+        x &= 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+
+        if ((x == 0) && (y_sign == 0)) {
+            return AffineInfinity();
+        }
+
+        uint256 y;
+        uint256 _mod = P_MOD;
+
+        assembly{
+            y := mulmod(x, x, _mod)
+            y := mulmod(y, x, _mod)
+            y := addmod(y, 5, _mod)
+        }
+
+        y = Field.sqrt(y, _mod);
+
+        uint8 sign = ((uint8(y & 0xff)) & 1);
+
+        if ((y_sign ^ sign) == 1) {
+            y = Pallas.negate(y);
+        }
+        point = VestaAffinePoint(x, y);
     }
 }

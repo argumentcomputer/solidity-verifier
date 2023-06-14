@@ -4,4 +4,6 @@ out = "out"
 libs = ["lib"]
 remappings = ["@std=lib/forge-std/src"]
 
+gas_limit = "18446744073709551615"
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

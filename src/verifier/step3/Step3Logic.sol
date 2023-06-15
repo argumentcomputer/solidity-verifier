@@ -26,18 +26,23 @@ library NIFSPallas {
         uint256 u;
     }
 
+    function logArray(uint256[] memory array) private view {
+        uint256 array_length = array.length;
+
+        for (uint256 i = 0; i < array_length; i++) {
+            console.log("array[", i, "] =", array[i]);
+        }
+    }
+
     function verify(
         NIFS memory nifs,
-        PoseidonConstants.Pallas calldata ro_consts,
         uint256 pp_digest,
         RelaxedR1CSInstance calldata U1,
         R1CSInstance calldata U2
     ) public view returns (RelaxedR1CSInstance memory) {
-        require(NovaSpongePallasLib.constantsAreEqual(ro_consts.mixConstants, ro_consts.addRoundConstants), "[verifySecondary] WrongPallasPoseidonConstantsError");
-
         uint256 counter = 0;
 
-        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO + U1.X.length + U2.X.length);
+        uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO);
 
         elementsToHash[counter] = pp_digest;
         counter++;
@@ -75,7 +80,19 @@ library NIFSPallas {
 
         // Absorb X
         for (uint256 i = 0; i < U1.X.length; i++) {
-            elementsToHash[counter] = U1.X[i];
+            uint256 entry = U1.X[i];
+            uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & entry);
+            uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & entry) >> 64;
+            uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & entry) >> 128;
+            uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & entry) >> 192;
+
+            elementsToHash[counter] = limb1;
+            counter++;
+            elementsToHash[counter] = limb2;
+            counter++;
+            elementsToHash[counter] = limb3;
+            counter++;
+            elementsToHash[counter] = limb4;
             counter++;
         }
 
@@ -113,9 +130,13 @@ library NIFSPallas {
         }
         counter++;
 
+        require(counter == NUM_FE_FOR_RO); 
+
         // uint32 absorbLen = uint32(counter);
         // uint32 squeezeLen = 1;
         // uint32 domainSeparator = 0;
+
+        logArray(elementsToHash);
 
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
@@ -124,7 +145,6 @@ library NIFSPallas {
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
         
-
         NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(p, 0);
 
         sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);

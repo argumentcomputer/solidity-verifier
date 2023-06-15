@@ -71,9 +71,7 @@ contract FoldingVerifierTest is Test {
         //     res_1_U_u
         // );
 
-        (PoseidonConstants.Pallas memory ro_consts, ) = PoseidonConstants.getPoseidonConstantsForBasicComparison();
-        
-        NIFSPallas.RelaxedR1CSInstance memory res = NIFSPallas.verify(res_1_nifs, ro_consts, 0, r_U, u1);
+        NIFSPallas.RelaxedR1CSInstance memory res = NIFSPallas.verify(res_1_nifs, 0, r_U, u1);
 
         // Check the resulting RelaxedR1CSInstance is the one obtained by proving
         assertEq(res.comm_W.x, res_1_U_comm_W.x);

@@ -8,7 +8,7 @@ import "src/poseidon/Sponge.sol";
 
 library NIFSPallas {
     uint256 constant private MOD = Pallas.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24; // <-- This seems strange, I'm only counting 15...
+    uint256 constant private NUM_FE_FOR_RO = 24;
 
     struct NIFS {
         uint8[32] compressed_comm_T;
@@ -152,7 +152,6 @@ library NIFSPallas {
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-
         // uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 
         RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
@@ -179,7 +178,7 @@ library NIFSPallas {
         uint256[] memory X = new uint256[](U1.X.length);
 
         for (uint256 i = 0; i < x2.length; i++) {
-            X[i] = U1.X[i] + r * x2[i];
+            X[i] = addmod(U1.X[i], mulmod(r, x2[i], Pallas.P_MOD), Pallas.P_MOD);
         }
 
         // Pallas.PallasAffinePoint memory comm_W = Pallas.add(comm_W_1, Pallas.scalarMul(comm_W_2, r));
@@ -192,9 +191,10 @@ library NIFSPallas {
     }
 }
 
+// TODO: copy the modifications from the Pallas library to the Vesta library
 library NIFSVesta {
     uint256 constant private MOD = Vesta.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24; // <--- Same here
+    uint256 constant private NUM_FE_FOR_RO = 24;
 
     struct NIFS {
         uint8[32] compressed_comm_T;

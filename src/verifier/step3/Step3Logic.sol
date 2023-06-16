@@ -26,14 +26,6 @@ library NIFSPallas {
         uint256 u;
     }
 
-    // function logArray(uint256[] memory array) private view {
-    //     uint256 array_length = array.length;
-
-    //     for (uint256 i = 0; i < array_length; i++) {
-    //         console.log("array[", i, "] =", array[i]);
-    //     }
-    // }
-
     function verify(
         NIFS memory nifs,
         uint256 pp_digest,
@@ -136,8 +128,6 @@ library NIFSPallas {
         // uint32 squeezeLen = 1;
         // uint32 domainSeparator = 0;
 
-        // logArray(elementsToHash);
-
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
@@ -151,9 +141,6 @@ library NIFSPallas {
 
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
-
-        // console.log("This is the output");
-        // logArray(output);
 
         // uint256 r = output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
 

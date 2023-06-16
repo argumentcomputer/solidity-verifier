@@ -7,9 +7,7 @@ library EqPolinomialLib {
     function evaluateVesta(uint256[] memory r, uint256[] memory rx) public pure returns (uint256){
         require(r.length == rx.length, "[EqPolinomialLib.evaluateVesta] wrong input data length");
 
-
         uint256 modulusVesta = Vesta.P_MOD;
-        uint256 modulusPallas = Pallas.P_MOD;
 
         uint256 resultIter = 0;
         uint256 rx_inner = 0;
@@ -25,21 +23,21 @@ library EqPolinomialLib {
         for (uint256 i = 0; i < rx.length; i++) {
             rx_inner = rx[i];
             r_inner = r[i];
-            minus_rx = Pallas.negate(rx_inner);
-            minus_r = Pallas.negate(r_inner);
+            minus_rx = Pallas.negate(rx_inner); // Pallas
+            minus_r = Pallas.negate(r_inner); // Pallas
             assembly {
-            // rx[i] * r[i] (Vesta!)
-                tmp1 := mulmod(rx_inner, r_inner, modulusVesta)
-            // 1 - rx[i] (Pallas!)
-                tmp2 := addmod(1, minus_rx, modulusPallas)
-            // 1 - r[i] (Pallas!)
-                tmp3 := addmod(1, minus_r, modulusPallas)
+            // rx[i] * r[i]
+                tmp1 := mulmod(rx_inner, r_inner, modulusVesta) // Vesta
+            // 1 - rx[i]
+                tmp2 := addmod(1, minus_rx, modulusVesta) // Vesta
+            // 1 - r[i]
+                tmp3 := addmod(1, minus_r, modulusVesta) // Vesta
 
-            // tmp1 + tmp2 * tmp3 (Vesta!)
-                tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusVesta), modulusVesta)
+            // tmp1 + tmp2 * tmp3
+                tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusVesta), modulusVesta) // Vesta
 
-            // accumulate result (Vesta!)
-                resultIter := mulmod(tmp4, result, modulusVesta)
+            // accumulate result
+                resultIter := mulmod(tmp4, result, modulusVesta) // Vesta
 
                 result := resultIter
             }
@@ -51,7 +49,6 @@ library EqPolinomialLib {
     function evaluatePallas(uint256[] memory r, uint256[] memory rx) public pure returns (uint256){
         require(r.length == rx.length, "[EqPolinomialLib.evaluatePallas] wrong input data length");
 
-        uint256 modulusVesta = Vesta.P_MOD;
         uint256 modulusPallas = Pallas.P_MOD;
 
         uint256 resultIter = 0;
@@ -68,21 +65,21 @@ library EqPolinomialLib {
         for (uint256 i = 0; i < rx.length; i++) {
             rx_inner = rx[i];
             r_inner = r[i];
-            minus_rx = Vesta.negate(rx_inner);
-            minus_r = Vesta.negate(r_inner);
+            minus_rx = Vesta.negate(rx_inner); // Vesta
+            minus_r = Vesta.negate(r_inner); // Vesta
             assembly {
-            // rx[i] * r[i] (Pallas!)
-                tmp1 := mulmod(rx_inner, r_inner, modulusPallas)
-            // 1 - rx[i] (Vesta!)
-                tmp2 := addmod(1, minus_rx, modulusVesta)
-            // 1 - r[i] (Vesta!)
-                tmp3 := addmod(1, minus_r, modulusVesta)
+            // rx[i] * r[i]
+                tmp1 := mulmod(rx_inner, r_inner, modulusPallas) // Pallas
+            // 1 - rx[i]
+                tmp2 := addmod(1, minus_rx, modulusPallas) // Pallas
+            // 1 - r[i]
+                tmp3 := addmod(1, minus_r, modulusPallas) // Pallas
 
-            // tmp1 + tmp2 * tmp3 (Pallas!)
-                tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusPallas), modulusPallas)
+            // tmp1 + tmp2 * tmp3
+                tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusPallas), modulusPallas) // Pallas
 
-            // accumulate result (Pallas!)
-                resultIter := mulmod(tmp4, result, modulusPallas)
+            // accumulate result
+                resultIter := mulmod(tmp4, result, modulusPallas) // Pallas
 
                 result := resultIter
             }

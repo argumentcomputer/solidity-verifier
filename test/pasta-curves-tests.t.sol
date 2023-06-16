@@ -587,7 +587,7 @@ contract PastaCurvesContractTests is Test {
         */
 
         uint256 scalar = 0x2e9db40a60ed61b6e7adbdade0b08d35c60eb72d500f24a054c634a66fe0b331;
-        uint256 minusScalar = Pallas.negate(scalar);
+        uint256 minusScalar = Pallas.negateScalar(scalar);
 
         uint256 expected = 0x11624bf59f129e49185242521f4f72ca5c37e1ceb985843d3780b67a901f4cd0;
         assertEq(bytes32(expected), bytes32(minusScalar));
@@ -597,7 +597,7 @@ contract PastaCurvesContractTests is Test {
         /* s/pallas/vesta */
 
         uint256 scalar = 0x2d9c1fab594375189e3cda886533ff6007762c11ceeb4e2a908bb52935e55fae;
-        uint256 minusScalar = Vesta.negate(scalar);
+        uint256 minusScalar = Vesta.negateScalar(scalar);
 
         uint256 expected = 0x1263e054a6bc8ae761c325779acc00a01ad06cea3a61aaf108a17bc3ca1aa053;
         assertEq(bytes32(expected), bytes32(minusScalar));

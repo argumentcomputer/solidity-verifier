@@ -126,8 +126,13 @@ library Vesta {
         return VestaProjectivePoint(p.x, P_MOD - (p.y % P_MOD), p.z);
     }
 
-    /// @return res = -fr the negation of scalar field element.
+    /// @return res = -fr the negation of base field element.
     function negate(uint256 fr) internal pure returns (uint256 res) {
+        return P_MOD - (fr % P_MOD);
+    }
+
+    /// @return res = -fr the negation of scalar field element.
+    function negateScalar(uint256 fr) internal pure returns (uint256 res) {
         return R_MOD - (fr % R_MOD);
     }
 

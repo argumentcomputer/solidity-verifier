@@ -152,9 +152,12 @@ library NIFSPallas {
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-        // uint256 r = output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+        console.log("This is the output");
+        logArray(output);
 
-        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        // uint256 r = output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
+
+        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
     }
@@ -187,7 +190,7 @@ library NIFSPallas {
 
         // uint256 u = u1 + r;
 
-        return RelaxedR1CSInstance(Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , X, U1.u + r);
+        return RelaxedR1CSInstance(Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , X, addmod(U1.u, r, Pallas.P_MOD));
     }
 }
 

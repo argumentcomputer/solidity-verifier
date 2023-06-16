@@ -26,13 +26,13 @@ library NIFSPallas {
         uint256 u;
     }
 
-    function logArray(uint256[] memory array) private view {
-        uint256 array_length = array.length;
+    // function logArray(uint256[] memory array) private view {
+    //     uint256 array_length = array.length;
 
-        for (uint256 i = 0; i < array_length; i++) {
-            console.log("array[", i, "] =", array[i]);
-        }
-    }
+    //     for (uint256 i = 0; i < array_length; i++) {
+    //         console.log("array[", i, "] =", array[i]);
+    //     }
+    // }
 
     function verify(
         NIFS memory nifs,
@@ -136,7 +136,7 @@ library NIFSPallas {
         // uint32 squeezeLen = 1;
         // uint32 domainSeparator = 0;
 
-        logArray(elementsToHash);
+        // logArray(elementsToHash);
 
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
@@ -152,8 +152,8 @@ library NIFSPallas {
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-        console.log("This is the output");
-        logArray(output);
+        // console.log("This is the output");
+        // logArray(output);
 
         // uint256 r = output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
 
@@ -181,7 +181,7 @@ library NIFSPallas {
         uint256[] memory X = new uint256[](U1.X.length);
 
         for (uint256 i = 0; i < x2.length; i++) {
-            X[i] = addmod(U1.X[i], mulmod(r, x2[i], Pallas.P_MOD), Pallas.P_MOD);
+            X[i] = addmod(U1.X[i], mulmod(r, x2[i], Vesta.P_MOD), Vesta.P_MOD);
         }
 
         // Pallas.PallasAffinePoint memory comm_W = Pallas.add(comm_W_1, Pallas.scalarMul(comm_W_2, r));
@@ -190,7 +190,7 @@ library NIFSPallas {
 
         // uint256 u = u1 + r;
 
-        return RelaxedR1CSInstance(Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , X, addmod(U1.u, r, Pallas.P_MOD));
+        return RelaxedR1CSInstance(Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , X, addmod(U1.u, r, Pallas.P_MOD));
     }
 }
 

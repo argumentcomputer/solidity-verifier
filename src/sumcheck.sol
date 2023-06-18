@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
+import "src/verifier/step4/KeccakTranscript.sol";
 import "src/verifier/step4/EqPolynomial.sol";
 
 library PolyLib {
@@ -102,13 +103,37 @@ library Sumcheck {
         CompressedUniPoly[] compressed_polys;
     }
 
+    function decompress(
+        CompressedUniPoly calldata poly,
+        uint256 hint
+    ) public pure returns (UniPoly memory) {
+        uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
+        for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
+            linear_term -= poly.coeffs_except_linear_term[i];
+        }
+
+        uint256[] memory coeffs;
+        coeffs[0] = poly.coeffs_except_linear_term[0];
+        coeffs[1] = linear_term;
+
+        for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
+            coeffs[i + 1]  = poly.coeffs_except_linear_term[i];
+        }
+
+        require(poly.coeffs_except_linear_term.length + 1 == coeffs.length);
+
+        return UniPoly(coeffs);
+    }
+
     function verify(
         SumcheckProof calldata proof,
         uint256 claim,
         uint256 num_rounds,
-        uint256 degree_bound //,
-        // Transcript
+        uint256 degree_bound,
+        KeccakTranscriptLib.KeccakTranscript memory transcript
     ) public pure returns (uint256, uint256[] memory) {
-        
+        require(proof.compressed_polys.length == num_rounds, "Wrong number of polynomials");
+
+
     }
 }

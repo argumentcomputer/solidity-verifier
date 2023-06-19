@@ -23,8 +23,8 @@ library EqPolinomialLib {
         for (uint256 i = 0; i < rx.length; i++) {
             rx_inner = rx[i];
             r_inner = r[i];
-            minus_rx = Vesta.negate(rx_inner); // Vesta
-            minus_r = Vesta.negate(r_inner); // Vesta
+            minus_rx = Vesta.negateBase(rx_inner); // Vesta
+            minus_r = Vesta.negateBase(r_inner); // Vesta
             assembly {
             // rx[i] * r[i]
                 tmp1 := mulmod(rx_inner, r_inner, modulusVesta) // Vesta
@@ -65,8 +65,8 @@ library EqPolinomialLib {
         for (uint256 i = 0; i < rx.length; i++) {
             rx_inner = rx[i];
             r_inner = r[i];
-            minus_rx = Pallas.negate(rx_inner); // Pallas
-            minus_r = Pallas.negate(r_inner); // Pallas
+            minus_rx = Pallas.negateBase(rx_inner); // Pallas
+            minus_r = Pallas.negateBase(r_inner); // Pallas
             assembly {
             // rx[i] * r[i]
                 tmp1 := mulmod(rx_inner, r_inner, modulusPallas) // Pallas
@@ -108,7 +108,7 @@ library EqPolinomialLib {
                     y := mulmod(x, r_i, modulusVesta) // Vesta
                 }
 
-                minus_y = Vesta.negate(y); // Vesta
+                minus_y = Vesta.negateBase(y); // Vesta
 
                 assembly {
                     x := addmod(x, minus_y, modulusVesta) // Vesta
@@ -142,7 +142,7 @@ library EqPolinomialLib {
                     y := mulmod(x, r_i, modulusPallas) // Pallas
                 }
 
-                minus_y = Pallas.negate(y); // Pallas
+                minus_y = Pallas.negateBase(y); // Pallas
 
                 assembly {
                     x := addmod(x, minus_y, modulusPallas) // Pallas

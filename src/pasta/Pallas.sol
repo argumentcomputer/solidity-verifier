@@ -127,7 +127,7 @@ library Pallas {
     }
 
     /// @return res = -fr the negation of base field element.
-    function negate(uint256 fr) internal pure returns (uint256 res) {
+    function negateBase(uint256 fr) internal pure returns (uint256 res) {
         return P_MOD - (fr % P_MOD);
     }
 

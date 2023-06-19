@@ -159,4 +159,14 @@ library Field {
         }
         revert();
     }
+
+    // Returns the 4 limbs in little-endian order of a 256-bit field element.
+    function extractLimbs(uint256 x) public pure returns (uint256, uint256, uint256, uint256) {
+            uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & x);
+            uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & x) >> 64;
+            uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & x) >> 128;
+            uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & x) >> 192;
+
+            return (limb1, limb2, limb3, limb4);
+    }
 }

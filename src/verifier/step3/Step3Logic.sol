@@ -73,11 +73,8 @@ library NIFSPallas {
         // Absorb X
         for (uint256 i = 0; i < U1.X.length; i++) {
             uint256 entry = U1.X[i];
-            uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & entry);
-            uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & entry) >> 64;
-            uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & entry) >> 128;
-            uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & entry) >> 192;
 
+            (uint256 limb1, uint256 limb2, uint256 limb3, uint256 limb4) = Field.extractLimbs(entry);
             elementsToHash[counter] = limb1;
             counter++;
             elementsToHash[counter] = limb2;
@@ -124,10 +121,6 @@ library NIFSPallas {
 
         require(counter == NUM_FE_FOR_RO); 
 
-        // uint32 absorbLen = uint32(counter);
-        // uint32 squeezeLen = 1;
-        // uint32 domainSeparator = 0;
-
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
@@ -142,8 +135,6 @@ library NIFSPallas {
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-        // uint256 r = output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
-
         RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
@@ -155,15 +146,10 @@ library NIFSPallas {
         Pallas.PallasAffinePoint memory comm_T,
         uint256 r
     ) public view returns (RelaxedR1CSInstance memory) {
-        // uint256[] memory x1 = U1.X;
-        // Pallas.PallasAffinePoint memory comm_W_1 = U1.comm_W;
-        // Pallas.PallasAffinePoint memory comm_E_1 = U1.comm_E;
-        // uint256 u1 = U1.u;
-
         uint256[] memory x2 = u2.X;
         Pallas.PallasAffinePoint memory comm_W_2 = u2.comm_W;
 
-        require(U1.X.length == x2.length, "Witness vectors do not match length");
+        require(U1.X.length == x2.length, "[NIFSPallas.foldInstance]: Witness vectors do not match length");
 
         uint256[] memory X = new uint256[](U1.X.length);
 
@@ -171,17 +157,10 @@ library NIFSPallas {
             X[i] = addmod(U1.X[i], mulmod(r, x2[i], Pallas.R_MOD), Pallas.R_MOD);
         }
 
-        // Pallas.PallasAffinePoint memory comm_W = Pallas.add(comm_W_1, Pallas.scalarMul(comm_W_2, r));
-
-        // Pallas.PallasAffinePoint memory comm_E = Pallas.add(comm_E_1, Pallas.scalarMul(comm_T, r));
-
-        // uint256 u = u1 + r;
-
         return RelaxedR1CSInstance(Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , X, addmod(U1.u, r, Pallas.P_MOD));
     }
 }
 
-// TODO: copy the modifications from the Pallas library to the Vesta library
 library NIFSVesta {
     uint256 constant private MOD = Vesta.P_MOD;
     uint256 constant private NUM_FE_FOR_RO = 24;
@@ -249,10 +228,7 @@ library NIFSVesta {
         // Absorb X
         for (uint256 i = 0; i < U1.X.length; i++) {
             uint256 entry = U1.X[i];
-            uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & entry);
-            uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & entry) >> 64;
-            uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & entry) >> 128;
-            uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & entry) >> 192;
+            (uint256 limb1, uint256 limb2, uint256 limb3, uint256 limb4) = Field.extractLimbs(entry);
 
             elementsToHash[counter] = limb1;
             counter++;
@@ -300,10 +276,6 @@ library NIFSVesta {
 
         require(counter == NUM_FE_FOR_RO); 
 
-        // uint32 absorbLen = uint32(counter);
-        // uint32 squeezeLen = 1;
-        // uint32 domainSeparator = 0;
-
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
@@ -318,8 +290,6 @@ library NIFSVesta {
         (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, 1);
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
-        // uint256 r = output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
-
         RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
@@ -331,15 +301,10 @@ library NIFSVesta {
         Vesta.VestaAffinePoint memory comm_T,
         uint256 r
     ) public view returns (RelaxedR1CSInstance memory) {
-        // uint256[] memory x1 = U1.X;
-        // Vesta.VestaAffinePoint memory comm_W_1 = U1.comm_W;
-        // Vesta.VestaAffinePoint memory comm_E_1 = U1.comm_E;
-        // uint256 u1 = U1.u;
-
         uint256[] memory x2 = u2.X;
         Vesta.VestaAffinePoint memory comm_W_2 = u2.comm_W;
 
-        require(U1.X.length == x2.length, "Witness vectors do not match length");
+        require(U1.X.length == x2.length, "[NIFSVesta.foldInstance]: Witness vectors do not match length");
 
         uint256[] memory X = new uint256[](U1.X.length);
 
@@ -347,13 +312,6 @@ library NIFSVesta {
             X[i] = addmod(U1.X[i], mulmod(r, x2[i], Vesta.R_MOD), Vesta.R_MOD);
         }
 
-        // Vesta.VestaAffinePoint memory comm_W = Vesta.add(comm_W_1, Vesta.scalarMul(comm_W_2, r));
-
-        // Vesta.VestaAffinePoint memory comm_E = Vesta.add(comm_E_1, Vesta.scalarMul(comm_T, r));
-
-        // uint256 u = u1 + r;
-
         return RelaxedR1CSInstance(Vesta.add(U1.comm_W, Vesta.scalarMul(comm_W_2, r)) , Vesta.add(U1.comm_E, Vesta.scalarMul(comm_T, r)) , X, addmod(U1.u, r, Vesta.P_MOD));
-
     }
 }

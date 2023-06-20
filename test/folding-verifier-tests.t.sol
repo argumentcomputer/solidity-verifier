@@ -5,7 +5,7 @@ import "@std/Test.sol";
 import "src/verifier/step3/Step3Logic.sol";
 
 contract FoldingVerifierTest is Test {
-    function testVerify() public {
+    function testFoldingVerify() public {
         /*
             Test vector generated using
 

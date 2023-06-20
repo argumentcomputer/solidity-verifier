@@ -22,9 +22,9 @@ library SpartanVerificationSupStep2Lib {
         assembly {
             tmp2 := mulmod(U_u, claim_Cz, modulusVesta) // Vesta
         }
-        tmp2 = Pallas.negate(tmp2); // Pallas
+        tmp2 = Vesta.negateBase(tmp2); // Vesta
 
-        uint256 tmp3 = Pallas.negate(eval_E); // Pallas
+        uint256 tmp3 = Vesta.negateBase(eval_E); // Vesta
 
         assembly {
             claim_outer_final_computed := addmod(tmp1, tmp2, modulusVesta) // Vesta
@@ -52,9 +52,9 @@ library SpartanVerificationSupStep2Lib {
             tmp2 := mulmod(U_u, claim_Cz, modulusPallas) // Pallas
         }
 
-        tmp2 = Vesta.negate(tmp2); // Vesta
+        tmp2 = Pallas.negateBase(tmp2); // Pallas
 
-        uint256 tmp3 = Vesta.negate(eval_E); // Vesta
+        uint256 tmp3 = Pallas.negateBase(eval_E); // Pallas
 
         assembly {
             claim_outer_final_computed := addmod(tmp1, tmp2, modulusPallas) // Pallas

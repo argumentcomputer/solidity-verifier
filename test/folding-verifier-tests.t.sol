@@ -14,10 +14,6 @@ contract FoldingVerifierTest is Test {
             in test_tiny_r1cs_with
         */
 
-        // unfolded initial RelaxedR1CSWitness
-        // uint256[4] memory r_W_W = [uint(0x0), uint(0x0), uint(0x0), uint(0x0)];
-        // uint256[4] memory r_W_E = [uint(0x0), uint(0x0), uint(0x0), uint(0x0)];
-
         // unfolded initial R1CSInstance
         Pallas.PallasAffinePoint memory u1_comm_W = 
         Pallas.IntoAffine(
@@ -36,14 +32,9 @@ contract FoldingVerifierTest is Test {
 
         // RelaxedR1CSInstance
 
-        // Pallas.PallasAffinePoint memory comm_W = Pallas.AffineInfinity();
-        // Pallas.PallasAffinePoint memory comm_E = Pallas.AffineInfinity();
-
         uint256[] memory r_U_X = new uint256[](2);
         r_U_X[0] = 0x0;
         r_U_X[1] = 0x0;
-
-        // uint256 r_U_u = 0;
 
         NIFSPallas.RelaxedR1CSInstance memory r_U = 
             NIFSPallas.RelaxedR1CSInstance(Pallas.AffineInfinity(), Pallas.AffineInfinity(), r_U_X, 0);
@@ -66,21 +57,12 @@ contract FoldingVerifierTest is Test {
             )
         );
 
-        // Pallas.PallasAffinePoint memory res_1_U_comm_E = Pallas.AffineInfinity();
-
         uint256[] memory res_U_X = new uint256[](2);
 
         res_U_X[0] = 0x0699b06b6ebadaf9d40cba2d702f48fad255059f25d85441bcf706bc0510b95e;
         res_U_X[1] = 0x3307f24938c5acb2fa00b27fc0a1e733f48bc7cf4a4558febed97167978bb576;
 
         uint256 res_U_u = 0x000000000000000000000000000000006cbba3b281698850b3c9ea90b6ccbb65;
-
-        // NIFSPallas.RelaxedR1CSInstance memory res_1_U = NIFSPallas.RelaxedR1CSInstance(
-        //     res_1_U_comm_W,
-        //     res_1_U_comm_E,
-        //     res_1_U_X,
-        //     res_1_U_u
-        // );
 
         NIFSPallas.RelaxedR1CSInstance memory res = NIFSPallas.verify(input_nifs, 0, r_U, u1);
 
@@ -130,7 +112,7 @@ contract FoldingVerifierTest is Test {
 
         res_U_u = 0x00000000000000000000000000000000bca88a0bf16269fef2be84cbdf620537;
 
-        NIFSPallas.RelaxedR1CSInstance memory res2 = NIFSPallas.verify(input_nifs, 0, res, u1); // TODO: This is wrong
+        NIFSPallas.RelaxedR1CSInstance memory res2 = NIFSPallas.verify(input_nifs, 0, res, u1); 
 
         assertEq(res2.comm_W.x, res_U_comm_W.x);
         assertEq(res2.comm_W.y, res_U_comm_W.y);

@@ -1,6 +1,9 @@
 # IntelliJ IDEA
 .idea
 
+# VSCode IDE
+.vscode
+
 # Compiler files
 cache/
 out/

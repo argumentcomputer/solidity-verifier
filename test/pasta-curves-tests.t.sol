@@ -80,7 +80,7 @@ contract PastaCurvesContractTests is Test {
 
     function testVestaMSM() public {
         /*
-        s/pallas/vesta 
+        s/pallas/vesta
         */
 
         uint256 x1 = 0x0b4a189e3b8aca95da758002798a9c66489a35d64ea6eb9bdc76a5500552aea4;
@@ -133,7 +133,7 @@ contract PastaCurvesContractTests is Test {
             let q = PallasScalar::random(&mut rng);
             println!("q: {:?}", q);
 
-            let exponent: u64 = rand::random(); 
+            let exponent: u64 = rand::random();
 
             println!("exponent: {:?}", exponent);
 
@@ -739,7 +739,7 @@ contract PastaCurvesContractTests is Test {
 
     function testVestaToAffine() public {
         /* s/pallas/vesta */
-        
+
         uint256 x = 0x0e1f9acd0f17819e1f2eaaafe11c430789a939dacf5ff33f0ae6c4a5b706e5dc;
         uint256 y = 0x1988bff490069754e66a11f37ac87a7895eb10978a6cf9592b3e6c0faf0f5d94;
         uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;

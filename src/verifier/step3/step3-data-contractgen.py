@@ -14,9 +14,9 @@ def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
 
     # Unpack nifs_secondary
     nifs_secondary_repr = nifs_secondary["comm_T"]["comm"]["repr"]
-    output += f"uint256[] memory nifs = uint256[]({len(nifs_secondary_repr)})\n"
+    output += f"uint256[] memory nifs = new uint256[]({len(nifs_secondary_repr)});\n"
     for idx, val in enumerate(nifs_secondary_repr):
-        output += f"nifs[{idx}] = {val}\n"
+        output += f"nifs[{idx}] = {val};\n"
 
     # Unpack r_U_secondary
     comm_W = r_U_secondary["comm_W"]["comm"]
@@ -24,9 +24,9 @@ def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
     comm_E = r_U_secondary["comm_E"]["comm"]
     output += f"uint256 r_U_comm_E = {h(comm_E)};\n"
     r_X = r_U_secondary["X"]
-    output += f"uint256[] memory r_U_X = uint256[]({len(r_X)})\n"
+    output += f"uint256[] memory r_U_X = new uint256[]({len(r_X)});\n"
     for idx, val in enumerate(r_X):
-        output += f"r_U_X[{idx}] = {h(val)}\n"
+        output += f"r_U_X[{idx}] = {h(val)};\n"
     r_U_u = r_U_secondary["u"]
     output += f"uint256 r_U_u = {h(r_U_u)};\n"
 
@@ -34,9 +34,9 @@ def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
     comm_W = l_u_secondary["comm_W"]["comm"]
     output += f"uint256 l_u_comm_W = {h(comm_W)};\n"
     l_X = l_u_secondary["X"]
-    output += f"uint256[] memory l_u_X = uint256[]({len(l_X)});\n"
+    output += f"uint256[] memory l_u_X = new uint256[]({len(l_X)});\n"
     for idx, val in enumerate(l_X):
-        output += f"l_u_X[{idx}] = {h(val)}\n"
+        output += f"l_u_X[{idx}] = {h(val)};\n"
 
     output += "return (u, nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);\n"
 

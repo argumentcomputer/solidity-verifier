@@ -6,7 +6,6 @@ import "src/pasta/Pallas.sol";
 import "src/pasta/Vesta.sol";
 
 contract PastaCurvesContractTests is Test {
-
     function testPallasMSM() public {
         /*
             use rand_core::OsRng;
@@ -272,10 +271,10 @@ contract PastaCurvesContractTests is Test {
         uint256 y_expected = 0x315dba1fbee5f02fcf5205349cb4d9ff9e64eed7bfc6ead3ce90cf7c359bf3e9;
         uint256 z_expected = 0x13990e37fa334265f5f33d8c941c28dcd07a6e8219b79417ea30ba8ae162867f;
 
-        Pallas.PallasProjectivePoint memory projectiveExpected = Pallas.PallasProjectivePoint(x_expected, y_expected, z_expected);
+        Pallas.PallasProjectivePoint memory projectiveExpected =
+            Pallas.PallasProjectivePoint(x_expected, y_expected, z_expected);
 
         Pallas.PallasAffinePoint memory affineExpected = Pallas.IntoAffine(projectiveExpected);
-
 
         assertEq(affineExpected.x, affineMulScalar.x);
         assertEq(affineExpected.y, affineMulScalar.y);
@@ -300,7 +299,8 @@ contract PastaCurvesContractTests is Test {
         uint256 y_expected = 0x1eff69777059ffde342e3ed2ecee022ec0ab5bb85e0e2ba5209ccdfc75ca8a10;
         uint256 z_expected = 0x1318d38989ad52549f1c1a50b5b02fdc58fb01e906aa5259d0e0dc199f5e7acc;
 
-        Vesta.VestaProjectivePoint memory projectiveExpected = Vesta.VestaProjectivePoint(x_expected, y_expected, z_expected);
+        Vesta.VestaProjectivePoint memory projectiveExpected =
+            Vesta.VestaProjectivePoint(x_expected, y_expected, z_expected);
 
         Vesta.VestaAffinePoint memory affineExpected = Vesta.IntoAffine(projectiveExpected);
 
@@ -739,7 +739,7 @@ contract PastaCurvesContractTests is Test {
 
     function testVestaToAffine() public {
         /* s/pallas/vesta */
-        
+
         uint256 x = 0x0e1f9acd0f17819e1f2eaaafe11c430789a939dacf5ff33f0ae6c4a5b706e5dc;
         uint256 y = 0x1988bff490069754e66a11f37ac87a7895eb10978a6cf9592b3e6c0faf0f5d94;
         uint256 z = 0x0000000000000000000000000000000000000000000000000000000000000001;

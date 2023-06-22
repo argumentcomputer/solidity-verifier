@@ -26,9 +26,12 @@ contract SparseEvaluationTest is Test {
         r_y[12] = 0x17634a890278ae48651f7fa7cea00884f17ccd04365ada8c6e4405a39478212e;
         r_y[13] = 0x0d2d8f8c26d30b56b526ddf9b803f597db14b25fe78fe4dba4ce487d9fb4fcb4;
 
-        SparsePolynomialLib.Z memory z0 = SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001a389d9eab44c587699bb449d20fe6530);
-        SparsePolynomialLib.Z memory z1 = SparsePolynomialLib.Z(1, 0x2e56d20a56a66f2ba12798f718d7d3071f18e03da5d4cac52190ba09ae72f46a);
-        SparsePolynomialLib.Z memory z2 = SparsePolynomialLib.Z(2, 0x2875f52ba1a60c5b478f684b058d0e2bf2ce904bd0a377ce38699d1a2aa69fad);
+        SparsePolynomialLib.Z memory z0 =
+            SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001a389d9eab44c587699bb449d20fe6530);
+        SparsePolynomialLib.Z memory z1 =
+            SparsePolynomialLib.Z(1, 0x2e56d20a56a66f2ba12798f718d7d3071f18e03da5d4cac52190ba09ae72f46a);
+        SparsePolynomialLib.Z memory z2 =
+            SparsePolynomialLib.Z(2, 0x2875f52ba1a60c5b478f684b058d0e2bf2ce904bd0a377ce38699d1a2aa69fad);
 
         SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
         poly_X[0] = z0;
@@ -61,9 +64,12 @@ contract SparseEvaluationTest is Test {
         r_y[12] = 0x1ed7da2e753c94332e034b046d37937577582b78c2cffa3ada412ac7d6446745;
         r_y[13] = 0x3e69c1910a9263ddee4a0cec382a858a67e33f74de3d76058fd6248cd8257cc8;
 
-        SparsePolynomialLib.Z memory z0 = SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001e4444ecefc90a788e6a520cdef7c6e46);
-        SparsePolynomialLib.Z memory z1 = SparsePolynomialLib.Z(1, 0x32d8d912584abe410b9c9c56cc9efdb0261ed5a636e0fc823bd5b427cf9fcbee);
-        SparsePolynomialLib.Z memory z2 = SparsePolynomialLib.Z(2, 0x25b86df67043654b4f2becbaf1ea152688dfeffdb1de89cdf0164c59b0330198);
+        SparsePolynomialLib.Z memory z0 =
+            SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001e4444ecefc90a788e6a520cdef7c6e46);
+        SparsePolynomialLib.Z memory z1 =
+            SparsePolynomialLib.Z(1, 0x32d8d912584abe410b9c9c56cc9efdb0261ed5a636e0fc823bd5b427cf9fcbee);
+        SparsePolynomialLib.Z memory z2 =
+            SparsePolynomialLib.Z(2, 0x25b86df67043654b4f2becbaf1ea152688dfeffdb1de89cdf0164c59b0330198);
 
         SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
         poly_X[0] = z0;

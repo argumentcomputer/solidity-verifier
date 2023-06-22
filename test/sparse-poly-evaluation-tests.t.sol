@@ -41,7 +41,7 @@ contract SparseEvaluationTest is Test {
         uint256 num_vars = r_y.length;
 
         uint256 eval_X_expected = 0x0529a26b256de07461339aff1ae1572655ae78c8578adeae7de834d804749230;
-        uint256 eval_X = SparsePolynomialLib.evaluateVesta(num_vars, poly_X, r_y);
+        uint256 eval_X = SparsePolynomialLib.evaluate(num_vars, poly_X, r_y, Vesta.P_MOD, Vesta.negateBase);
         assertEq(eval_X, eval_X_expected);
     }
 
@@ -79,7 +79,7 @@ contract SparseEvaluationTest is Test {
         uint256 num_vars = r_y.length;
 
         uint256 eval_X_expected = 0x1f7d55bb4d7ae09307a68da12fe43fef3acf3dcb0c88929bfdcb6b52c3a8e454;
-        uint256 eval_X = SparsePolynomialLib.evaluatePallas(num_vars, poly_X, r_y);
+        uint256 eval_X = SparsePolynomialLib.evaluate(num_vars, poly_X, r_y, Pallas.P_MOD, Pallas.negateBase);
         assertEq(eval_X, eval_X_expected);
     }
 }

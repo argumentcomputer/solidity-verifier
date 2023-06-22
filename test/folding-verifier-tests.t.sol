@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
 import "src/verifier/step3/Step3Logic.sol";
+import "src/verifier/step3/Step3Data.sol";
 
 contract FoldingVerifierTest is Test {
-    function testFoldingVerify() public {
+    function testTinyInstanceFolding() public {
         /*
             Test vector generated using
 
@@ -15,8 +16,7 @@ contract FoldingVerifierTest is Test {
         */
 
         // unfolded initial R1CSInstance
-        Pallas.PallasAffinePoint memory u1_comm_W = 
-        Pallas.IntoAffine(
+        Pallas.PallasAffinePoint memory u1_comm_W = Pallas.IntoAffine(
             Pallas.PallasProjectivePoint(
                 0x1c178ee13ca557d2c68c77ae48361df45fdaa5504297d1af622902242afcf154,
                 0x330fab9610d3222bfd999f8297b647a902ef98b099aef8d93743a4f870ec904c,
@@ -36,20 +36,16 @@ contract FoldingVerifierTest is Test {
         r_U_X[0] = 0x0;
         r_U_X[1] = 0x0;
 
-        NIFSPallas.RelaxedR1CSInstance memory r_U = 
+        NIFSPallas.RelaxedR1CSInstance memory r_U =
             NIFSPallas.RelaxedR1CSInstance(Pallas.AffineInfinity(), Pallas.AffineInfinity(), r_U_X, 0);
-
 
         // NIFS instance
         // result of the first NIFS::prove
-        NIFSPallas.NIFS memory input_nifs = NIFSPallas.NIFS([0,0,0,0,0,0,0,0,
-                                                             0,0,0,0,0,0,0,0,
-                                                             0,0,0,0,0,0,0,0,
-                                                             0,0,0,0,0,0,0,0]);
+        NIFSPallas.NIFS memory input_nifs = NIFSPallas.NIFS(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
 
-
-        Pallas.PallasAffinePoint memory res_U_comm_W = 
-        Pallas.IntoAffine(
+        Pallas.PallasAffinePoint memory res_U_comm_W = Pallas.IntoAffine(
             Pallas.PallasProjectivePoint(
                 0x1603f1814dac3534ae4091202fe2eb88832983a9fbaa5ebeec6d3dfabbdae892,
                 0x0d022bd151c061d4e91f3ff131b39d0fba10919f860e831412a815dae1295b77,
@@ -74,8 +70,7 @@ contract FoldingVerifierTest is Test {
         assertEq(res.X, res_U_X);
 
         // Second input R1CSInstance
-        u1_comm_W = 
-        Pallas.IntoAffine(
+        u1_comm_W = Pallas.IntoAffine(
             Pallas.PallasProjectivePoint(
                 0x166c397590b591b38485f4d4db866afd8aecd4255d00e70153d7cc3ce3186b51,
                 0x274173e01c6133a2a90faa0296496c2661cd7c04d79c190ef6f43c1764565ca5,
@@ -89,7 +84,42 @@ contract FoldingVerifierTest is Test {
         u1 = NIFSPallas.R1CSInstance(u1_comm_W, u1_X);
 
         // Result of the second NIFS::prove
-        input_nifs = NIFSPallas.NIFS([168, 57, 208, 82, 169, 86, 167, 134, 12, 8, 190, 237, 144, 237, 99, 68, 3, 22, 144, 12, 90, 70, 28, 172, 86, 202, 180, 126, 45, 205, 39, 5]);
+        input_nifs = NIFSPallas.NIFS(
+            [
+                168,
+                57,
+                208,
+                82,
+                169,
+                86,
+                167,
+                134,
+                12,
+                8,
+                190,
+                237,
+                144,
+                237,
+                99,
+                68,
+                3,
+                22,
+                144,
+                12,
+                90,
+                70,
+                28,
+                172,
+                86,
+                202,
+                180,
+                126,
+                45,
+                205,
+                39,
+                5
+            ]
+        );
 
         res_U_comm_W = Pallas.IntoAffine(
             Pallas.PallasProjectivePoint(
@@ -112,7 +142,7 @@ contract FoldingVerifierTest is Test {
 
         res_U_u = 0x00000000000000000000000000000000bca88a0bf16269fef2be84cbdf620537;
 
-        NIFSPallas.RelaxedR1CSInstance memory res2 = NIFSPallas.verify(input_nifs, 0, res, u1); 
+        NIFSPallas.RelaxedR1CSInstance memory res2 = NIFSPallas.verify(input_nifs, 0, res, u1);
 
         assertEq(res2.comm_W.x, res_U_comm_W.x);
         assertEq(res2.comm_W.y, res_U_comm_W.y);
@@ -120,5 +150,33 @@ contract FoldingVerifierTest is Test {
         assertEq(res2.comm_E.y, res_U_comm_E.y);
         assertEq(res2.u, res_U_u);
         assertEq(res2.X, res_U_X);
+    }
+
+    function testNontrivialPrimaryFolding() public {
+        (
+            uint256 u,
+            uint256[] memory nifs,
+            uint256 r_W,
+            uint256 r_E,
+            uint256[] memory r_X,
+            uint256 r_u,
+            uint256 l_W,
+            uint256[] memory l_X
+        ) = Step3Data.returnPrimaryData();
+
+        
+    }
+
+    function testnontrivialSecondaryFolding() public {
+        (
+            uint256 u,
+            uint256[] memory nifs,
+            uint256 r_W,
+            uint256 r_E,
+            uint256[] memory r_X,
+            uint256 r_u,
+            uint256 l_W,
+            uint256[] memory l_X
+        ) = Step3Data.returnSecondaryData();
     }
 }

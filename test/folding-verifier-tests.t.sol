@@ -164,7 +164,19 @@ contract FoldingVerifierTest is Test {
             uint256[] memory l_X
         ) = Step3Data.returnPrimaryData();
 
-        
+        uint256 expected_comm_W_x = 0x377d16c3de44e589fb6f0371093d648d2f3933db1c52aab0f28e76834ea98e8c;
+        uint256 expected_comm_W_y = 0x0985c3acbcdcfe95fd6531f819e82b17e5afdf8cc82187a4367c658bb9fb0a55;
+        uint256 expected_comm_W_z = 0x0406f654f562ba978cb48c15983ec87135382aef386bbe5d984980c6ef462323;
+
+        uint256 expected_comm_E_x = 0x3fc650f5b92937a4a00c54c14da562de8dfca830c4bb82dd34debbaa5f847b19;
+        uint256 expected_comm_E_y = 0x12059c8862f4766782e3add45baad4e0dd5bc5e133baa9cc8fbd4f53ea857597;
+        uint256 expected_comm_E_z = 0x0741cc9fdbf8d776f052b3350776a93e038328478aa2926b319c62e9a46f1ab1;
+
+        uint256[] memory expected_X = new uint256[](2);
+        expected_X[0] = 0x2e56d20a56a66f2ba12798f718d7d3071f18e03da5d4cac52190ba09ae72f46a;
+        expected_X[1] = 0x2875f52ba1a60c5b478f684b058d0e2bf2ce904bd0a377ce38699d1a2aa69fad;
+
+        uint256 expected_u = 0x00000000000000000000000000000001a389d9eab44c587699bb449d20fe6530;
     }
 
     function testnontrivialSecondaryFolding() public {
@@ -178,5 +190,19 @@ contract FoldingVerifierTest is Test {
             uint256 l_W,
             uint256[] memory l_X
         ) = Step3Data.returnSecondaryData();
+
+        uint256 expected_comm_W_x = 0x16b45f4410b378a414b2303772e97ca21f97cedca866dc446a0c03701db8607f;
+        uint256 expected_comm_W_y = 0x08dd11b5cc6a77afcb553cb341b4c4e89b64593c4a4c79af5f8027ebfa5ba143;
+        uint256 expected_comm_W_z = 0x0193373d89342b5a3c0ade3a0d2f6d6f5c6f919265e2429bc019d1cf329d5c7e;
+
+        uint256 expected_comm_E_x = 0x35cd0c83e99ab8826aeabdb360449a8138ac8efde6e791801fc4ba6024c5a9c1;
+        uint256 expected_comm_E_y = 0x3b8b16f35f6bc8cc10fb1988d19b7ca069b71c4378a9fab07b053eb71a394df7;
+        uint256 expected_comm_E_z = 0x38e70020eab8f6d0210659e5f28712a8031d29d382644c924d75c386d92461c6;
+
+        uint256[] memory expected_X = new uint256[](2);
+        expected_X[0] = 0x32d8d912584abe410b9c9c56cc9efdb0261ed5a636e0fc823bd5b427cf9fcbee;
+        expected_X[1] = 0x25b86df67043654b4f2becbaf1ea152688dfeffdb1de89cdf0164c59b0330198;
+
+        uint256 expected_u = 0x00000000000000000000000000000001e4444ecefc90a788e6a520cdef7c6e46;
     }
 }

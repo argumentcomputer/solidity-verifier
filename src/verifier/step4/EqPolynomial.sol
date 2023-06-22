@@ -5,7 +5,7 @@ import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
 
 library EqPolinomialLib {
-    function evaluateVesta(uint256[] memory r, uint256[] memory rx) public pure returns (uint256){
+    function evaluateVesta(uint256[] memory r, uint256[] memory rx) public pure returns (uint256) {
         require(r.length == rx.length, "[EqPolinomialLib.evaluateVesta] wrong input data length");
 
         uint256 modulusVesta = Vesta.P_MOD;
@@ -27,17 +27,17 @@ library EqPolinomialLib {
             minus_rx = Vesta.negateBase(rx_inner); // Vesta
             minus_r = Vesta.negateBase(r_inner); // Vesta
             assembly {
-            // rx[i] * r[i]
+                // rx[i] * r[i]
                 tmp1 := mulmod(rx_inner, r_inner, modulusVesta) // Vesta
-            // 1 - rx[i]
+                // 1 - rx[i]
                 tmp2 := addmod(1, minus_rx, modulusVesta) // Vesta
-            // 1 - r[i]
+                // 1 - r[i]
                 tmp3 := addmod(1, minus_r, modulusVesta) // Vesta
 
-            // tmp1 + tmp2 * tmp3
+                // tmp1 + tmp2 * tmp3
                 tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusVesta), modulusVesta) // Vesta
 
-            // accumulate result
+                // accumulate result
                 resultIter := mulmod(tmp4, result, modulusVesta) // Vesta
 
                 result := resultIter
@@ -47,7 +47,7 @@ library EqPolinomialLib {
         return result;
     }
 
-    function evaluatePallas(uint256[] memory r, uint256[] memory rx) public pure returns (uint256){
+    function evaluatePallas(uint256[] memory r, uint256[] memory rx) public pure returns (uint256) {
         require(r.length == rx.length, "[EqPolinomialLib.evaluatePallas] wrong input data length");
 
         uint256 modulusPallas = Pallas.P_MOD;
@@ -69,17 +69,17 @@ library EqPolinomialLib {
             minus_rx = Pallas.negateBase(rx_inner); // Pallas
             minus_r = Pallas.negateBase(r_inner); // Pallas
             assembly {
-            // rx[i] * r[i]
+                // rx[i] * r[i]
                 tmp1 := mulmod(rx_inner, r_inner, modulusPallas) // Pallas
-            // 1 - rx[i]
+                // 1 - rx[i]
                 tmp2 := addmod(1, minus_rx, modulusPallas) // Pallas
-            // 1 - r[i]
+                // 1 - r[i]
                 tmp3 := addmod(1, minus_r, modulusPallas) // Pallas
 
-            // tmp1 + tmp2 * tmp3
+                // tmp1 + tmp2 * tmp3
                 tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulusPallas), modulusPallas) // Pallas
 
-            // accumulate result
+                // accumulate result
                 resultIter := mulmod(tmp4, result, modulusPallas) // Pallas
 
                 result := resultIter

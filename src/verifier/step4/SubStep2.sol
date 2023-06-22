@@ -6,8 +6,16 @@ import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
 
 library SpartanVerificationSupStep2Lib {
-
-    function verifyPrimary(uint256[] memory tau, uint256[] memory r_x, uint256 claim_Az, uint256 claim_Bz, uint256 claim_Cz, uint256 eval_E, uint256 U_u, uint256 claim_outer_final) public pure {
+    function verifyPrimary(
+        uint256[] memory tau,
+        uint256[] memory r_x,
+        uint256 claim_Az,
+        uint256 claim_Bz,
+        uint256 claim_Cz,
+        uint256 eval_E,
+        uint256 U_u,
+        uint256 claim_outer_final
+    ) public pure {
         uint256 taus_bound_rx = EqPolinomialLib.evaluateVesta(tau, r_x);
 
         uint256 claim_outer_final_computed;
@@ -32,10 +40,22 @@ library SpartanVerificationSupStep2Lib {
             claim_outer_final_computed := mulmod(claim_outer_final_computed, taus_bound_rx, modulusVesta) // Vesta
         }
 
-        require(claim_outer_final_computed == claim_outer_final, "[SpartanVerificationSupStep2Lib.verifyPrimary] InvalidSumcheckProof");
+        require(
+            claim_outer_final_computed == claim_outer_final,
+            "[SpartanVerificationSupStep2Lib.verifyPrimary] InvalidSumcheckProof"
+        );
     }
 
-    function verifySecondary(uint256[] memory tau, uint256[] memory r_x, uint256 claim_Az, uint256 claim_Bz, uint256 claim_Cz, uint256 eval_E, uint256 U_u, uint256 claim_outer_final) public pure {
+    function verifySecondary(
+        uint256[] memory tau,
+        uint256[] memory r_x,
+        uint256 claim_Az,
+        uint256 claim_Bz,
+        uint256 claim_Cz,
+        uint256 eval_E,
+        uint256 U_u,
+        uint256 claim_outer_final
+    ) public pure {
         uint256 taus_bound_rx = EqPolinomialLib.evaluatePallas(tau, r_x);
 
         uint256 claim_outer_final_computed;
@@ -62,6 +82,9 @@ library SpartanVerificationSupStep2Lib {
             claim_outer_final_computed := mulmod(claim_outer_final_computed, taus_bound_rx, modulusPallas) // Pallas
         }
 
-        require(claim_outer_final_computed == claim_outer_final, "[SpartanVerificationSupStep2Lib.verifySecondary] InvalidSumcheckProof");
+        require(
+            claim_outer_final_computed == claim_outer_final,
+            "[SpartanVerificationSupStep2Lib.verifySecondary] InvalidSumcheckProof"
+        );
     }
 }

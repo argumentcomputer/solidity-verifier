@@ -2,6 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
+import "src/pasta/Pallas.sol";
+import "src/pasta/Vesta.sol";
+import "src/Field.sol";
 import "src/verifier/step3/Step3Logic.sol";
 import "src/verifier/step3/Step3Data.sol";
 
@@ -42,7 +45,7 @@ contract FoldingVerifierTest is Test {
         // NIFS instance
         // result of the first NIFS::prove
         NIFSPallas.NIFS memory input_nifs = NIFSPallas.NIFS(
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            Field.uint8ArrayToBytes32([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         );
 
         Pallas.PallasAffinePoint memory res_U_comm_W = Pallas.IntoAffine(
@@ -85,7 +88,7 @@ contract FoldingVerifierTest is Test {
 
         // Result of the second NIFS::prove
         input_nifs = NIFSPallas.NIFS(
-            [
+            Field.uint8ArrayToBytes32([
                 168,
                 57,
                 208,
@@ -118,7 +121,7 @@ contract FoldingVerifierTest is Test {
                 205,
                 39,
                 5
-            ]
+            ])
         );
 
         res_U_comm_W = Pallas.IntoAffine(
@@ -155,7 +158,7 @@ contract FoldingVerifierTest is Test {
     function testNontrivialPrimaryFolding() public {
         (
             uint256 u,
-            uint256[] memory nifs,
+            bytes32 nifs,
             uint256 r_W,
             uint256 r_E,
             uint256[] memory r_X,
@@ -163,6 +166,13 @@ contract FoldingVerifierTest is Test {
             uint256 l_W,
             uint256[] memory l_X
         ) = Step3Data.returnPrimaryData();
+
+        NIFSPallas.RelaxedR1CSInstance memory result = NIFSPallas.verify(
+            NIFSPallas.NIFS(nifs),
+            u,
+            NIFSPallas.RelaxedR1CSInstance(Pallas.decompress(r_W), Pallas.decompress(r_E), r_X, r_u),
+            NIFSPallas.R1CSInstance(Pallas.decompress(l_W), l_X)
+        );
 
         uint256 expected_comm_W_x = 0x377d16c3de44e589fb6f0371093d648d2f3933db1c52aab0f28e76834ea98e8c;
         uint256 expected_comm_W_y = 0x0985c3acbcdcfe95fd6531f819e82b17e5afdf8cc82187a4367c658bb9fb0a55;
@@ -182,7 +192,7 @@ contract FoldingVerifierTest is Test {
     function testnontrivialSecondaryFolding() public {
         (
             uint256 u,
-            uint256[] memory nifs,
+            bytes32 nifs,
             uint256 r_W,
             uint256 r_E,
             uint256[] memory r_X,

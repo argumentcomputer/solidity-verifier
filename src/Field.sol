@@ -169,4 +169,14 @@ library Field {
 
             return (limb1, limb2, limb3, limb4);
     }
+
+    function uint8ArrayToBytes32(uint8[32] memory input) public pure returns (bytes32) {
+        bytes32 output;
+
+        for (uint i = 0; i < input.length; i++) {
+            output |= bytes32(bytes1(input[i])) >> (i * 8);
+        }
+
+        return output;
+    }
 }

@@ -11,7 +11,7 @@ library NIFSPallas {
     uint256 private constant NUM_FE_FOR_RO = 24;
 
     struct NIFS {
-        uint8[32] compressed_comm_T;
+        bytes32 compressed_comm_T;
     }
 
     struct R1CSInstance {
@@ -102,7 +102,7 @@ library NIFSPallas {
         }
 
         // Absorb comm_T
-        Pallas.PallasAffinePoint memory comm_T = Pallas.decompress(nifs.compressed_comm_T);
+        Pallas.PallasAffinePoint memory comm_T = Pallas.fromBytes(nifs.compressed_comm_T);
         elementsToHash[counter] = comm_T.x;
         counter++;
         elementsToHash[counter] = comm_T.y;
@@ -167,7 +167,7 @@ library NIFSVesta {
     uint256 private constant NUM_FE_FOR_RO = 24;
 
     struct NIFS {
-        uint8[32] compressed_comm_T;
+        bytes32 compressed_comm_T;
     }
 
     struct R1CSInstance {
@@ -258,7 +258,7 @@ library NIFSVesta {
         }
 
         // Absorb comm_T
-        Vesta.VestaAffinePoint memory comm_T = Vesta.decompress(nifs.compressed_comm_T);
+        Vesta.VestaAffinePoint memory comm_T = Vesta.fromBytes(nifs.compressed_comm_T);
         elementsToHash[counter] = comm_T.x;
         counter++;
         elementsToHash[counter] = comm_T.y;

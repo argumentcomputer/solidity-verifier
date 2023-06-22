@@ -7,8 +7,8 @@ import "src/verifier/step2/Step2Data.sol";
 import "src/poseidon/Sponge.sol";
 
 library NIFSPallas {
-    uint256 constant private MOD = Pallas.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24;
+    uint256 private constant MOD = Pallas.P_MOD;
+    uint256 private constant NUM_FE_FOR_RO = 24;
 
     struct NIFS {
         uint8[32] compressed_comm_T;
@@ -26,12 +26,11 @@ library NIFSPallas {
         uint256 u;
     }
 
-    function verify(
-        NIFS memory nifs,
-        uint256 pp_digest,
-        RelaxedR1CSInstance calldata U1,
-        R1CSInstance calldata U2
-    ) public view returns (RelaxedR1CSInstance memory) {
+    function verify(NIFS memory nifs, uint256 pp_digest, RelaxedR1CSInstance calldata U1, R1CSInstance calldata U2)
+        public
+        view
+        returns (RelaxedR1CSInstance memory)
+    {
         uint256 counter = 0;
 
         uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO);
@@ -47,8 +46,7 @@ library NIFSPallas {
         counter++;
         if (Pallas.isInfinity(U1.comm_W)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -60,8 +58,7 @@ library NIFSPallas {
         counter++;
         if (Pallas.isInfinity(U1.comm_E)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -93,8 +90,7 @@ library NIFSPallas {
         counter++;
         if (Pallas.isInfinity(U2.comm_W)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -113,13 +109,12 @@ library NIFSPallas {
         counter++;
         if (Pallas.isInfinity(comm_T)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
 
-        require(counter == NUM_FE_FOR_RO); 
+        require(counter == NUM_FE_FOR_RO);
 
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
@@ -127,7 +122,7 @@ library NIFSPallas {
         pattern[0] = absorb;
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
-        
+
         NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(p, 0);
 
         sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);
@@ -135,7 +130,8 @@ library NIFSPallas {
         (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, 1);
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
-        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
+        RelaxedR1CSInstance memory result =
+            foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
     }
@@ -157,13 +153,18 @@ library NIFSPallas {
             X[i] = addmod(U1.X[i], mulmod(r, x2[i], Pallas.R_MOD), Pallas.R_MOD);
         }
 
-        return RelaxedR1CSInstance(Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)) , Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)) , X, addmod(U1.u, r, Pallas.P_MOD));
+        return RelaxedR1CSInstance(
+            Pallas.add(U1.comm_W, Pallas.scalarMul(comm_W_2, r)),
+            Pallas.add(U1.comm_E, Pallas.scalarMul(comm_T, r)),
+            X,
+            addmod(U1.u, r, Pallas.P_MOD)
+        );
     }
 }
 
 library NIFSVesta {
-    uint256 constant private MOD = Vesta.P_MOD;
-    uint256 constant private NUM_FE_FOR_RO = 24;
+    uint256 private constant MOD = Vesta.P_MOD;
+    uint256 private constant NUM_FE_FOR_RO = 24;
 
     struct NIFS {
         uint8[32] compressed_comm_T;
@@ -181,12 +182,11 @@ library NIFSVesta {
         uint256 u;
     }
 
-    function verify(
-        NIFS memory nifs,
-        uint256 pp_digest,
-        RelaxedR1CSInstance calldata U1,
-        R1CSInstance calldata U2
-    ) public view returns (RelaxedR1CSInstance memory) {
+    function verify(NIFS memory nifs, uint256 pp_digest, RelaxedR1CSInstance calldata U1, R1CSInstance calldata U2)
+        public
+        view
+        returns (RelaxedR1CSInstance memory)
+    {
         uint256 counter = 0;
 
         uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO);
@@ -202,8 +202,7 @@ library NIFSVesta {
         counter++;
         if (Vesta.isInfinity(U1.comm_W)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -215,8 +214,7 @@ library NIFSVesta {
         counter++;
         if (Vesta.isInfinity(U1.comm_E)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -248,8 +246,7 @@ library NIFSVesta {
         counter++;
         if (Vesta.isInfinity(U2.comm_W)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
@@ -268,13 +265,12 @@ library NIFSVesta {
         counter++;
         if (Vesta.isInfinity(comm_T)) {
             elementsToHash[counter] = 1;
-        }
-        else {
+        } else {
             elementsToHash[counter] = 0;
         }
         counter++;
 
-        require(counter == NUM_FE_FOR_RO); 
+        require(counter == NUM_FE_FOR_RO);
 
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
@@ -282,7 +278,7 @@ library NIFSVesta {
         pattern[0] = absorb;
         pattern[1] = squeeze;
         IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
-        
+
         NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(p, 0);
 
         sponge = NovaSpongeVestaLib.absorb(sponge, elementsToHash);
@@ -290,7 +286,8 @@ library NIFSVesta {
         (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, 1);
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
-        RelaxedR1CSInstance memory result = foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
+        RelaxedR1CSInstance memory result =
+            foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
     }
@@ -312,6 +309,11 @@ library NIFSVesta {
             X[i] = addmod(U1.X[i], mulmod(r, x2[i], Vesta.R_MOD), Vesta.R_MOD);
         }
 
-        return RelaxedR1CSInstance(Vesta.add(U1.comm_W, Vesta.scalarMul(comm_W_2, r)) , Vesta.add(U1.comm_E, Vesta.scalarMul(comm_T, r)) , X, addmod(U1.u, r, Vesta.P_MOD));
+        return RelaxedR1CSInstance(
+            Vesta.add(U1.comm_W, Vesta.scalarMul(comm_W_2, r)),
+            Vesta.add(U1.comm_E, Vesta.scalarMul(comm_T, r)),
+            X,
+            addmod(U1.u, r, Vesta.P_MOD)
+        );
     }
 }

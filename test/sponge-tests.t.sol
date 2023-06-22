@@ -6,7 +6,6 @@ import "src/poseidon/Sponge.sol";
 
 // TODO: add other sponge (in simplex mode) tests from neptune: https://github.com/lurk-lab/neptune/blob/master/src/sponge/vanilla.rs#L501
 contract SpongeContractTest is Test {
-
     function testSpongeVestaApiUsageInNova() public {
         /*
             let constants = Sponge::<Fq, U24>::api_constants(Strength::Standard);
@@ -60,7 +59,8 @@ contract SpongeContractTest is Test {
 
         sponge = NovaSpongeVestaLib.absorb(sponge, scalars);
 
-        (NovaSpongeVestaLib.SpongeU24Vesta memory updatedSponge, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, sqeezeLen);
+        (NovaSpongeVestaLib.SpongeU24Vesta memory updatedSponge, uint256[] memory output) =
+            NovaSpongeVestaLib.squeeze(sponge, sqeezeLen);
 
         assertEq(output.length, sqeezeLen);
         assertEq(output[0], uint256(0x0142edde0a42918f63c603295391c6d33c1007522c28177d8f1759a9b19b202a));
@@ -119,7 +119,8 @@ contract SpongeContractTest is Test {
 
         sponge = NovaSpongePallasLib.absorb(sponge, scalars);
 
-        (NovaSpongePallasLib.SpongeU24Pallas memory updatedSponge, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, sqeezeLen);
+        (NovaSpongePallasLib.SpongeU24Pallas memory updatedSponge, uint256[] memory output) =
+            NovaSpongePallasLib.squeeze(sponge, sqeezeLen);
 
         assertEq(output.length, sqeezeLen);
         assertEq(output[0], uint256(0x356137a51d6b4280ae94ce82533063ce3440a55c927eb6a16c847c26905fa103));
@@ -146,7 +147,6 @@ contract SpongeContractTest is Test {
         assertEq(340282366920938463463374607090318361668, IOPatternLib.value(p1, 0));
         assertEq(340282366920938463463374607090314341989, IOPatternLib.value(p1, 1));
 
-
         SpongeOpLib.SpongeOp memory absorb1 = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 1);
         SpongeOpLib.SpongeOp memory absorb2 = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 1);
         SpongeOpLib.SpongeOp memory squeeze1 = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 2);
@@ -157,7 +157,6 @@ contract SpongeContractTest is Test {
         IOPatternLib.IOPattern memory p2 = IOPatternLib.IOPattern(pattern2);
 
         assertEq(340282366920938463463374607090318361668, IOPatternLib.value(p2, 0));
-
 
         SpongeOpLib.SpongeOp memory absorb3 = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 1);
         SpongeOpLib.SpongeOp memory absorb4 = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 1);

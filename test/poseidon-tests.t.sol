@@ -27,9 +27,10 @@ contract PoseidonContractTest is Test {
             let digest = new.hash_in_mode(HashMode::Correct);
             println!("\ndigest: {:?}", digest);
         */
-        uint pallasCurveModulus = uint(bytes32(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001));
+        uint256 pallasCurveModulus =
+            uint256(bytes32(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001));
 
-        PoseidonU24Pallas.HashInputs25 memory state = PoseidonU24Pallas.HashInputs25 (
+        PoseidonU24Pallas.HashInputs25 memory state = PoseidonU24Pallas.HashInputs25(
             0x0000000000000000000000000000000000000000000000000000000000000000,
             0x08c367263dbcf5935e1c02c04358695d5fb90ae1a4c9309c09c9d9ad1a7ed817,
             0x05f4510c8e36dbbee6e073eb91e0f357ccd6e0c8e94074e7474cb706b5402423,
@@ -57,9 +58,9 @@ contract PoseidonContractTest is Test {
             0x251fc5ac3427e9d295a88e350c65f0f9c17a05d80ebc462d9557f1024592656a
         );
 
-        uint actual = PoseidonU24Pallas.hash(state, pallasCurveModulus);
+        uint256 actual = PoseidonU24Pallas.hash(state, pallasCurveModulus);
 
-        uint expected = 0x0a85fc12d012ed3ae407c1589fb0e2eb0fe337f1d4c3374a785a89a134cbdf47;
+        uint256 expected = 0x0a85fc12d012ed3ae407c1589fb0e2eb0fe337f1d4c3374a785a89a134cbdf47;
 
         assertEq(expected, actual);
     }
@@ -86,8 +87,8 @@ contract PoseidonContractTest is Test {
             println!("\ndigest: {:?}", digest);
         */
 
-        uint vestaCurveModulus = uint(bytes32(0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001));
-        PoseidonU24Vesta.HashInputs25 memory state = PoseidonU24Vesta.HashInputs25 (
+        uint256 vestaCurveModulus = uint256(bytes32(0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001));
+        PoseidonU24Vesta.HashInputs25 memory state = PoseidonU24Vesta.HashInputs25(
             0x0000000000000000000000000000000000000000000000000000000000000000,
             0x082c5d2a623d16dbff291b613201013e981eecdb655a4a194e7515ad6bdc3030,
             0x0391318ddaa0e9ececaf60b67e4747ba43b9f439abe98f76af386d968783a0cd,
@@ -115,9 +116,9 @@ contract PoseidonContractTest is Test {
             0x02f191e6d8d764d337e264446e23f7f0ca25fafc4f2287322d55c44a16852b2e
         );
 
-        uint actual = PoseidonU24Vesta.hash(state, vestaCurveModulus);
+        uint256 actual = PoseidonU24Vesta.hash(state, vestaCurveModulus);
 
-        uint expected = 0x0b12b46e51c266adc1ddc71e369249e2199b3d9b23c8316b36471e7a02869599;
+        uint256 expected = 0x0b12b46e51c266adc1ddc71e369249e2199b3d9b23c8316b36471e7a02869599;
 
         assertEq(expected, actual);
     }

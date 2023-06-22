@@ -169,7 +169,7 @@ contract FoldingVerifierTest is Test {
 
         NIFSPallas.RelaxedR1CSInstance memory result = NIFSPallas.verify(
             NIFSPallas.NIFS(nifs),
-            u,
+            (0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff) & u,
             NIFSPallas.RelaxedR1CSInstance(Pallas.decompress(r_W), Pallas.decompress(r_E), r_X, r_u),
             NIFSPallas.R1CSInstance(Pallas.decompress(l_W), l_X)
         );
@@ -226,7 +226,7 @@ contract FoldingVerifierTest is Test {
 
         NIFSVesta.RelaxedR1CSInstance memory result = NIFSVesta.verify(
             NIFSVesta.NIFS(nifs),
-            u,
+            (0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff) & u,
             NIFSVesta.RelaxedR1CSInstance(Vesta.decompress(r_W), Vesta.decompress(r_E), r_X, r_u),
             NIFSVesta.R1CSInstance(Vesta.decompress(l_W), l_X)
         );

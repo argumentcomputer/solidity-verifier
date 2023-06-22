@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
@@ -6,10 +7,12 @@ import "src/poseidon/PoseidonNeptuneU24pallas.sol";
 import "src/poseidon/PoseidonNeptuneU24vesta.sol";
 
 library SpongeOpLib {
-    enum SpongeOpType{ Absorb, Squeeze }
+    enum SpongeOpType {
+        Absorb,
+        Squeeze
+    }
 
-    struct SpongeOp
-    {
+    struct SpongeOp {
         SpongeOpType id;
         uint32 val;
     }
@@ -65,19 +68,16 @@ library SpongeOpLib {
 }
 
 library HasherLib {
-    uint128 constant public HASHER_BASE = 340282366920938463463374607431768211297;
+    uint128 public constant HASHER_BASE = 340282366920938463463374607431768211297;
 
-    struct Hasher
-    {
+    struct Hasher {
         uint128 x;
         uint128 x_i;
         uint128 state;
         SpongeOpLib.SpongeOp currentOp;
     }
 
-
-    function updateOp(Hasher memory h, SpongeOpLib.SpongeOp memory op) internal pure
-    {
+    function updateOp(Hasher memory h, SpongeOpLib.SpongeOp memory op) internal pure {
         if (SpongeOpLib.matches(h.currentOp, op)) {
             h.currentOp = SpongeOpLib.combine(h.currentOp, op);
         } else {
@@ -91,26 +91,26 @@ library HasherLib {
             return;
         }
 
-        uint val = SpongeOpLib.getValue(h.currentOp);
+        uint256 val = SpongeOpLib.getValue(h.currentOp);
         update(h, uint128(val));
     }
 
     // TODO: if possible, replace with more efficient implementation (compatible with Rust overflowing_mul)
-    function multiply(uint128 a, uint128 b) internal pure returns (uint128){
+    function multiply(uint128 a, uint128 b) internal pure returns (uint128) {
         uint128 modulus = type(uint128).max;
         uint128 result = 0;
         a = a % modulus;
-        uint counter = 0;
+        uint256 counter = 0;
         while (b > 0) {
             if (b % 2 == 1) {
-            unchecked {
-                result = (result + a) % modulus;
-            }
+                unchecked {
+                    result = (result + a) % modulus;
+                }
             }
 
-        unchecked {
-            a = (a * 2) % modulus;
-        }
+            unchecked {
+                a = (a * 2) % modulus;
+            }
 
             b /= 2;
             counter++;
@@ -130,9 +130,9 @@ library HasherLib {
 
         uint128 tmp = multiply(x_i, a_temp);
         uint128 result;
-    unchecked {
-        result = state + tmp;
-    }
+        unchecked {
+            result = state + tmp;
+        }
 
         h.x_i = x_i;
         h.state = result;
@@ -146,34 +146,31 @@ library HasherLib {
 }
 
 library IOPatternLib {
-
     struct IOPattern {
         SpongeOpLib.SpongeOp[] pattern;
     }
 
     function value(IOPattern memory p, uint128 domainSeparator) internal pure returns (uint128) {
-        HasherLib.Hasher memory h = HasherLib.Hasher(HasherLib.HASHER_BASE, 1, 0, SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 0));
+        HasherLib.Hasher memory h =
+            HasherLib.Hasher(HasherLib.HASHER_BASE, 1, 0, SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, 0));
 
-        for (uint i; i < p.pattern.length; i++) {
+        for (uint256 i; i < p.pattern.length; i++) {
             HasherLib.updateOp(h, p.pattern[i]);
         }
 
         return HasherLib.finalize(h, domainSeparator);
     }
 
-    function opAt(IOPattern memory p, uint128 i) internal pure returns (SpongeOpLib.SpongeOp memory)
-    {
+    function opAt(IOPattern memory p, uint128 i) internal pure returns (SpongeOpLib.SpongeOp memory) {
         require(i < p.pattern.length);
         return p.pattern[i];
     }
 }
 
-
 // Poseidon instances (over Pallas / Vesta curves) used in Nova (Sponge in Simplex mode, U24, 128-bit security)
 library NovaSpongePallasLib {
-
-    uint256 constant public PALLAS_MODULUS = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001;
-    uint32 constant public STATE_SIZE = 25;
+    uint256 public constant PALLAS_MODULUS = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001;
+    uint32 public constant STATE_SIZE = 25;
 
     struct SpongeU24Pallas {
         IOPatternLib.IOPattern pattern;
@@ -183,8 +180,8 @@ library NovaSpongePallasLib {
         uint32 statePosition;
     }
 
-    function initializeState(uint128 pValue) internal pure returns (PoseidonU24Pallas.HashInputs25 memory){
-        PoseidonU24Pallas.HashInputs25 memory state = PoseidonU24Pallas.HashInputs25 (
+    function initializeState(uint128 pValue) internal pure returns (PoseidonU24Pallas.HashInputs25 memory) {
+        PoseidonU24Pallas.HashInputs25 memory state = PoseidonU24Pallas.HashInputs25(
             uint256(pValue),
             0x0000000000000000000000000000000000000000000000000000000000000000,
             0x0000000000000000000000000000000000000000000000000000000000000000,
@@ -214,7 +211,11 @@ library NovaSpongePallasLib {
         return state;
     }
 
-    function start(IOPatternLib.IOPattern memory pattern, uint32 domainSeparator) public pure returns (SpongeU24Pallas memory) {
+    function start(IOPatternLib.IOPattern memory pattern, uint32 domainSeparator)
+        public
+        pure
+        returns (SpongeU24Pallas memory)
+    {
         uint128 pValue = IOPatternLib.value(pattern, domainSeparator);
 
         PoseidonU24Pallas.HashInputs25 memory state = initializeState(pValue);
@@ -224,7 +225,11 @@ library NovaSpongePallasLib {
         return sponge;
     }
 
-    function absorb(SpongeU24Pallas memory sponge, uint256[] memory scalars) public pure returns (SpongeU24Pallas memory) {
+    function absorb(SpongeU24Pallas memory sponge, uint256[] memory scalars)
+        public
+        pure
+        returns (SpongeU24Pallas memory)
+    {
         uint256[] memory state = stateToArray(sponge.state);
 
         uint32 rate = STATE_SIZE - 1;
@@ -254,7 +259,7 @@ library NovaSpongePallasLib {
         return sponge;
     }
 
-    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public pure returns (bool){
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public pure returns (bool) {
         if (mix.length < 25) {
             return false;
         }
@@ -280,7 +285,11 @@ library NovaSpongePallasLib {
         return true;
     }
 
-    function squeeze(SpongeU24Pallas memory sponge, uint32 length) public pure returns (SpongeU24Pallas memory, uint256[] memory){
+    function squeeze(SpongeU24Pallas memory sponge, uint32 length)
+        public
+        pure
+        returns (SpongeU24Pallas memory, uint256[] memory)
+    {
         uint32 rate = STATE_SIZE - 1;
 
         uint256[] memory out = new uint256[](length);
@@ -307,7 +316,7 @@ library NovaSpongePallasLib {
         return (sponge, out);
     }
 
-    function finish(SpongeU24Pallas memory sponge) public pure returns (SpongeU24Pallas memory){
+    function finish(SpongeU24Pallas memory sponge) public pure returns (SpongeU24Pallas memory) {
         sponge.state = initializeState(0);
         uint32 finalIOCounter = incrementIOCounter(sponge);
         require(finalIOCounter == sponge.pattern.pattern.length, "ParameterUsageMismatch");
@@ -321,7 +330,7 @@ library NovaSpongePallasLib {
         return sponge;
     }
 
-    function incrementIOCounter(SpongeU24Pallas memory sponge) internal pure returns (uint32){
+    function incrementIOCounter(SpongeU24Pallas memory sponge) internal pure returns (uint32) {
         uint32 oldIOCounter = sponge.IOCounter;
         sponge.IOCounter++;
         return oldIOCounter;
@@ -331,7 +340,7 @@ library NovaSpongePallasLib {
         return state[index];
     }
 
-    function readRateElement(uint256[] memory state, uint32 offset) internal pure returns (uint256){
+    function readRateElement(uint256[] memory state, uint32 offset) internal pure returns (uint256) {
         return getElement(state, offset + 1);
     }
 
@@ -417,7 +426,7 @@ library NovaSpongePallasLib {
         sponge.pattern = pattern;
     }
 
-    function permute(SpongeU24Pallas memory sponge) internal pure returns (uint256[] memory){
+    function permute(SpongeU24Pallas memory sponge) internal pure returns (uint256[] memory) {
         PoseidonU24Pallas.HashInputs25 memory temp_state = sponge.state;
 
         PoseidonU24Pallas.hash(temp_state, PALLAS_MODULUS);
@@ -431,8 +440,8 @@ library NovaSpongePallasLib {
 }
 
 library NovaSpongeVestaLib {
-    uint256 constant public VESTA_MODULUS = 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001;
-    uint32 constant public STATE_SIZE = 25;
+    uint256 public constant VESTA_MODULUS = 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001;
+    uint32 public constant STATE_SIZE = 25;
 
     struct SpongeU24Vesta {
         IOPatternLib.IOPattern pattern;
@@ -442,8 +451,8 @@ library NovaSpongeVestaLib {
         uint32 statePosition;
     }
 
-    function initializeState(uint128 pValue) internal pure returns (PoseidonU24Vesta.HashInputs25 memory){
-        PoseidonU24Vesta.HashInputs25 memory state = PoseidonU24Vesta.HashInputs25 (
+    function initializeState(uint128 pValue) internal pure returns (PoseidonU24Vesta.HashInputs25 memory) {
+        PoseidonU24Vesta.HashInputs25 memory state = PoseidonU24Vesta.HashInputs25(
             uint256(pValue),
             0x0000000000000000000000000000000000000000000000000000000000000000,
             0x0000000000000000000000000000000000000000000000000000000000000000,
@@ -473,7 +482,11 @@ library NovaSpongeVestaLib {
         return state;
     }
 
-    function start(IOPatternLib.IOPattern memory pattern, uint32 domainSeparator) public pure returns (SpongeU24Vesta memory) {
+    function start(IOPatternLib.IOPattern memory pattern, uint32 domainSeparator)
+        public
+        pure
+        returns (SpongeU24Vesta memory)
+    {
         uint128 pValue = IOPatternLib.value(pattern, domainSeparator);
 
         PoseidonU24Vesta.HashInputs25 memory state = initializeState(pValue);
@@ -483,7 +496,11 @@ library NovaSpongeVestaLib {
         return sponge;
     }
 
-    function absorb(SpongeU24Vesta memory sponge, uint256[] memory scalars) public pure returns (SpongeU24Vesta memory) {
+    function absorb(SpongeU24Vesta memory sponge, uint256[] memory scalars)
+        public
+        pure
+        returns (SpongeU24Vesta memory)
+    {
         uint256[] memory state = stateToArray(sponge.state);
 
         uint32 rate = STATE_SIZE - 1;
@@ -513,7 +530,7 @@ library NovaSpongeVestaLib {
         return sponge;
     }
 
-    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public view returns (bool){
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public view returns (bool) {
         if (mix.length < 25) {
             console.log("here");
             return false;
@@ -544,7 +561,11 @@ library NovaSpongeVestaLib {
         return true;
     }
 
-    function squeeze(SpongeU24Vesta memory sponge, uint32 length) public pure returns (SpongeU24Vesta memory, uint256[] memory){
+    function squeeze(SpongeU24Vesta memory sponge, uint32 length)
+        public
+        pure
+        returns (SpongeU24Vesta memory, uint256[] memory)
+    {
         uint32 rate = STATE_SIZE - 1;
 
         uint256[] memory out = new uint256[](length);
@@ -571,7 +592,7 @@ library NovaSpongeVestaLib {
         return (sponge, out);
     }
 
-    function finish(SpongeU24Vesta memory sponge) public pure returns (SpongeU24Vesta memory){
+    function finish(SpongeU24Vesta memory sponge) public pure returns (SpongeU24Vesta memory) {
         sponge.state = initializeState(0);
         uint32 finalIOCounter = incrementIOCounter(sponge);
         require(finalIOCounter == sponge.pattern.pattern.length, "ParameterUsageMismatch");
@@ -585,7 +606,7 @@ library NovaSpongeVestaLib {
         return sponge;
     }
 
-    function incrementIOCounter(SpongeU24Vesta memory sponge) internal pure returns (uint32){
+    function incrementIOCounter(SpongeU24Vesta memory sponge) internal pure returns (uint32) {
         uint32 oldIOCounter = sponge.IOCounter;
         sponge.IOCounter++;
         return oldIOCounter;
@@ -595,7 +616,7 @@ library NovaSpongeVestaLib {
         return state[index];
     }
 
-    function readRateElement(uint256[] memory state, uint32 offset) internal pure returns (uint256){
+    function readRateElement(uint256[] memory state, uint32 offset) internal pure returns (uint256) {
         return getElement(state, offset + 1);
     }
 
@@ -681,7 +702,7 @@ library NovaSpongeVestaLib {
         sponge.pattern = pattern;
     }
 
-    function permute(SpongeU24Vesta memory sponge) internal pure returns (uint256[] memory){
+    function permute(SpongeU24Vesta memory sponge) internal pure returns (uint256[] memory) {
         PoseidonU24Vesta.HashInputs25 memory temp_state = sponge.state;
 
         PoseidonU24Vesta.hash(temp_state, VESTA_MODULUS);

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
 import "src/verifier/step2/Step2Data.sol";
@@ -6,13 +6,21 @@ import "src/poseidon/Sponge.sol";
 import "@std/Test.sol";
 
 library NovaVerifierStep2Lib {
-
     uint256 private constant NUM_FE_WITHOUT_IO_FOR_CRHF = 17;
 
     // uses Pallas-based Poseidon
-    function verifySecondary(PoseidonConstants.Pallas memory constants, NovaVerifierStep2DataLib.CompressedSnarkStep2Secondary memory proofDataStep2Secondary, NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2, uint32 numSteps, uint256[] memory z0_secondary) public pure {
+    function verifySecondary(
+        PoseidonConstants.Pallas memory constants,
+        NovaVerifierStep2DataLib.CompressedSnarkStep2Secondary memory proofDataStep2Secondary,
+        NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2,
+        uint32 numSteps,
+        uint256[] memory z0_secondary
+    ) public pure {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        require(NovaSpongePallasLib.constantsAreEqual(constants.mixConstants, constants.addRoundConstants), "[verifySecondary] WrongPallasPoseidonConstantsError");
+        require(
+            NovaSpongePallasLib.constantsAreEqual(constants.mixConstants, constants.addRoundConstants),
+            "[verifySecondary] WrongPallasPoseidonConstantsError"
+        );
 
         // check if the output secondary hash in R1CS instances point to the right running instance
         uint256 elementsToHashLength = NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * vkStep2.f_arity_secondary;
@@ -81,13 +89,26 @@ library NovaVerifierStep2Lib {
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
         // in Nova only 250 bits of output hash are significant
-        require((output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) == proofDataStep2Secondary.expected_l_u_secondary_X_1, "[Pallas Poseidon hash mismatch (verifySecondary)] ProofVerifyError");
+        require(
+            (output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                == proofDataStep2Secondary.expected_l_u_secondary_X_1,
+            "[Pallas Poseidon hash mismatch (verifySecondary)] ProofVerifyError"
+        );
     }
 
     // uses Vesta-based Poseidon
-    function verifyPrimary(PoseidonConstants.Vesta memory constants, NovaVerifierStep2DataLib.CompressedSnarkStep2Primary memory proofDataStep2Primary, NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2, uint32 numSteps, uint256[] memory z0_primary) public view {
+    function verifyPrimary(
+        PoseidonConstants.Vesta memory constants,
+        NovaVerifierStep2DataLib.CompressedSnarkStep2Primary memory proofDataStep2Primary,
+        NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2,
+        uint32 numSteps,
+        uint256[] memory z0_primary
+    ) public view {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        require(NovaSpongeVestaLib.constantsAreEqual(constants.mixConstants, constants.addRoundConstants), "[verifyPrimary] WrongVestaPoseidonConstantsError");
+        require(
+            NovaSpongeVestaLib.constantsAreEqual(constants.mixConstants, constants.addRoundConstants),
+            "[verifyPrimary] WrongVestaPoseidonConstantsError"
+        );
 
         // check if the output primary hash in R1CS instances point to the right running instance
         uint256 elementsToHashLength = NUM_FE_WITHOUT_IO_FOR_CRHF + 2 * vkStep2.f_arity_primary;
@@ -150,13 +171,16 @@ library NovaVerifierStep2Lib {
 
         NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(p, domainSeparator);
 
-
         sponge = NovaSpongeVestaLib.absorb(sponge, elementsToHash);
 
         (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, sqeezeLen);
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
         // in Nova only 250 bits of output hash are significant
-        require((output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) == proofDataStep2Primary.expected_l_u_primary_X_1, "[Vesta Poseidon hash mismatch (verifyPrimary)] ProofVerifyError");
+        require(
+            (output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                == proofDataStep2Primary.expected_l_u_primary_X_1,
+            "[Vesta Poseidon hash mismatch (verifyPrimary)] ProofVerifyError"
+        );
     }
 }

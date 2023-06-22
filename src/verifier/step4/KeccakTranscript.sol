@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
 import "src/pasta/Vesta.sol";
@@ -23,13 +24,16 @@ library ScalarFromUniformLib {
     uint256 public constant PALLAS_R2 = 0x3fffffffffffffffffffffffffffffff992c350be41914ad34786d38fffffffd;
     uint256 public constant PALLAS_R3 = 0x096d41af7b9cb7147797a99bc3c95d18d7d30dbd8b0de0e78c78ecb30000000f;
 
-    enum Curve { PALLAS, VESTA }
+    enum Curve {
+        PALLAS,
+        VESTA
+    }
 
-    function curvePallas() public pure returns (Curve){
+    function curvePallas() public pure returns (Curve) {
         return Curve.PALLAS;
     }
 
-    function curveVesta() public pure returns (Curve){
+    function curveVesta() public pure returns (Curve) {
         return Curve.VESTA;
     }
 
@@ -48,13 +52,21 @@ library ScalarFromUniformLib {
                 getLimb(scalarUniform, 0, 8),
                 getLimb(scalarUniform, 8, 16),
                 getLimb(scalarUniform, 16, 24),
-                getLimb(scalarUniform, 24, 32), 0, 0, 0, 0
+                getLimb(scalarUniform, 24, 32),
+                0,
+                0,
+                0,
+                0
             );
             d1 = montgomeryReducePallas(
                 getLimb(scalarUniform, 32, 40),
                 getLimb(scalarUniform, 40, 48),
                 getLimb(scalarUniform, 48, 56),
-                getLimb(scalarUniform, 56, 64), 0, 0, 0, 0
+                getLimb(scalarUniform, 56, 64),
+                0,
+                0,
+                0,
+                0
             );
         } else if (curve == Curve.VESTA) {
             modulus = Vesta.P_MOD;
@@ -64,13 +76,21 @@ library ScalarFromUniformLib {
                 getLimb(scalarUniform, 0, 8),
                 getLimb(scalarUniform, 8, 16),
                 getLimb(scalarUniform, 16, 24),
-                getLimb(scalarUniform, 24, 32), 0, 0, 0, 0
+                getLimb(scalarUniform, 24, 32),
+                0,
+                0,
+                0,
+                0
             );
             d1 = montgomeryReduceVesta(
                 getLimb(scalarUniform, 32, 40),
                 getLimb(scalarUniform, 40, 48),
                 getLimb(scalarUniform, 48, 56),
-                getLimb(scalarUniform, 56, 64), 0, 0, 0, 0
+                getLimb(scalarUniform, 56, 64),
+                0,
+                0,
+                0,
+                0
             );
         } else {
             require(false, "[scalarFromUniform] Unexpected curve");
@@ -86,7 +106,11 @@ library ScalarFromUniformLib {
         return scalar;
     }
 
-    function getLimb(uint8[] memory scalarUniform, uint256 startIndex, uint256 endIndex) private pure returns (uint64) {
+    function getLimb(uint8[] memory scalarUniform, uint256 startIndex, uint256 endIndex)
+        private
+        pure
+        returns (uint64)
+    {
         require(scalarUniform.length == SCALAR_UNIFORM_BYTE_SIZE, "[getLimb] state.len == SCALAR_UNIFORM_BYTE_SIZE");
         require(startIndex < endIndex, "[getLimb] startIndex < endIndex");
         require(startIndex < SCALAR_UNIFORM_BYTE_SIZE, "[getLimb] startIndex < SCALAR_UNIFORM_BYTE_SIZE");
@@ -101,21 +125,37 @@ library ScalarFromUniformLib {
         return limb;
     }
 
-    function montgomeryReducePallas(uint64 r0, uint64 r1, uint64 r2, uint64 r3, uint64 r4, uint64 r5, uint64 r6, uint64 r7) private pure returns (uint256){
+    function montgomeryReducePallas(
+        uint64 r0,
+        uint64 r1,
+        uint64 r2,
+        uint64 r3,
+        uint64 r4,
+        uint64 r5,
+        uint64 r6,
+        uint64 r7
+    ) private pure returns (uint256) {
         assembly {
             function mac(a, b, c, carry) -> ret1, ret2 {
                 let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
-                let a_add_bc := addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
-                let a_add_bc_add_carry := addmod(addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
-            // cast ret1 from uint128 to uint64
+                let a_add_bc :=
+                    addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry :=
+                    addmod(
+                        addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff),
+                        carry,
+                        0xffffffffffffffffffffffffffffffff
+                    )
+                // cast ret1 from uint128 to uint64
                 ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
                 ret2 := shr(64, a_add_bc_add_carry)
             }
 
             function adc(a, b, carry) -> ret1, ret2 {
                 let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
-                let a_add_b_add_carry := addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
-            // cast ret1 from uint128 to uint64
+                let a_add_b_add_carry :=
+                    addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
                 ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
                 ret2 := shr(64, a_add_b_add_carry)
             }
@@ -161,17 +201,17 @@ library ScalarFromUniformLib {
                 ret2 := shr(64, a_minus)
             }
 
-        // Result may be within MODULUS of the correct value
+            // Result may be within MODULUS of the correct value
 
-        // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+            // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
             carry2 := 0
             r0, carry2 := sbb(r4, PALLAS_MODULUS_0, carry2)
             r1, carry2 := sbb(r5, PALLAS_MODULUS_1, carry2)
             r2, carry2 := sbb(r6, PALLAS_MODULUS_2, carry2)
             r3, carry2 := sbb(r7, PALLAS_MODULUS_3, carry2)
 
-        // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
-        // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+            // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+            // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
             carry := 0
             r0, carry := adc(r0, and(PALLAS_MODULUS_0, carry2), carry)
             r1, carry := adc(r1, and(PALLAS_MODULUS_1, carry2), carry)
@@ -182,21 +222,37 @@ library ScalarFromUniformLib {
         return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
     }
 
-    function montgomeryReduceVesta(uint64 r0, uint64 r1, uint64 r2, uint64 r3, uint64 r4, uint64 r5, uint64 r6, uint64 r7) private pure returns (uint256){
+    function montgomeryReduceVesta(
+        uint64 r0,
+        uint64 r1,
+        uint64 r2,
+        uint64 r3,
+        uint64 r4,
+        uint64 r5,
+        uint64 r6,
+        uint64 r7
+    ) private pure returns (uint256) {
         assembly {
             function mac(a, b, c, carry) -> ret1, ret2 {
                 let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
-                let a_add_bc := addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
-                let a_add_bc_add_carry := addmod(addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
-            // cast ret1 from uint128 to uint64
+                let a_add_bc :=
+                    addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry :=
+                    addmod(
+                        addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff),
+                        carry,
+                        0xffffffffffffffffffffffffffffffff
+                    )
+                // cast ret1 from uint128 to uint64
                 ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
                 ret2 := shr(64, a_add_bc_add_carry)
             }
 
             function adc(a, b, carry) -> ret1, ret2 {
                 let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
-                let a_add_b_add_carry := addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
-            // cast ret1 from uint128 to uint64
+                let a_add_b_add_carry :=
+                    addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
                 ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
                 ret2 := shr(64, a_add_b_add_carry)
             }
@@ -242,17 +298,17 @@ library ScalarFromUniformLib {
                 ret2 := shr(64, a_minus)
             }
 
-        // Result may be within MODULUS of the correct value
+            // Result may be within MODULUS of the correct value
 
-        // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+            // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
             carry2 := 0
             r0, carry2 := sbb(r4, VESTA_MODULUS_0, carry2)
             r1, carry2 := sbb(r5, VESTA_MODULUS_1, carry2)
             r2, carry2 := sbb(r6, VESTA_MODULUS_2, carry2)
             r3, carry2 := sbb(r7, VESTA_MODULUS_3, carry2)
 
-        // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
-        // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+            // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+            // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
             carry := 0
             r0, carry := adc(r0, and(VESTA_MODULUS_0, carry2), carry)
             r1, carry := adc(r1, and(VESTA_MODULUS_1, carry2), carry)
@@ -265,7 +321,6 @@ library ScalarFromUniformLib {
 }
 
 library KeccakTranscriptLib {
-
     uint32 private constant PERSONA_TAG = 0x4e6f5452;
     uint32 private constant DOM_SEP_TAG = 0x4e6f4453;
     uint8 private constant KECCAK256_PREFIX_CHALLENGE_LO = 0x00;
@@ -278,7 +333,7 @@ library KeccakTranscriptLib {
         uint8[] transcript;
     }
 
-    function instantiate(uint8[] memory label) public pure returns (KeccakTranscript memory){
+    function instantiate(uint8[] memory label) public pure returns (KeccakTranscript memory) {
         uint8[] memory input = new uint8[](label.length + 4);
 
         uint256 index = 0;
@@ -299,7 +354,7 @@ library KeccakTranscriptLib {
         return keccak;
     }
 
-    function computeUpdatedState(uint8[] memory input) private pure returns (uint8[] memory updatedState){
+    function computeUpdatedState(uint8[] memory input) private pure returns (uint8[] memory updatedState) {
         uint8[] memory inputLo = new uint8[](input.length + 1);
         uint8[] memory inputHi = new uint8[](input.length + 1);
 
@@ -338,8 +393,11 @@ library KeccakTranscriptLib {
         return updatedState;
     }
 
-
-    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input) public pure returns (KeccakTranscript memory) {
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
         // uint256 input will always take 32 bytes
         uint8[] memory transcript = new uint8[](keccak.transcript.length + label.length + 32);
         uint256 index = 0;
@@ -365,7 +423,11 @@ library KeccakTranscriptLib {
         return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
 
-    function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label) public pure returns (KeccakTranscript memory, uint256){
+    function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)
+        public
+        pure
+        returns (KeccakTranscript memory, uint256)
+    {
         uint8[] memory input = new uint8[](4 + 2 + keccak.state.length + keccak.transcript.length + label.length);
 
         uint256 index = 0;
@@ -394,16 +456,15 @@ library KeccakTranscriptLib {
         }
         index += keccak.transcript.length;
 
-
         // append label
         for (uint256 i = 0; i < label.length; i++) {
             input[index + i] = label[i];
         }
 
         uint16 round;
-    unchecked {
-        round = keccak.round + 1;
-    }
+        unchecked {
+            round = keccak.round + 1;
+        }
         bool overflowed = (round - keccak.round != 1);
         require(!overflowed, "[KeccakTranscript - squeeze] InternalTranscriptError");
 

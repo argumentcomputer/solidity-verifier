@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2.0
 //
 //
 // Copyright 2022 Zhenfei Zhang
@@ -16,13 +16,11 @@ library Pallas {
     // E has the equation:
     //   E: y^2 = x^3 + 5
 
-    uint256 public constant P_MOD =
-    28948022309329048855892746252171976963363056481941560715954676764349967630337;
-    uint256 public constant R_MOD =
-    28948022309329048855892746252171976963363056481941647379679742748393362948097;
+    uint256 public constant P_MOD = 28948022309329048855892746252171976963363056481941560715954676764349967630337;
+    uint256 public constant R_MOD = 28948022309329048855892746252171976963363056481941647379679742748393362948097;
 
     uint256 private constant _THREE_OVER_TWO =
-    14474011154664524427946373126085988481681528240970780357977338382174983815170;
+        14474011154664524427946373126085988481681528240970780357977338382174983815170;
 
     struct PallasAffinePoint {
         uint256 x;
@@ -49,11 +47,7 @@ library Pallas {
 
     /// @return the convert an affine point into projective
     // solhint-disable-next-line func-name-mixedcase
-    function IntoProjective(PallasAffinePoint memory point)
-    internal
-    pure
-    returns (PallasProjectivePoint memory)
-    {
+    function IntoProjective(PallasAffinePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
             return PallasProjectivePoint(0, 0, 0);
         }
@@ -63,11 +57,7 @@ library Pallas {
 
     /// @return the convert a projective point into affine
     // solhint-disable-next-line func-name-mixedcase
-    function IntoAffine(PallasProjectivePoint memory point)
-    internal
-    view
-    returns (PallasAffinePoint memory)
-    {
+    function IntoAffine(PallasProjectivePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
             return PallasAffinePoint(0, 0);
         }
@@ -115,11 +105,7 @@ library Pallas {
     }
 
     /// @return r the negation of p, i.e. p.add(p.negate()) should be zero.
-    function negate(PallasProjectivePoint memory p)
-    internal
-    pure
-    returns (PallasProjectivePoint memory)
-    {
+    function negate(PallasProjectivePoint memory p) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(p)) {
             return p;
         }
@@ -137,11 +123,7 @@ library Pallas {
     }
 
     /// @return 2*point
-    function double(PallasProjectivePoint memory point)
-    internal
-    pure
-    returns (PallasProjectivePoint memory)
-    {
+    function double(PallasProjectivePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
             return point;
         }
@@ -159,27 +141,27 @@ library Pallas {
         uint256 doubleP = P_MOD << 1;
 
         assembly {
-        // A = X1^2
+            // A = X1^2
             a := mulmod(x, x, P_MOD)
-        // B = Y1^2
+            // B = Y1^2
             b := mulmod(y, y, P_MOD)
-        // C = B^2
+            // C = B^2
             c := mulmod(b, b, P_MOD)
-        // D = 2*((X1+B)^2-A-C)
+            // D = 2*((X1+B)^2-A-C)
             d := add(x, b)
             d := mulmod(d, d, P_MOD)
             b := add(a, c)
             d := add(d, sub(doubleP, b))
             d := mulmod(d, 2, P_MOD)
-        // E = 3*A
+            // E = 3*A
             e := mul(a, 3)
-        // F = E^2
+            // F = E^2
             f := mulmod(e, e, P_MOD)
-        // Z3 = 2*Y1*Z1
+            // Z3 = 2*Y1*Z1
             z := mulmod(mul(y, 2), z, P_MOD)
-        // X3 = F-2*D
+            // X3 = F-2*D
             x := addmod(f, sub(doubleP, mul(d, 2)), P_MOD)
-        // Y3 = E*(D-X3)-8*C
+            // Y3 = E*(D-X3)-8*C
             y := add(d, sub(P_MOD, x))
             y := mulmod(e, y, P_MOD)
             y := addmod(y, sub(P_MOD, mulmod(c, 8, P_MOD)), P_MOD)
@@ -188,11 +170,7 @@ library Pallas {
         return PallasProjectivePoint(x, y, z);
     }
 
-    function double(PallasAffinePoint memory point)
-    internal
-    view
-    returns (PallasAffinePoint memory)
-    {
+    function double(PallasAffinePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
             return point;
         }
@@ -205,12 +183,12 @@ library Pallas {
         uint256 yPrime;
 
         assembly {
-        // lambda = 3x^2/2y
+            // lambda = 3x^2/2y
             lambda := mulmod(x, x, P_MOD)
             lambda := mulmod(lambda, yInv, P_MOD)
             lambda := mulmod(lambda, _THREE_OVER_TWO, P_MOD)
 
-        // x' = lambda^2 - 2x
+            // x' = lambda^2 - 2x
             xPrime := mulmod(lambda, lambda, P_MOD)
             xPrime := add(xPrime, P_MOD)
             xPrime := add(xPrime, P_MOD)
@@ -218,7 +196,7 @@ library Pallas {
             xPrime := sub(xPrime, x)
             xPrime := mod(xPrime, P_MOD)
 
-        // y' = lambda * (x-x') - y
+            // y' = lambda * (x-x') - y
             yPrime := add(x, P_MOD)
             yPrime := sub(yPrime, xPrime)
             yPrime := mulmod(lambda, yPrime, P_MOD)
@@ -232,9 +210,9 @@ library Pallas {
 
     /// @return r the sum of two PallasAffinePoints
     function add(PallasAffinePoint memory p1, PallasAffinePoint memory p2)
-    internal
-    view
-    returns (PallasAffinePoint memory)
+        internal
+        view
+        returns (PallasAffinePoint memory)
     {
         if (isInfinity(p1)) {
             return p2;
@@ -265,10 +243,10 @@ library Pallas {
         }
         lambda = invert(lambda, P_MOD);
         assembly {
-        // lambda = (y1-y2)/(x1-x2)
+            // lambda = (y1-y2)/(x1-x2)
             lambda := mulmod(lambda, tmp, P_MOD)
 
-        // x3 = lambda^2 - x1 - x2
+            // x3 = lambda^2 - x1 - x2
             x3 := mulmod(lambda, lambda, P_MOD)
             x3 := add(x3, P_MOD)
             x3 := add(x3, P_MOD)
@@ -276,7 +254,7 @@ library Pallas {
             x3 := sub(x3, x2)
             x3 := mod(x3, P_MOD)
 
-        // y' = lambda * (x-x') - y
+            // y' = lambda * (x-x') - y
             y3 := add(x1, P_MOD)
             y3 := sub(y3, x3)
             y3 := mulmod(lambda, y3, P_MOD)
@@ -290,9 +268,9 @@ library Pallas {
 
     /// @return r the sum of two PallasProjectivePoints
     function add(PallasProjectivePoint memory p1, PallasProjectivePoint memory p2)
-    internal
-    pure
-    returns (PallasProjectivePoint memory)
+        internal
+        pure
+        returns (PallasProjectivePoint memory)
     {
         if (isInfinity(p1)) {
             return p2;
@@ -327,38 +305,37 @@ library Pallas {
             }
         }
 
-
         // TODO! Below is the original assembly block from https://github.com/zhenfeizhang/pasta-solidity. It produces "Stack too deep" error.
         // TODO! The most trivial recommendation for such errors is reducing number of ingtermediate variables, so original assembly block is commented and
         // TODO! refactored one is used, with less variables introduced, which sacrifices code readability. It would be nice to revisit this weird fix.
 
         assembly {
-        // H = U2-U1
+            // H = U2-U1
             let h := add(u2, sub(P_MOD, u1))
-        // I = (2*H)^2
+            // I = (2*H)^2
             let i := addmod(h, h, P_MOD)
             i := mulmod(i, i, P_MOD)
-        // J = H*I
+            // J = H*I
             let j := mulmod(h, i, P_MOD)
-        // r = 2*(S2-S1)
+            // r = 2*(S2-S1)
             let r := add(s2, sub(P_MOD, s1))
             r := addmod(r, r, P_MOD)
-        // V = U1*I
+            // V = U1*I
             let v := mulmod(u1, i, P_MOD)
 
-        // X3 = r^2 - J - 2*V
+            // X3 = r^2 - J - 2*V
             x3 := mulmod(r, r, P_MOD)
             let tripleP := mul(P_MOD, 3)
             x3 := addmod(x3, sub(tripleP, add(j, add(v, v))), P_MOD)
 
-        // Y3 = r*(V - X3) - 2*S1*J
+            // Y3 = r*(V - X3) - 2*S1*J
             y3 := add(v, sub(P_MOD, x3))
             y3 := mulmod(r, y3, P_MOD)
             s1 := mul(s1, 2)
             s1 := mulmod(s1, j, P_MOD)
             y3 := addmod(y3, sub(P_MOD, s1), P_MOD)
 
-        // Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
+            // Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
             z3 := add(mload(add(p1, 0x40)), mload(add(p2, 0x40)))
             z3 := mulmod(z3, z3, P_MOD)
             let doubleP := mul(P_MOD, 2)
@@ -389,11 +366,7 @@ library Pallas {
 
     /// @return r the product of a PallasAffinePoint on Pallas and a scalar, i.e.
     /// p == p.mul(1) and p.add(p) == p.mul(2) for all PallasAffinePoints p.
-    function scalarMul(PallasAffinePoint memory p, uint256 s)
-    internal
-    view
-    returns (PallasAffinePoint memory r)
-    {
+    function scalarMul(PallasAffinePoint memory p, uint256 s) internal view returns (PallasAffinePoint memory r) {
         uint256 bit;
         uint256 i = 0;
         PallasAffinePoint memory tmp = p;
@@ -412,9 +385,9 @@ library Pallas {
     /// @return r the product of a PallasProjectivePoint and a scalar, i.e.
     /// p == p.mul(1) and p.add(p) == p.mul(2) for all PallasProjectivePoint p.
     function scalarMul(PallasProjectivePoint memory p, uint256 s)
-    internal
-    pure
-    returns (PallasProjectivePoint memory r)
+        internal
+        pure
+        returns (PallasProjectivePoint memory r)
     {
         uint256 bit;
         uint256 i = 0;
@@ -434,9 +407,9 @@ library Pallas {
     /// @dev Multi-scalar Mulitiplication (MSM)
     /// @return r = \Prod{B_i^s_i} where {s_i} are `scalars` and {B_i} are `bases`
     function multiScalarMul(PallasAffinePoint[] memory bases, uint256[] memory scalars)
-    internal
-    view
-    returns (PallasAffinePoint memory r)
+        internal
+        view
+        returns (PallasAffinePoint memory r)
     {
         require(scalars.length == bases.length, "MSM error: length does not match");
 
@@ -481,10 +454,11 @@ library Pallas {
             let x := mload(point)
             let y := mload(add(point, 0x20))
 
-            isWellFormed := and(
-            and(and(lt(x, p), lt(y, p)), not(or(iszero(x), iszero(y)))),
-            eq(mulmod(y, y, p), addmod(mulmod(x, mulmod(x, x, p), p), 5, p))
-            )
+            isWellFormed :=
+                and(
+                    and(and(lt(x, p), lt(y, p)), not(or(iszero(x), iszero(y)))),
+                    eq(mulmod(y, y, p), addmod(mulmod(x, mulmod(x, x, p), p), 5, p))
+                )
         }
         require(isWellFormed, "Pallas: invalid point");
     }
@@ -516,25 +490,15 @@ library Pallas {
     // @return base^exponent (mod modulus)
     // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
     // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
-    function powSmall(
-        uint256 base,
-        uint256 exponent,
-        uint256 modulus
-    ) internal pure returns (uint256) {
+    function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
         uint256 result = 1;
         uint256 input = base;
         uint256 count = 1;
 
         assembly {
             let endpoint := add(exponent, 0x01)
-            for {
-
-            } lt(count, endpoint) {
-                count := add(count, count)
-            } {
-                if and(exponent, count) {
-                    result := mulmod(result, input, modulus)
-                }
+            for {} lt(count, endpoint) { count := add(count, count) } {
+                if and(exponent, count) { result := mulmod(result, input, modulus) }
                 input := mulmod(input, input, modulus)
             }
         }

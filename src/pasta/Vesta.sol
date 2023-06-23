@@ -6,7 +6,6 @@
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import "src/Field.sol";
-import "src/pasta/Pallas.sol";
 
 pragma solidity ^0.8.0;
 
@@ -512,7 +511,7 @@ library Vesta {
         uint8 sign = ((uint8(y_coord & 0xff)) & 1);
 
         if ((y_sign ^ sign) == 1) {
-            y_coord = Pallas.negate(y_coord);
+            y_coord = Vesta.negateBase(y_coord);
         }
         point = VestaAffinePoint(x_coord, y_coord);
     }

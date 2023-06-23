@@ -50,14 +50,17 @@ library Step3Data {
 		uint256 r_U_comm_W = 0x1b76eba7530b994f67164777aae37817048460b0849628e9981dcf9b39a431ac;
 		uint256 r_U_comm_E = 0xa92e17aa8e3e813b25db0821f1d0cf57318ace70937d7ccb2b60e68e2967fdbb;
 		uint256[] memory r_U_X = new uint256[](2);
-		r_U_X[0] = 0x41f52b545540cd8add35b444bcdcc9561fd1539f35948171c13baa4e8bccfc1a;
-		r_U_X[1] = 0xe9185e4eaa0785785f5f740f93cb93c7a308c10eab09ca527ae13dca87633f0b;
-		uint256 r_U_u = 0xebb5df91f82f07ccef5a3f3b56546bcc00000000000000000000000000000000;
+		// Limbs order should be reversed and every limb should be reversed for each r_U_X
+		r_U_X[0] = 0x1afccc8b4eaa3bc1718194359f53d11f56c9dcbc44b435dd8acd4055542bf541;
+		r_U_X[1] = 0x0b3f6387ca3de17a52ca09ab0ec108a3c793cb930f745f5f788507aa4e5e18e9;
+
+		uint256 r_U_u = Field.reverse256(0xebb5df91f82f07ccef5a3f3b56546bcc00000000000000000000000000000000);
+
 		uint256 l_u_comm_W = 0x73cb2576d50f1f5e74dce3cf18a48deb5ee483e870d5e8e8a8605b07dfe1920c;
 		uint256[] memory l_u_X = new uint256[](2);
-		l_u_X[0] = 0xca7562fbd1521f53030240a9ebc049769c81aa100d3c3d4b4aad6cdd381dd402;
-		l_u_X[1] = 0x324a23526a206e6ea1077a87c58b61d1a9207365802bc67b9caf559f03218203;
-		return (0xdca18ed3cacabc2daf70380c287c0840b694735dcc63375d49912a5676d5f300, nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);
+		l_u_X[0] = Field.reverse256(0xca7562fbd1521f53030240a9ebc049769c81aa100d3c3d4b4aad6cdd381dd402);
+		l_u_X[1] = Field.reverse256(0x324a23526a206e6ea1077a87c58b61d1a9207365802bc67b9caf559f03218203);
+		return (Field.reverse256(0xdca18ed3cacabc2daf70380c287c0840b694735dcc63375d49912a5676d5f300), nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);
 	}
 
 	/* This function returns the following results in order:

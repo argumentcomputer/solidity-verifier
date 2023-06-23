@@ -157,7 +157,7 @@ contract FoldingVerifierTest is Test {
 
     function testNontrivialPrimaryFolding() public {
         (
-            uint256 u,
+            uint256 S_digest,
             bytes32 nifs,
             uint256 r_W,
             uint256 r_E,
@@ -167,9 +167,11 @@ contract FoldingVerifierTest is Test {
             uint256[] memory l_X
         ) = Step3Data.returnPrimaryData();
 
+
+
         NIFSPallas.RelaxedR1CSInstance memory result = NIFSPallas.verify(
             NIFSPallas.NIFS(nifs),
-            (0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff) & u,
+            S_digest,
             NIFSPallas.RelaxedR1CSInstance(Pallas.decompress(r_W), Pallas.decompress(r_E), r_X, r_u),
             NIFSPallas.R1CSInstance(Pallas.decompress(l_W), l_X)
         );

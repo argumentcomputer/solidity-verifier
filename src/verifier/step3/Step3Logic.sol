@@ -27,9 +27,9 @@ library NIFSPallas {
     }
 
     function verify(NIFS memory nifs, uint256 pp_digest, RelaxedR1CSInstance calldata U1, R1CSInstance calldata U2)
-        public
-        view
-        returns (RelaxedR1CSInstance memory)
+    public
+    view
+    returns (RelaxedR1CSInstance memory)
     {
         uint256 counter = 0;
 
@@ -131,7 +131,7 @@ library NIFSPallas {
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
         RelaxedR1CSInstance memory result =
-            foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
+        foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
     }
@@ -183,9 +183,9 @@ library NIFSVesta {
     }
 
     function verify(NIFS memory nifs, uint256 pp_digest, RelaxedR1CSInstance calldata U1, R1CSInstance calldata U2)
-        public
-        view
-        returns (RelaxedR1CSInstance memory)
+    public
+    view
+    returns (RelaxedR1CSInstance memory)
     {
         uint256 counter = 0;
 
@@ -287,7 +287,7 @@ library NIFSVesta {
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
         RelaxedR1CSInstance memory result =
-            foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
+        foldInstance(U1, U2, comm_T, output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff);
 
         return result;
     }

@@ -6,6 +6,7 @@
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import "src/Field.sol";
+import "src/pasta/Vesta.sol";
 import "@std/Test.sol";
 
 pragma solidity ^0.8.0;
@@ -479,7 +480,7 @@ library Pallas {
     }
 
     function fromBytes(bytes32 compressed_x_coord) public view returns (PallasAffinePoint memory point) {
-        bool y_sign = (compressed_x_coord[31] & 0x80) > 0;
+        uint8 y_sign = uint8(compressed_x_coord[31]) >> 7;
 
         uint256 x_coord;
         
@@ -493,7 +494,7 @@ library Pallas {
         
         x_coord += uint(uint8(compressed_x_coord[0]));
 
-        if ((x_coord == 0) && !y_sign) {
+        if ((x_coord == 0) && (y_sign == 0)) {
             return AffineInfinity();
         }
 
@@ -508,13 +509,12 @@ library Pallas {
 
         y_coord = Field.sqrt(y_coord, _mod);
 
-        point = PallasAffinePoint(x_coord, y_coord);
+        uint8 sign = ((uint8(y_coord & 0xff)) & 1);
 
-        bool y_coord_sign = (y_coord >> 254) & 0xff == 1;
-
-        if ((y_sign || y_coord_sign) && !(y_sign && y_coord_sign)) {
-            point = negate(point);
+        if ((y_sign ^ sign) == 1) {
+            y_coord = Vesta.negate(y_coord);
         }
+        point = PallasAffinePoint(x_coord, y_coord);
     }
 
     function decompress(uint256 compressed_x_coord) public view returns (PallasAffinePoint memory point) {

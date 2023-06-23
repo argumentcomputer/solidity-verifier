@@ -45,7 +45,9 @@ contract FoldingVerifierTest is Test {
         // NIFS instance
         // result of the first NIFS::prove
         NIFSPallas.NIFS memory input_nifs = NIFSPallas.NIFS(
-            Field.uint8ArrayToBytes32([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            Field.uint8ArrayToBytes32(
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            )
         );
 
         Pallas.PallasAffinePoint memory res_U_comm_W = Pallas.IntoAffine(
@@ -88,40 +90,42 @@ contract FoldingVerifierTest is Test {
 
         // Result of the second NIFS::prove
         input_nifs = NIFSPallas.NIFS(
-            Field.uint8ArrayToBytes32([
-                168,
-                57,
-                208,
-                82,
-                169,
-                86,
-                167,
-                134,
-                12,
-                8,
-                190,
-                237,
-                144,
-                237,
-                99,
-                68,
-                3,
-                22,
-                144,
-                12,
-                90,
-                70,
-                28,
-                172,
-                86,
-                202,
-                180,
-                126,
-                45,
-                205,
-                39,
-                5
-            ])
+            Field.uint8ArrayToBytes32(
+                [
+                    168,
+                    57,
+                    208,
+                    82,
+                    169,
+                    86,
+                    167,
+                    134,
+                    12,
+                    8,
+                    190,
+                    237,
+                    144,
+                    237,
+                    99,
+                    68,
+                    3,
+                    22,
+                    144,
+                    12,
+                    90,
+                    70,
+                    28,
+                    172,
+                    86,
+                    202,
+                    180,
+                    126,
+                    45,
+                    205,
+                    39,
+                    5
+                ]
+            )
         );
 
         res_U_comm_W = Pallas.IntoAffine(
@@ -167,8 +171,6 @@ contract FoldingVerifierTest is Test {
             uint256[] memory l_X
         ) = Step3Data.returnPrimaryData();
 
-
-
         NIFSPallas.RelaxedR1CSInstance memory result = NIFSPallas.verify(
             NIFSPallas.NIFS(nifs),
             S_digest,
@@ -180,25 +182,15 @@ contract FoldingVerifierTest is Test {
         uint256 expected_comm_W_y = 0x0985c3acbcdcfe95fd6531f819e82b17e5afdf8cc82187a4367c658bb9fb0a55;
         uint256 expected_comm_W_z = 0x0406f654f562ba978cb48c15983ec87135382aef386bbe5d984980c6ef462323;
 
-        Pallas.PallasAffinePoint memory expected_comm_W = Pallas.IntoAffine(
-            Pallas.PallasProjectivePoint(
-                expected_comm_W_x,
-                expected_comm_W_y,
-                expected_comm_W_z
-            )
-        );
+        Pallas.PallasAffinePoint memory expected_comm_W =
+            Pallas.IntoAffine(Pallas.PallasProjectivePoint(expected_comm_W_x, expected_comm_W_y, expected_comm_W_z));
 
         uint256 expected_comm_E_x = 0x3fc650f5b92937a4a00c54c14da562de8dfca830c4bb82dd34debbaa5f847b19;
         uint256 expected_comm_E_y = 0x12059c8862f4766782e3add45baad4e0dd5bc5e133baa9cc8fbd4f53ea857597;
         uint256 expected_comm_E_z = 0x0741cc9fdbf8d776f052b3350776a93e038328478aa2926b319c62e9a46f1ab1;
 
-        Pallas.PallasAffinePoint memory expected_comm_E = Pallas.IntoAffine(
-            Pallas.PallasProjectivePoint(
-                expected_comm_E_x,
-                expected_comm_E_y,
-                expected_comm_E_z
-            )
-        );
+        Pallas.PallasAffinePoint memory expected_comm_E =
+            Pallas.IntoAffine(Pallas.PallasProjectivePoint(expected_comm_E_x, expected_comm_E_y, expected_comm_E_z));
 
         uint256[] memory expected_X = new uint256[](2);
         expected_X[0] = 0x2e56d20a56a66f2ba12798f718d7d3071f18e03da5d4cac52190ba09ae72f46a;
@@ -237,25 +229,15 @@ contract FoldingVerifierTest is Test {
         uint256 expected_comm_W_y = 0x08dd11b5cc6a77afcb553cb341b4c4e89b64593c4a4c79af5f8027ebfa5ba143;
         uint256 expected_comm_W_z = 0x0193373d89342b5a3c0ade3a0d2f6d6f5c6f919265e2429bc019d1cf329d5c7e;
 
-        Vesta.VestaAffinePoint memory expected_comm_W = Vesta.IntoAffine(
-            Vesta.VestaProjectivePoint(
-                expected_comm_W_x,
-                expected_comm_W_y,
-                expected_comm_W_z
-            )
-        );
+        Vesta.VestaAffinePoint memory expected_comm_W =
+            Vesta.IntoAffine(Vesta.VestaProjectivePoint(expected_comm_W_x, expected_comm_W_y, expected_comm_W_z));
 
         uint256 expected_comm_E_x = 0x35cd0c83e99ab8826aeabdb360449a8138ac8efde6e791801fc4ba6024c5a9c1;
         uint256 expected_comm_E_y = 0x3b8b16f35f6bc8cc10fb1988d19b7ca069b71c4378a9fab07b053eb71a394df7;
         uint256 expected_comm_E_z = 0x38e70020eab8f6d0210659e5f28712a8031d29d382644c924d75c386d92461c6;
 
-        Vesta.VestaAffinePoint memory expected_comm_E = Vesta.IntoAffine(
-            Vesta.VestaProjectivePoint(
-                expected_comm_E_x,
-                expected_comm_E_y,
-                expected_comm_E_z
-            )
-        );
+        Vesta.VestaAffinePoint memory expected_comm_E =
+            Vesta.IntoAffine(Vesta.VestaProjectivePoint(expected_comm_E_x, expected_comm_E_y, expected_comm_E_z));
 
         uint256[] memory expected_X = new uint256[](2);
         expected_X[0] = 0x32d8d912584abe410b9c9c56cc9efdb0261ed5a636e0fc823bd5b427cf9fcbee;

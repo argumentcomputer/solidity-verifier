@@ -16,9 +16,7 @@ library Field {
             mstore(add(mPtr, 0x60), _x)
             mstore(add(mPtr, 0x80), sub(_mod, 2))
             mstore(add(mPtr, 0xa0), _mod)
-            if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) {
-                revert(0, 0)
-            }
+            if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) { revert(0, 0) }
             output := mload(0x00)
         }
     }
@@ -38,9 +36,7 @@ library Field {
             // Store the result
             let value := mload(0xc0)
             // Call the precompiled contract 0x05 = bigModExp
-            if iszero(staticcall(not(0), 0x05, pointer, 0xc0, value, 0x20)) {
-                revert(0, 0)
-            }
+            if iszero(staticcall(not(0), 0x05, pointer, 0xc0, value, 0x20)) { revert(0, 0) }
             result := mload(value)
         }
     }
@@ -49,25 +45,15 @@ library Field {
     // @return base^exponent (mod modulus)
     // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
     // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
-    function powSmall(
-        uint256 base,
-        uint256 exponent,
-        uint256 modulus
-    ) internal pure returns (uint256) {
+    function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
         uint256 result = 1;
         uint256 input = base;
         uint256 count = 1;
 
         assembly {
             let endPoint := add(exponent, 0x01)
-            for {
-
-            } lt(count, endPoint) {
-                count := add(count, count)
-            } {
-                if and(exponent, count) {
-                    result := mulmod(result, input, modulus)
-                }
+            for {} lt(count, endPoint) { count := add(count, count) } {
+                if and(exponent, count) { result := mulmod(result, input, modulus) }
                 input := mulmod(input, input, modulus)
             }
         }
@@ -75,12 +61,12 @@ library Field {
         return result;
     }
     // Implementation of the Tonelli-Shanks square root algorithm
-    // NOTE: It is assumed that _mod is a prime for this algorithm to work, and when _mod is congruent to 3 mod 4 
+    // NOTE: It is assumed that _mod is a prime for this algorithm to work, and when _mod is congruent to 3 mod 4
     // a direct calculation is used instead.
+
     function sqrt(uint256 _x, uint256 _mod) public view returns (uint256) {
         assembly {
-            function pow_mod(base, exponent, modulus) -> answer 
-            {
+            function pow_mod(base, exponent, modulus) -> answer {
                 let pointer := mload(0x40)
                 mstore(pointer, 0x20)
                 mstore(add(pointer, 0x20), 0x20)
@@ -90,16 +76,13 @@ library Field {
                 mstore(add(pointer, 0xa0), modulus)
 
                 let result_ptr := mload(0x40)
-                if iszero(staticcall(not(0), 0x05, pointer, 0xc0, result_ptr, 0x20)) {
-                    revert(0, 0)
-                }
+                if iszero(staticcall(not(0), 0x05, pointer, 0xc0, result_ptr, 0x20)) { revert(0, 0) }
                 answer := mload(result_ptr)
             }
 
             // This calculates the the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
-            function is_square(base, modulus) -> isSquare
-            {
-                let exponent := div(sub(modulus, 1),2)
+            function is_square(base, modulus) -> isSquare {
+                let exponent := div(sub(modulus, 1), 2)
                 let exp_result := pow_mod(base, exponent, modulus)
                 isSquare := iszero(sub(exp_result, 1))
             }
@@ -110,37 +93,33 @@ library Field {
 
             require(is_square(_x, _mod))
 
-            if iszero(sub(mod(_mod, 4),3)) {
+            if iszero(sub(mod(_mod, 4), 3)) {
                 let exponent := div(add(_mod, 1), 4)
                 let answer_ptr := mload(0x40)
-                mstore(answer_ptr, pow_mod(_x, exponent,_mod))
+                mstore(answer_ptr, pow_mod(_x, exponent, _mod))
                 return(answer_ptr, 0x20)
             }
 
             let s := sub(_mod, 1)
             let e := 0
-            for { } iszero(mod(s, 2)) { } {
+            for {} iszero(mod(s, 2)) {} {
                 s := div(s, 2)
                 e := add(e, 1)
             }
 
             let n := 2
-            for { } is_square(n, _mod) {} {
-                n := add(n, 1)
-            }
+            for {} is_square(n, _mod) {} { n := add(n, 1) }
 
             let x := pow_mod(_x, div(add(s, 1), 2), _mod)
             let b := pow_mod(_x, s, _mod)
             let g := pow_mod(n, s, _mod)
             let r := e
 
-            for { } 1 { } {
+            for {} 1 {} {
                 let t := b
                 let m := 0
-                for { } lt(m, r) { m := add(m, 1) } {
-                    if eq(t, 1) {
-                        break
-                    }
+                for {} lt(m, r) { m := add(m, 1) } {
+                    if eq(t, 1) { break }
                     t := mulmod(t, t, _mod)
                 }
 
@@ -164,20 +143,20 @@ library Field {
         v = input;
 
         // swap bytes
-        v = ((v & 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
-        ((v & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+        v = ((v & 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00) >> 8)
+            | ((v & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
 
         // swap 2-byte long pairs
-        v = ((v & 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
-        ((v & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+        v = ((v & 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000) >> 16)
+            | ((v & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
 
         // swap 4-byte long pairs
-        v = ((v & 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000) >> 32) |
-        ((v & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
+        v = ((v & 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000) >> 32)
+            | ((v & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
 
         // swap 8-byte long pairs
-        v = ((v & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) >> 64) |
-        ((v & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
+        v = ((v & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) >> 64)
+            | ((v & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
 
         // swap 16-byte long pairs
         v = (v >> 128) | (v << 128);
@@ -185,18 +164,18 @@ library Field {
 
     // Returns the 4 limbs in little-endian order of a 256-bit field element.
     function extractLimbs(uint256 x) public pure returns (uint256, uint256, uint256, uint256) {
-            uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & x);
-            uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & x) >> 64;
-            uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & x) >> 128;
-            uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & x) >> 192;
+        uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & x);
+        uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & x) >> 64;
+        uint256 limb3 = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & x) >> 128;
+        uint256 limb4 = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & x) >> 192;
 
-            return (limb1, limb2, limb3, limb4);
+        return (limb1, limb2, limb3, limb4);
     }
 
     function uint8ArrayToBytes32(uint8[32] memory input) public pure returns (bytes32) {
         bytes32 output;
 
-        for (uint i = 0; i < input.length; i++) {
+        for (uint256 i = 0; i < input.length; i++) {
             output |= bytes32(bytes1(input[i])) >> (i * 8);
         }
 

@@ -482,16 +482,16 @@ library Vesta {
         uint8 y_sign = uint8(compressed_x_coord[31]) >> 7;
 
         uint256 x_coord;
-        
-        x_coord += uint(uint8(compressed_x_coord[31]) & 0x7F);
+
+        x_coord += uint256(uint8(compressed_x_coord[31]) & 0x7F);
         x_coord *= 256;
 
         for (uint256 i = 30; i > 0; i--) {
-            x_coord += uint(uint8(compressed_x_coord[i]));
+            x_coord += uint256(uint8(compressed_x_coord[i]));
             x_coord *= 256;
         }
-        
-        x_coord += uint(uint8(compressed_x_coord[0]));
+
+        x_coord += uint256(uint8(compressed_x_coord[0]));
 
         if ((x_coord == 0) && (y_sign == 0)) {
             return AffineInfinity();
@@ -500,7 +500,7 @@ library Vesta {
         uint256 y_coord;
         uint256 _mod = P_MOD;
 
-        assembly{
+        assembly {
             y_coord := mulmod(x_coord, x_coord, _mod)
             y_coord := mulmod(y_coord, x_coord, _mod)
             y_coord := addmod(y_coord, 5, _mod)

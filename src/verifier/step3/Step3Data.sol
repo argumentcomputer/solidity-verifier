@@ -53,9 +53,7 @@ library Step3Data {
 		// Limbs order should be reversed and every limb should be reversed for each r_U_X
 		r_U_X[0] = 0x1afccc8b4eaa3bc1718194359f53d11f56c9dcbc44b435dd8acd4055542bf541;
 		r_U_X[1] = 0x0b3f6387ca3de17a52ca09ab0ec108a3c793cb930f745f5f788507aa4e5e18e9;
-
 		uint256 r_U_u = Field.reverse256(0xebb5df91f82f07ccef5a3f3b56546bcc00000000000000000000000000000000);
-
 		uint256 l_u_comm_W = 0x73cb2576d50f1f5e74dce3cf18a48deb5ee483e870d5e8e8a8605b07dfe1920c;
 		uint256[] memory l_u_X = new uint256[](2);
 		l_u_X[0] = Field.reverse256(0xca7562fbd1521f53030240a9ebc049769c81aa100d3c3d4b4aad6cdd381dd402);
@@ -109,14 +107,14 @@ library Step3Data {
 		uint256 r_U_comm_W = 0xfeb641951cb4c21bdc4906f57b46942c0ae22b6c852266f64a4e0b77de5c4432;
 		uint256 r_U_comm_E = 0x8412865c490c9e1219066e4e257f3bb28e00db31736251586c86197f6ec866a2;
 		uint256[] memory r_U_X = new uint256[](2);
-		r_U_X[0] = 0x1a44725ed27e9ad353e1b3a69be5a2139170149bd7f133e84df85b73e10a7b10;
-		r_U_X[1] = 0x231df3a0a02a8a332d3b0e76e357bb5a5ecc7d5e4e480f00317e56bc5aab1b17;
-		uint256 r_U_u = 0x611f57f1585849b2ac46347128c2041801000000000000000000000000000000;
+		// Limbs order should be reversed and every limb should be reversed for each r_U_X
+		r_U_X[0] = 0x107b0ae1735bf84de833f1d79b14709113a2e59ba6b3e153d39a7ed25e72441a;
+		r_U_X[1] = 0x171bab5abc567e31000f484e5e7dcc5e5abb57e3760e3b2d338a2aa0a0f31d23;
+		uint256 r_U_u = Field.reverse256(0x611f57f1585849b2ac46347128c2041801000000000000000000000000000000);
 		uint256 l_u_comm_W = 0xd07c3b4dd208f32a9e2d16213a976ad6f61dbdba7760478a85726dee9475e989;
 		uint256[] memory l_u_X = new uint256[](2);
-		l_u_X[0] = 0x324a23526a206e6ea1077a87c58b61d1a9207365802bc67b9caf559f03218203;
-		l_u_X[1] = 0xae0c4e14393eca8b2a1264b082a3471eb440cc07f42ea9761bbd041ebf69ce03;
-		return (0x34bd6851e96eefff978d32646f1b9073fdd364b702cd242e1cb594348450b703, nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);
-}
-
+		l_u_X[0] = Field.reverse256(0x324a23526a206e6ea1077a87c58b61d1a9207365802bc67b9caf559f03218203);
+		l_u_X[1] = Field.reverse256(0xae0c4e14393eca8b2a1264b082a3471eb440cc07f42ea9761bbd041ebf69ce03);
+		return (Field.reverse256(0x34bd6851e96eefff978d32646f1b9073fdd364b702cd242e1cb594348450b703), nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);
+	}
 }

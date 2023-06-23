@@ -214,9 +214,9 @@ contract FoldingVerifierTest is Test {
         assertEq(result.u, expected_u);
     }
 
-    function testnontrivialSecondaryFolding() public {
+    function testNontrivialSecondaryFolding() public {
         (
-            uint256 u,
+            uint256 S_digest,
             bytes32 nifs,
             uint256 r_W,
             uint256 r_E,
@@ -228,7 +228,7 @@ contract FoldingVerifierTest is Test {
 
         NIFSVesta.RelaxedR1CSInstance memory result = NIFSVesta.verify(
             NIFSVesta.NIFS(nifs),
-            (0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff) & u,
+            S_digest,
             NIFSVesta.RelaxedR1CSInstance(Vesta.decompress(r_W), Vesta.decompress(r_E), r_X, r_u),
             NIFSVesta.R1CSInstance(Vesta.decompress(l_W), l_X)
         );

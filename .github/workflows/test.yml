@@ -1,6 +1,6 @@
 name: test
 
-on: [workflow_dispatch, push]
+on: [workflow_dispatch, push, pull_request]
 
 env:
   FOUNDRY_PROFILE: ci
@@ -17,6 +17,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
@@ -26,6 +31,24 @@ jobs:
         run: |
           forge fmt --check
         id: formatting
+
+      - name: Regenerate Contracts
+        run: |
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/poseidon/PoseidonNeptuneU24pallas.sol
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/poseidon/PoseidonNeptuneU24vesta.sol
+          python src/verifier/step1/step1-data-contract-gen.py compressed-snark.json > src/verifier/step1/Step1Data.sol
+          python src/verifier/step2/step2-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step2/Step2Data.sol
+
+      - name: Run forge fmt on re-generated contracts
+        run: |
+          forge fmt
+
+      - name: Check discrepancies
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            echo "There are discrepancies between the repository and the source. Please ensure the contracts are up to date."
+            exit 1
+          fi
 
       - name: Run Forge build
         run: |

@@ -393,13 +393,9 @@ library KeccakTranscriptLib {
         return updatedState;
     }
 
-    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
-        public
-        pure
-        returns (KeccakTranscript memory)
-    {
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input) public pure returns (KeccakTranscript memory) {
         // uint256 input will always take 32 bytes
-        uint8[] memory transcript = new uint8[](keccak.transcript.length + label.length + 32);
+        uint8[] memory transcript = new uint8[](keccak.transcript.length + label.length + input.length);
         uint256 index = 0;
         // TODO think how to make it more efficient (without copying current transcript)
         // copy current transcript
@@ -415,8 +411,8 @@ library KeccakTranscriptLib {
         index += label.length;
 
         // append input
-        for (uint256 i = 0; i < 32; i++) {
-            transcript[index + i] = uint8(bytes1(bytes32(input)[31 - i]));
+        for (uint256 i = 0; i < input.length; i++) {
+            transcript[index + i] = input[i];
         }
 
         // TODO This should be workarounded by interacting with the blockchain, that holds the state

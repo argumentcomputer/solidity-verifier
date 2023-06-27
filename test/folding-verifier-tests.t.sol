@@ -158,5 +158,4 @@ contract FoldingVerifierTest is Test {
         assertEq(res2.u, res_U_u);
         assertEq(res2.X, res_U_X);
     }
-
 }

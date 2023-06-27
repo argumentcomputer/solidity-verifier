@@ -8,6 +8,14 @@ def h(s):
     """
     return "0x" + s
 
+def reverse_bytes(val):
+    """
+    Reverses the byte order of a hexdecimal number for ingest in Solidity contract
+    """
+    ba = bytearray.fromhex(val)
+    ba.reverse()
+    return ba.hex()
+
 def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
     # Unpack nifs_secondary
     nifs_secondary_repr = nifs_secondary["comm_T"]["comm"]["repr"]
@@ -24,8 +32,10 @@ def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
     r_X = r_U_secondary["X"]
     output += f"\t\tuint256[] memory r_U_X = new uint256[]({len(r_X)});\n"
     for idx, val in enumerate(r_X):
+        val = reverse_bytes(val)
         output += f"\t\tr_U_X[{idx}] = {h(val)};\n"
     r_U_u = r_U_secondary["u"]
+    r_U_u = reverse_bytes(r_U_u)
     output += f"\t\tuint256 r_U_u = {h(r_U_u)};\n"
 
     # Unpack l_U_secondary
@@ -34,7 +44,11 @@ def step3DataContractGen(digest, nifs_secondary, r_U_secondary, l_u_secondary):
     l_X = l_u_secondary["X"]
     output += f"\t\tuint256[] memory l_u_X = new uint256[]({len(l_X)});\n"
     for idx, val in enumerate(l_X):
+        val = reverse_bytes(val)
         output += f"\t\tl_u_X[{idx}] = {h(val)};\n"
+
+    # Reverse digest
+    digest = reverse_bytes(digest)
 
     output += f"\t\treturn ({h(digest)}, nifs, r_U_comm_W, r_U_comm_E, r_U_X, r_U_u, l_u_comm_W, l_u_X);\n"
 

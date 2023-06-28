@@ -53,4 +53,5 @@ To re-generate contract-helper for correspondent step of Nova verification:
 ```
 python src/verifier/step1/step1-data-contract-gen.py compressed-snark.json > src/verifier/step1/Step1Data.sol
 python src/verifier/step2/step2-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step2/Step2Data.sol
+python src/verifier/step3/step3-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step3/Step3Data.sol
 ```

@@ -1,9 +1,15 @@
 # IntelliJ IDEA
 .idea
 
+# VSCode IDE
+.vscode
+
 # Compiler files
 cache/
 out/
 
 # Ignores development broadcast logs (generated while interacting with contracts)
 broadcast/
+
+# Build artifacts
+**/artifacts

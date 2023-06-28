@@ -5,6 +5,7 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import "src/Field.sol";
 
 pragma solidity ^0.8.0;
 
@@ -45,11 +46,19 @@ library Pallas {
         return PallasProjectivePoint(P_MOD - 1, 2, 1);
     }
 
+    function AffineInfinity() internal pure returns (PallasAffinePoint memory) {
+        return PallasAffinePoint(0, 0);
+    }
+
+    function ProjectiveInfinity() internal pure returns (PallasProjectivePoint memory) {
+        return PallasProjectivePoint(1, 1, 0);
+    }
+
     /// @return the convert an affine point into projective
     // solhint-disable-next-line func-name-mixedcase
     function IntoProjective(PallasAffinePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
-            return PallasProjectivePoint(0, 0, 0);
+            return ProjectiveInfinity();
         }
 
         return PallasProjectivePoint(point.x, point.y, 1);
@@ -59,10 +68,10 @@ library Pallas {
     // solhint-disable-next-line func-name-mixedcase
     function IntoAffine(PallasProjectivePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
-            return PallasAffinePoint(0, 0);
+            return AffineInfinity();
         }
 
-        uint256 zinv = invert(point.z, P_MOD);
+        uint256 zinv = Field.invert(point.z, P_MOD);
         uint256 zinv2 = mulmod(zinv, zinv, P_MOD);
         uint256 x = mulmod(point.x, zinv2, P_MOD);
         zinv2 = mulmod(zinv, zinv2, P_MOD);
@@ -84,15 +93,15 @@ library Pallas {
     }
 
     /// @dev check if a PallasProjectivePoint is Infinity
-    /// @notice (0, 0, 0) PallasProjectivePoint of Infinity,
+    /// @notice (0, 1, 0) PallasProjectivePoint of Infinity,
     /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
     /// just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
     function isInfinity(PallasProjectivePoint memory point) internal pure returns (bool result) {
         assembly {
             let x := mload(point)
             let y := mload(add(point, 0x20))
-            let z := mload(add(point, 0x20))
-            result := and(and(iszero(x), iszero(y)), iszero(z))
+            let z := mload(add(point, 0x40))
+            result := and(eq(x, 1), iszero(z))
         }
     }
 
@@ -178,7 +187,7 @@ library Pallas {
         uint256 lambda;
         uint256 x = point.x;
         uint256 y = point.y;
-        uint256 yInv = invert(point.y, P_MOD);
+        uint256 yInv = Field.invert(point.y, P_MOD);
         uint256 xPrime;
         uint256 yPrime;
 
@@ -241,7 +250,7 @@ library Pallas {
         if (lambda > P_MOD) {
             lambda -= P_MOD;
         }
-        lambda = invert(lambda, P_MOD);
+        lambda = Field.invert(lambda, P_MOD);
         assembly {
             // lambda = (y1-y2)/(x1-x2)
             lambda := mulmod(lambda, tmp, P_MOD)
@@ -392,7 +401,7 @@ library Pallas {
         uint256 bit;
         uint256 i = 0;
         PallasProjectivePoint memory tmp = p;
-        r = PallasProjectivePoint(0, 0, 0);
+        r = ProjectiveInfinity();
 
         for (i = 0; i < 256; i++) {
             bit = s & 1;
@@ -417,24 +426,6 @@ library Pallas {
         for (uint256 i = 1; i < scalars.length; i++) {
             r = add(r, scalarMul(bases[i], scalars[i]));
         }
-    }
-
-    /// @dev Compute f^-1 for f \in Fr scalar field
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
-    function invert(uint256 fr, uint256 modulus) internal view returns (uint256 output) {
-        bool success;
-        assembly {
-            let mPtr := mload(0x40)
-            mstore(mPtr, 0x20)
-            mstore(add(mPtr, 0x20), 0x20)
-            mstore(add(mPtr, 0x40), 0x20)
-            mstore(add(mPtr, 0x60), fr)
-            mstore(add(mPtr, 0x80), sub(modulus, 2))
-            mstore(add(mPtr, 0xa0), modulus)
-            success := staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)
-            output := mload(0x00)
-        }
-        require(success, "Pallas: pow precompile failed!");
     }
 
     /**
@@ -486,23 +477,45 @@ library Pallas {
         return point.y < P_MOD / 2;
     }
 
-    // @dev Perform a modular exponentiation.
-    // @return base^exponent (mod modulus)
-    // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
-    // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
-    function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
-        uint256 result = 1;
-        uint256 input = base;
-        uint256 count = 1;
+    function fromBytes(bytes32 compressed_x_coord) public view returns (PallasAffinePoint memory point) {
+        uint8 y_sign = uint8(compressed_x_coord[31]) >> 7;
 
-        assembly {
-            let endpoint := add(exponent, 0x01)
-            for {} lt(count, endpoint) { count := add(count, count) } {
-                if and(exponent, count) { result := mulmod(result, input, modulus) }
-                input := mulmod(input, input, modulus)
-            }
+        uint256 x_coord;
+
+        x_coord += uint256(uint8(compressed_x_coord[31]) & 0x7F);
+        x_coord *= 256;
+
+        for (uint256 i = 30; i > 0; i--) {
+            x_coord += uint256(uint8(compressed_x_coord[i]));
+            x_coord *= 256;
         }
 
-        return result;
+        x_coord += uint256(uint8(compressed_x_coord[0]));
+
+        if ((x_coord == 0) && (y_sign == 0)) {
+            return AffineInfinity();
+        }
+
+        uint256 y_coord;
+        uint256 _mod = P_MOD;
+
+        assembly {
+            y_coord := mulmod(x_coord, x_coord, _mod)
+            y_coord := mulmod(y_coord, x_coord, _mod)
+            y_coord := addmod(y_coord, 5, _mod)
+        }
+
+        y_coord = Field.sqrt(y_coord, _mod);
+
+        uint8 sign = ((uint8(y_coord & 0xff)) & 1);
+
+        if ((y_sign ^ sign) == 1) {
+            y_coord = Pallas.negateBase(y_coord);
+        }
+        point = PallasAffinePoint(x_coord, y_coord);
+    }
+
+    function decompress(uint256 compressed_x_coord) public view returns (PallasAffinePoint memory point) {
+        return fromBytes(bytes32(compressed_x_coord));
     }
 }

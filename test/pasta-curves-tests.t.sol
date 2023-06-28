@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
+import "src/Field.sol";
 import "src/pasta/Pallas.sol";
 import "src/pasta/Vesta.sol";
 
@@ -118,54 +119,6 @@ contract PastaCurvesContractTests is Test {
 
         assertEq(bytes32(xExpected), bytes32(msm.x));
         assertEq(bytes32(yExpected), bytes32(msm.y));
-    }
-
-    function testPallasPowSmall() public {
-        /*
-            use rand_core::OsRng;
-            use pasta_curves::group::Group;
-
-            type PallasScalar = pasta_curves::pallas::Scalar;
-
-            let mut rng = OsRng;
-
-            let q = PallasScalar::random(&mut rng);
-            println!("q: {:?}", q);
-
-            let exponent: u64 = rand::random();
-
-            println!("exponent: {:?}", exponent);
-
-            let exp_q = q.pow_vartime([exponent]);
-
-            println!("exp_q: {:?}", exp_q);
-        */
-
-        uint256 base = 0x2bd477403f0713e5b5028dd7b3b0c2a6f21a606ebd5a19a9dd00f7e4149ca4c7;
-
-        uint64 exponent = 12024954401023057353;
-
-        uint256 result = Pallas.powSmall(base, exponent, Pallas.R_MOD);
-
-        uint256 expected = 0x362242b2a1f2674375360e8398bdab0d1cc56f295be9ac6e39c17bc8bbc4a114;
-
-        assertEq(bytes32(expected), bytes32(result));
-    }
-
-    function testVestaPowSmall() public {
-        /*
-        s/pallas/vesta
-        */
-
-        uint256 base = 0x28a66bbc0fd68c99ca92677d02d515daeddcebd8440b568bf32ba9a5d56b37c5;
-
-        uint64 exponent = 771196355631305937;
-
-        uint256 result = Pallas.powSmall(base, exponent, Vesta.R_MOD);
-
-        uint256 expected = 0x3f0ca3245ac5c4dfe10dce43c1694588c2f4f8bc144bca88ed622987acb8ac25;
-
-        assertEq(bytes32(expected), bytes32(result));
     }
 
     function testPallasFromLeBytesModOrder() public {
@@ -364,7 +317,7 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(yExpected), bytes32(p1MulScalar.y));
     }
 
-    function testPallasAddAfine() public {
+    function testPallasAddAffine() public {
         /*
             use rand_core::OsRng;
             use pasta_curves::group::Group;
@@ -818,37 +771,6 @@ contract PastaCurvesContractTests is Test {
         assertEq(bytes32(point.y), bytes32(vestaGeneratorYexpected));
     }
 
-    function testPallasInvertFr() public {
-        /*
-            use rand_core::OsRng;
-            use pasta_curves::group::Group;
-
-            type PallasPoint = pasta_curves::pallas::Point;
-            type PallasScalar = pasta_curves::pallas::Scalar;
-
-            let mut rng = OsRng;
-
-            let pallas_scalar = PallasScalar::random(&mut rng);
-            println!("pallas scalar: {:?}", pallas_scalar);
-
-            let pallas_scalar_inverted = pallas_scalar.invert().unwrap();
-            println!("pallas scalar inverted: {:?}", pallas_scalar_inverted);
-
-        */
-
-        uint256 pallasScalar = 0x241485a5238caca98c32f3113a90f0fd5e7f62f4caecb639b938d7a0a4e08867;
-        uint256 inverted = Pallas.invert(pallasScalar, Pallas.R_MOD);
-        assertEq(bytes32(inverted), bytes32(0x1ec5d74264fcb22d01cb7c46b1f129637e5fd7990100b3b64e7e937360bcbfac));
-    }
-
-    function testVestaInvertFr() public {
-        /* s/pallas/vesta */
-
-        uint256 vestaScalar = 0x32642babe229d616c0221a7c8fb94f442088f6947752b98115240705ca7d15ec;
-        uint256 inverted = Vesta.invert(vestaScalar, Vesta.R_MOD);
-        assertEq(bytes32(inverted), bytes32(0x130b3c43d6025758f4e5ed60d9e70fa5f7f5a40ec523584f696237878975aa6f));
-    }
-
     function testPallasScalarMulProjective_1() public {
         /*
             let pallas_point = PallasPoint::random(&mut rng);
@@ -976,5 +898,188 @@ contract PastaCurvesContractTests is Test {
         assertEq(addition1.x, addition2.x);
         assertEq(addition1.y, addition2.y);
         assertEq(addition1.z, addition2.z);
+    }
+
+    function testPallasFromBytes1() public {
+        /*
+            let rng = OsRng;
+            let point = pallas::Point::random(rng);
+            println!("{:?}", point);
+            let bytes = point.to_bytes();
+            println!("{:?}", bytes);
+            }
+        */
+
+        bytes32 input_bytes = Field.uint8ArrayToBytes32(
+            [
+                36,
+                3,
+                251,
+                196,
+                174,
+                40,
+                97,
+                142,
+                199,
+                201,
+                203,
+                164,
+                227,
+                247,
+                71,
+                79,
+                124,
+                227,
+                8,
+                26,
+                181,
+                189,
+                72,
+                227,
+                72,
+                144,
+                31,
+                203,
+                175,
+                178,
+                6,
+                163
+            ]
+        );
+
+        Pallas.PallasAffinePoint memory result = Pallas.fromBytes(input_bytes);
+
+        Pallas.PallasAffinePoint memory expected = Pallas.PallasAffinePoint(
+            0x2306b2afcb1f9048e348bdb51a08e37c4f47f7e3a4cbc9c78e6128aec4fb0324,
+            0x0a5129c3eb600fd840dbd73a3f82a85a2d315806741c80f13138ca859f66e667
+        );
+
+        assertEq(result.x, expected.x);
+        assertEq(result.y, expected.y);
+    }
+
+    function testVestaFromBytes1() public {
+        /* s/pallas/vesta */
+
+        bytes32 input_bytes = Field.uint8ArrayToBytes32(
+            [
+                48,
+                220,
+                60,
+                247,
+                164,
+                130,
+                164,
+                111,
+                168,
+                221,
+                178,
+                103,
+                79,
+                117,
+                126,
+                213,
+                94,
+                185,
+                146,
+                242,
+                22,
+                104,
+                164,
+                190,
+                103,
+                225,
+                120,
+                156,
+                176,
+                209,
+                98,
+                5
+            ]
+        );
+
+        Vesta.VestaAffinePoint memory result = Vesta.fromBytes(input_bytes);
+
+        Vesta.VestaAffinePoint memory expected = Vesta.VestaAffinePoint(
+            0x0562d1b09c78e167bea46816f292b95ed57e754f67b2dda86fa482a4f73cdc30,
+            0x0f0b2c7708937dc6b61af0a711ea9983a9eea7459a44711a21a8183293012ed4
+        );
+
+        assertEq(result.x, expected.x);
+        assertEq(result.y, expected.y);
+    }
+
+    function testPallasFromBytes2() public view {
+        bytes32 input_bytes = Field.uint8ArrayToBytes32(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
+
+        Pallas.PallasAffinePoint memory result = Pallas.fromBytes(input_bytes);
+
+        assert(Pallas.isInfinity(result));
+    }
+
+    function testVestaFromBytes2() public view {
+        bytes32 input_bytes = Field.uint8ArrayToBytes32(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
+
+        Vesta.VestaAffinePoint memory result = Vesta.fromBytes(input_bytes);
+
+        assert(Vesta.isInfinity(result));
+    }
+
+    function testPallasDecompress1() public {
+        /* compressed_x_coord taken from r_U_primary.comm_W in compressed-snark.json */
+
+        uint256 compressed_x_coord = 0x1b76eba7530b994f67164777aae37817048460b0849628e9981dcf9b39a431ac;
+
+        Pallas.PallasAffinePoint memory result = Pallas.decompress(compressed_x_coord);
+
+        Pallas.PallasAffinePoint memory expected = Pallas.IntoAffine(
+            Pallas.PallasProjectivePoint(
+                0x0a0b5243b57dcd19e6e94b725496973be3f4fbbb59fdbf54cee6f0476897a5cd,
+                0x1d3cf698358ac18f2ebd45e39b741a33a64aff4557636ff33eed904ac8f16ddc,
+                0x239316a5f639983fe1430c82081aa81165cf130cc157978909e7b2d2d157ad93
+            )
+        );
+
+        assertEq(result.x, expected.x);
+        assertEq(result.y, expected.y);
+    }
+
+    function testVestaDecompress1() public {
+        /* compressed_x_coord taken from r_U_secondary.comm_W in compressed-snark.json */
+
+        uint256 compressed_x_coord = 0xfeb641951cb4c21bdc4906f57b46942c0ae22b6c852266f64a4e0b77de5c4432;
+
+        Vesta.VestaAffinePoint memory result = Vesta.decompress(compressed_x_coord);
+
+        Vesta.VestaAffinePoint memory expected = Vesta.IntoAffine(
+            Vesta.VestaProjectivePoint(
+                0x1eae795db1f82fdb88584cc3a711c91e4502908bbe56d3aab4918f3af348c975,
+                0x2f7b7d5942466319f576920986bd629414103e798b753e9e0f93fa8d5cad13f7,
+                0x1261efc105eb4dc9c380bf895c37347b3cd176ae1aa8670c22843d0eb0854f3d
+            )
+        );
+
+        assertEq(result.x, expected.x);
+        assertEq(result.y, expected.y);
+    }
+
+    function testPallasDecompress2() public view {
+        uint256 compressed_x_coord = 0x0;
+
+        Pallas.PallasAffinePoint memory result = Pallas.decompress(compressed_x_coord);
+
+        assert(Pallas.isInfinity(result));
+    }
+
+    function testVestaDecompress2() public view {
+        uint256 compressed_x_coord = 0x0;
+
+        Vesta.VestaAffinePoint memory result = Vesta.decompress(compressed_x_coord);
+
+        assert(Vesta.isInfinity(result));
     }
 }

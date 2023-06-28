@@ -12,16 +12,16 @@ library PallasPolyLib {
         uint256[] Z;
     }
 
-    struct SparseEntry{
+    struct SparseEntry {
         uint256 idx;
         uint256 entry;
     }
 
-    struct SparsePoly{
+    struct SparsePoly {
         uint64 numvars;
         SparseEntry[] Z;
     }
-    
+
     struct UniPoly {
         uint256[] coeffs;
     }
@@ -30,12 +30,12 @@ library PallasPolyLib {
         uint256[] coeffs_except_linear_term;
     }
 
-    function newML(uint256[] memory Z, uint64 numvars) public pure returns (MLPoly memory){
+    function newML(uint256[] memory Z, uint64 numvars) public pure returns (MLPoly memory) {
         require(Z.length == 2 ^ numvars);
         return MLPoly(numvars, Z);
     }
 
-    function boundPolyVarTop(MLPoly calldata P, uint256 r) public pure returns(MLPoly memory) {
+    function boundPolyVarTop(MLPoly calldata P, uint256 r) public pure returns (MLPoly memory) {
         uint256 mid = P.Z.length / 2;
 
         uint256[] memory new_Z;
@@ -44,9 +44,9 @@ library PallasPolyLib {
             uint256 a = P.Z[i];
             uint256 b = P.Z[mid + i];
             // new_Z[i] = a + r * (b - a);
-            new_Z[i] = addmod(a, mulmod(r, addmod(b, Pallas.negate(a), Pallas.P_MOD), Pallas.P_MOD), Pallas.P_MOD);
+            new_Z[i] = addmod(a, mulmod(r, addmod(b, Pallas.negateBase(a), Pallas.P_MOD), Pallas.P_MOD), Pallas.P_MOD);
         }
-        
+
         return MLPoly(P.numvars - 1, new_Z);
     }
 
@@ -55,7 +55,7 @@ library PallasPolyLib {
 
         uint256[] memory chis = EqPolinomialLib.evalsPallas(r);
 
-        for (uint256 i  = 0; i < r.length; i++) {
+        for (uint256 i = 0; i < r.length; i++) {
             // result += chis[i] * P.Z[i];
             result = addmod(result, mulmod(chis[i], P.Z[i], Pallas.P_MOD), Pallas.P_MOD);
         }
@@ -70,10 +70,9 @@ library PallasPolyLib {
             if (a[j]) {
                 // result *= r[j];
                 result = mulmod(result, r[j], Pallas.P_MOD);
-            }
-            else {
+            } else {
                 // result *= (1 - r[j]);
-                result = mulmod(result, addmod(1, Pallas.negate(r[j]), Pallas.P_MOD), Pallas.P_MOD);
+                result = mulmod(result, addmod(1, Pallas.negateBase(r[j]), Pallas.P_MOD), Pallas.P_MOD);
             }
         }
 
@@ -84,7 +83,7 @@ library PallasPolyLib {
         bool[] memory result;
 
         for (uint256 shift_amount = 0; shift_amount < numbits; shift_amount++) {
-            result[shift_amount] = (num & (1 << (numbits - shift_amount -1)) > 0);
+            result[shift_amount] = (num & (1 << (numbits - shift_amount - 1)) > 0);
         }
 
         return result;
@@ -97,7 +96,7 @@ library PallasPolyLib {
 
         for (uint256 i = 0; i < r.length; i++) {
             bool[] memory bits = getBits(P.Z[i].entry, r.length);
-            // result += computeChi(bits, r) * P.Z[i].idx; 
+            // result += computeChi(bits, r) * P.Z[i].idx;
             result = addmod(result, mulmod(computeChi(bits, r), P.Z[i].idx, Pallas.P_MOD), Pallas.P_MOD);
         }
 
@@ -139,15 +138,18 @@ library PallasPolyLib {
         }
     }
 
-    function decompress(
-        CompressedUniPoly calldata poly,
-        uint256 hint
-    ) public pure returns (UniPoly memory) {
+    function decompress(CompressedUniPoly calldata poly, uint256 hint) public pure returns (UniPoly memory) {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
-        uint256 linear_term = addmod(hint, Pallas.negate(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Pallas.P_MOD)), Pallas.P_MOD);
+        uint256 linear_term = addmod(
+            hint,
+            Pallas.negateBase(
+                addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Pallas.P_MOD)
+            ),
+            Pallas.P_MOD
+        );
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
             // linear_term -= poly.coeffs_except_linear_term[i];
-            linear_term = addmod(linear_term, Pallas.negate(poly.coeffs_except_linear_term[i]), Pallas.P_MOD);
+            linear_term = addmod(linear_term, Pallas.negateBase(poly.coeffs_except_linear_term[i]), Pallas.P_MOD);
         }
 
         uint256[] memory coeffs;
@@ -155,7 +157,7 @@ library PallasPolyLib {
         coeffs[1] = linear_term;
 
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
-            coeffs[i + 1]  = poly.coeffs_except_linear_term[i];
+            coeffs[i + 1] = poly.coeffs_except_linear_term[i];
         }
 
         require(poly.coeffs_except_linear_term.length + 1 == coeffs.length);
@@ -165,7 +167,7 @@ library PallasPolyLib {
 
     function toUInt8Array(uint256 input) private pure returns (uint8[] memory) {
         uint8[] memory result = new uint8[](32);
-        
+
         bytes32 input_bytes = bytes32(input);
 
         for (uint256 i = 0; i < 32; i++) {
@@ -185,7 +187,7 @@ library PallasPolyLib {
         offset += 32;
 
         for (uint256 i = 2; i < poly.coeffs.length; i++) {
-            coeff_bytes = toUInt8Array(poly.coeffs[i]); 
+            coeff_bytes = toUInt8Array(poly.coeffs[i]);
             for (uint256 j = 0; j < 32; j++) {
                 result[offset + j] = coeff_bytes[j];
             }
@@ -194,7 +196,6 @@ library PallasPolyLib {
 
         return result;
     }
-
 }
 
 library VestaPolyLib {
@@ -203,16 +204,16 @@ library VestaPolyLib {
         uint256[] Z;
     }
 
-    struct SparseEntry{
+    struct SparseEntry {
         uint256 idx;
         uint256 entry;
     }
 
-    struct SparsePoly{
+    struct SparsePoly {
         uint64 numvars;
         SparseEntry[] Z;
     }
-    
+
     struct UniPoly {
         uint256[] coeffs;
     }
@@ -221,12 +222,12 @@ library VestaPolyLib {
         uint256[] coeffs_except_linear_term;
     }
 
-    function newML(uint256[] memory Z, uint64 numvars) public pure returns (MLPoly memory){
+    function newML(uint256[] memory Z, uint64 numvars) public pure returns (MLPoly memory) {
         require(Z.length == 2 ^ numvars);
         return MLPoly(numvars, Z);
     }
 
-    function boundPolyVarTop(MLPoly calldata P, uint256 r) public pure returns(MLPoly memory) {
+    function boundPolyVarTop(MLPoly calldata P, uint256 r) public pure returns (MLPoly memory) {
         uint256 mid = P.Z.length / 2;
 
         uint256[] memory new_Z;
@@ -235,9 +236,9 @@ library VestaPolyLib {
             uint256 a = P.Z[i];
             uint256 b = P.Z[mid + i];
             // new_Z[i] = a + r * (b - a);
-            new_Z[i] = addmod(a, mulmod(r, addmod(b, Vesta.negate(a), Vesta.P_MOD), Vesta.P_MOD), Vesta.P_MOD);
+            new_Z[i] = addmod(a, mulmod(r, addmod(b, Vesta.negateBase(a), Vesta.P_MOD), Vesta.P_MOD), Vesta.P_MOD);
         }
-        
+
         return MLPoly(P.numvars - 1, new_Z);
     }
 
@@ -246,7 +247,7 @@ library VestaPolyLib {
 
         uint256[] memory chis = EqPolinomialLib.evalsVesta(r);
 
-        for (uint256 i  = 0; i < r.length; i++) {
+        for (uint256 i = 0; i < r.length; i++) {
             // result += chis[i] * P.Z[i];
             result = addmod(result, mulmod(chis[i], P.Z[i], Vesta.P_MOD), Vesta.P_MOD);
         }
@@ -261,10 +262,9 @@ library VestaPolyLib {
             if (a[j]) {
                 // result *= r[j];
                 result = mulmod(result, r[j], Vesta.P_MOD);
-            }
-            else {
+            } else {
                 // result *= (1 - r[j]);
-                result = mulmod(result, addmod(1, Vesta.negate(r[j]), Vesta.P_MOD), Vesta.P_MOD);
+                result = mulmod(result, addmod(1, Vesta.negateBase(r[j]), Vesta.P_MOD), Vesta.P_MOD);
             }
         }
 
@@ -275,7 +275,7 @@ library VestaPolyLib {
         bool[] memory result;
 
         for (uint256 shift_amount = 0; shift_amount < numbits; shift_amount++) {
-            result[shift_amount] = (num & (1 << (numbits - shift_amount -1)) > 0);
+            result[shift_amount] = (num & (1 << (numbits - shift_amount - 1)) > 0);
         }
 
         return result;
@@ -288,7 +288,7 @@ library VestaPolyLib {
 
         for (uint256 i = 0; i < r.length; i++) {
             bool[] memory bits = getBits(P.Z[i].entry, r.length);
-            // result += computeChi(bits, r) * P.Z[i].idx; 
+            // result += computeChi(bits, r) * P.Z[i].idx;
             result = addmod(result, mulmod(computeChi(bits, r), P.Z[i].idx, Vesta.P_MOD), Vesta.P_MOD);
         }
 
@@ -330,15 +330,16 @@ library VestaPolyLib {
         }
     }
 
-    function decompress(
-        CompressedUniPoly calldata poly,
-        uint256 hint
-    ) public pure returns (UniPoly memory) {
+    function decompress(CompressedUniPoly calldata poly, uint256 hint) public pure returns (UniPoly memory) {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
-        uint256 linear_term = addmod(hint, Vesta.negate(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.P_MOD)), Vesta.P_MOD);
+        uint256 linear_term = addmod(
+            hint,
+            Vesta.negateBase(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.P_MOD)),
+            Vesta.P_MOD
+        );
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
             // linear_term -= poly.coeffs_except_linear_term[i];
-            linear_term = addmod(linear_term, Vesta.negate(poly.coeffs_except_linear_term[i]), Vesta.P_MOD);
+            linear_term = addmod(linear_term, Vesta.negateBase(poly.coeffs_except_linear_term[i]), Vesta.P_MOD);
         }
 
         uint256[] memory coeffs;
@@ -346,7 +347,7 @@ library VestaPolyLib {
         coeffs[1] = linear_term;
 
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
-            coeffs[i + 1]  = poly.coeffs_except_linear_term[i];
+            coeffs[i + 1] = poly.coeffs_except_linear_term[i];
         }
 
         require(poly.coeffs_except_linear_term.length + 1 == coeffs.length);
@@ -356,7 +357,7 @@ library VestaPolyLib {
 
     function toUInt8Array(uint256 input) private pure returns (uint8[] memory) {
         uint8[] memory result = new uint8[](32);
-        
+
         bytes32 input_bytes = bytes32(input);
 
         for (uint256 i = 0; i < 32; i++) {
@@ -376,7 +377,7 @@ library VestaPolyLib {
         offset += 32;
 
         for (uint256 i = 2; i < poly.coeffs.length; i++) {
-            coeff_bytes = toUInt8Array(poly.coeffs[i]); 
+            coeff_bytes = toUInt8Array(poly.coeffs[i]);
             for (uint256 j = 0; j < 32; j++) {
                 result[offset + j] = coeff_bytes[j];
             }
@@ -385,7 +386,6 @@ library VestaPolyLib {
 
         return result;
     }
-
 }
 
 library PrimarySumcheck {
@@ -415,7 +415,10 @@ library PrimarySumcheck {
             PallasPolyLib.UniPoly memory poly = PallasPolyLib.decompress(proof.compressed_polys[i], e);
 
             require(PallasPolyLib.degree(poly) == degree_bound, "Polynomial has wrong degree");
-            require(addmod(PallasPolyLib.evalAtZero(poly), PallasPolyLib.evalAtOne(poly), Pallas.P_MOD) == e, "Polynomial decompression yields incorrect result");
+            require(
+                addmod(PallasPolyLib.evalAtZero(poly), PallasPolyLib.evalAtOne(poly), Pallas.P_MOD) == e,
+                "Polynomial decompression yields incorrect result"
+            );
 
             transcript = KeccakTranscriptLib.absorb(transcript, p_label, PallasPolyLib.toTranscriptBytes(poly));
 
@@ -424,7 +427,7 @@ library PrimarySumcheck {
 
             r[i] = r_i;
 
-            e = PallasPolyLib.evaluate(poly, r_i); 
+            e = PallasPolyLib.evaluate(poly, r_i);
         }
 
         return (e, r);
@@ -458,7 +461,10 @@ library SecondarySumcheck {
             VestaPolyLib.UniPoly memory poly = VestaPolyLib.decompress(proof.compressed_polys[i], e);
 
             require(VestaPolyLib.degree(poly) == degree_bound, "Polynomial has wrong degree");
-            require(addmod(VestaPolyLib.evalAtZero(poly), VestaPolyLib.evalAtOne(poly), Vesta.P_MOD) == e, "Polynomial decompression yields incorrect result");
+            require(
+                addmod(VestaPolyLib.evalAtZero(poly), VestaPolyLib.evalAtOne(poly), Vesta.P_MOD) == e,
+                "Polynomial decompression yields incorrect result"
+            );
 
             transcript = KeccakTranscriptLib.absorb(transcript, p_label, VestaPolyLib.toTranscriptBytes(poly));
 
@@ -467,7 +473,7 @@ library SecondarySumcheck {
 
             r[i] = r_i;
 
-            e = VestaPolyLib.evaluate(poly, r_i); 
+            e = VestaPolyLib.evaluate(poly, r_i);
         }
 
         return (e, r);

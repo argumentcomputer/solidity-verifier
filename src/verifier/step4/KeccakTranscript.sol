@@ -393,7 +393,11 @@ library KeccakTranscriptLib {
         return updatedState;
     }
 
-    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input) public pure returns (KeccakTranscript memory) {
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
         // uint256 input will always take 32 bytes
         uint8[] memory transcript = new uint8[](keccak.transcript.length + label.length + input.length);
         uint256 index = 0;
@@ -417,6 +421,20 @@ library KeccakTranscriptLib {
 
         // TODO This should be workarounded by interacting with the blockchain, that holds the state
         return KeccakTranscript(keccak.round, keccak.state, transcript);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory input_bytes = new uint8[](32);
+
+        for (uint256 i = 0; i < 32; i++) {
+            input_bytes[i] = uint8(bytes32(input)[31 - i]);
+        }
+
+        return absorb(keccak, label, input_bytes);
     }
 
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)

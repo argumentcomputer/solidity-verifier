@@ -7,50 +7,46 @@ def step1DataContractGen(data):
     o = ""
     o = o + "pragma solidity ^0.8.0;\n"
     o = o + "library NovaVerifierStep1DataLib {\n"
+    o = o + "struct CompressedSnarkStep1 {\n"
+    o = o + "uint256[] l_u_primary_X;\n"
+    o = o + "uint256[] l_u_secondary_X;\n"
+    o = o + "uint256[] r_U_primary_X;\n"
+    o = o + "uint256[] r_U_secondary_X;\n"
+    o = o + "}\n"
 
-    # get_r_u_primary_X
-    o = o + "function get_r_u_primary_X() public pure returns (uint256[] memory) {\n"
+    o = o + "function getSnark() public pure returns (CompressedSnarkStep1 memory) {\n"
     o = o + "uint256[] memory r_u_primary_X = new uint256[](" + str(len(data.r_u_primary_X)) + ");\n"
     index = 0
     for x in data.r_u_primary_X:
         o = o + "r_u_primary_X[" + str(index) + "] = 0x" + str(x) + ";\n"
         index = index + 1
 
-    o = o + "return r_u_primary_X;"
-    o = o + "\n}\n"
+    o = o + "\n"
 
-    # get_l_u_primary_X
-    o = o + "function get_l_u_primary_X() public pure returns (uint256[] memory) {\n"
-    o = o + "uint256[] memory l_u_primary_X = new uint256[](" + str(len(data.l_u_primary_X)) + ");\n"
-    index = 0
-    for x in data.l_u_primary_X:
-        o = o + "l_u_primary_X[" + str(index) + "] = 0x" + str(x) + ";\n"
-        index = index + 1
-
-    o = o + "return l_u_primary_X;"
-    o = o + "\n}\n"
-
-    # get_r_u_secondary_X
-    o = o + "function get_r_u_secondary_X() public pure returns (uint256[] memory) {\n"
     o = o + "uint256[] memory r_u_secondary_X = new uint256[](" + str(len(data.r_u_secondary_X)) + ");\n"
     index = 0
     for x in data.r_u_secondary_X:
         o = o + "r_u_secondary_X[" + str(index) + "] = 0x" + str(x) + ";\n"
         index = index + 1
 
-    o = o + "return r_u_secondary_X;"
-    o = o + "\n}\n"
+    o = o + "\n"
 
-    # get_l_u_secondary_X
-    o = o + "function get_l_u_secondary_X() public pure returns (uint256[] memory) {\n"
+    o = o + "uint256[] memory l_u_primary_X = new uint256[](" + str(len(data.l_u_primary_X)) + ");\n"
+    index = 0
+    for x in data.l_u_primary_X:
+        o = o + "l_u_primary_X[" + str(index) + "] = 0x" + str(x) + ";\n"
+        index = index + 1
+
+    o = o + "\n"
+
     o = o + "uint256[] memory l_u_secondary_X = new uint256[](" + str(len(data.l_u_secondary_X)) + ");\n"
     index = 0
     for x in data.l_u_secondary_X:
         o = o + "l_u_secondary_X[" + str(index) + "] = 0x" + str(x) + ";\n"
         index = index + 1
 
-    o = o + "return l_u_secondary_X;"
-    o = o + "\n}"
+    o = o + "return CompressedSnarkStep1(r_u_primary_X, l_u_primary_X, r_u_secondary_X, l_u_secondary_X);"
+    o = o + "\n}\n"
 
     o = o + "\n}"
 
@@ -58,10 +54,10 @@ def step1DataContractGen(data):
 
 fn = sys.argv[1]
 if not os.path.exists(fn):
-    print("constants (json) input file is missing")
+    print("compressed snark (json) input file is missing")
     exit(1)
 
-f = open(os.path.basename(fn))
+f = open(os.path.abspath(fn))
 data = json.load(f)
 
 r_u_primary = data['r_U_primary']

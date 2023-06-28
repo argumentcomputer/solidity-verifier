@@ -13,7 +13,7 @@ library NovaVerifierStep2Lib {
         PoseidonConstants.Pallas memory constants,
         NovaVerifierStep2DataLib.CompressedSnarkStep2Secondary memory proofDataStep2Secondary,
         NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2,
-        uint32 numSteps,
+        uint256 numSteps,
         uint256[] memory z0_secondary
     ) public pure {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
@@ -90,7 +90,7 @@ library NovaVerifierStep2Lib {
 
         // in Nova only 250 bits of output hash are significant
         require(
-            (output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
                 == proofDataStep2Secondary.expected_l_u_secondary_X_1,
             "[Pallas Poseidon hash mismatch (verifySecondary)] ProofVerifyError"
         );
@@ -101,9 +101,9 @@ library NovaVerifierStep2Lib {
         PoseidonConstants.Vesta memory constants,
         NovaVerifierStep2DataLib.CompressedSnarkStep2Primary memory proofDataStep2Primary,
         NovaVerifierStep2DataLib.VerifierKeyStep2 memory vkStep2,
-        uint32 numSteps,
+        uint256 numSteps,
         uint256[] memory z0_primary
-    ) public view {
+    ) public pure {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
         require(
             NovaSpongeVestaLib.constantsAreEqual(constants.mixConstants, constants.addRoundConstants),
@@ -178,7 +178,7 @@ library NovaVerifierStep2Lib {
 
         // in Nova only 250 bits of output hash are significant
         require(
-            (output[0] & 0x07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
                 == proofDataStep2Primary.expected_l_u_primary_X_1,
             "[Vesta Poseidon hash mismatch (verifyPrimary)] ProofVerifyError"
         );

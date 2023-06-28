@@ -129,7 +129,7 @@ def getLimbs(input):
     return (limb0, limb1, limb2, limb3)
 
 def reverseLimb(input):
-    hex = bytearray.fromhex(format(input, 'x'))
+    hex = bytearray.fromhex(format(input, 'x').zfill(16))
     hex.reverse()
     return int(binascii.hexlify(hex), 16)
 
@@ -354,7 +354,7 @@ if not os.path.exists(vk_file):
     print("verifier-key (json) input file is missing")
     exit(1)
 
-vk_f = open(os.path.basename(vk_file))
+vk_f = open(os.path.abspath(vk_file))
 vk_data = json.load(vk_f)
 
 # Parse VerifyingKey
@@ -378,7 +378,7 @@ if not os.path.exists(proof_file):
     print("compressed snark (json) input file is missing")
     exit(1)
 
-proof_f = open(os.path.basename(proof_file))
+proof_f = open(os.path.abspath(proof_file))
 proof_data = json.load(proof_f)
 
 # Parse CompressedSnark

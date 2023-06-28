@@ -530,30 +530,25 @@ library NovaSpongeVestaLib {
         return sponge;
     }
 
-    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public view returns (bool) {
+    function constantsAreEqual(uint256[] memory mix, uint256[] memory arc) public pure returns (bool) {
         if (mix.length < 25) {
-            console.log("here");
             return false;
         }
         if (arc.length < 25) {
-            console.log("here1");
             return false;
         }
 
         (uint256[] memory mix_expected, uint256[] memory arc_expected) = PoseidonU24Vesta.getConstants();
 
         if (mix_expected.length != 25) {
-            console.log("here2");
             return false;
         }
         if (arc_expected.length != 25) {
-            console.log("here3");
             return false;
         }
 
         for (uint32 i = 0; i < 25; i++) {
             if (mix_expected[i] != mix[i] || arc_expected[i] != arc[i]) {
-                console.log("here4");
                 return false;
             }
         }

@@ -17,6 +17,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
@@ -27,16 +32,50 @@ jobs:
           forge fmt --check
         id: formatting
 
+      # TODO: make parallel execution of integration tests for each example
+      # Verification part of Nova 'test-ivc-nondet-with-compression'
+      - name: Regenerate data contracts (use nondet example)
+        run: |
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/poseidon/PoseidonNeptuneU24pallas.sol
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/poseidon/PoseidonNeptuneU24vesta.sol
+          python integration-tests-generator.py json/nova-nondet-compressed-snark.json json/nova-nondet-verifier-key.json json/nova-nondet-metadata.json > test/integration-tests.t.sol
+
+      - name: Run forge fmt on re-generated contracts
+        run: |
+          forge fmt
+
       - name: Run Forge build
         run: |
           forge --version
           forge build
-        id: build
+        id: build-nondet
 
       - name: Run Forge tests
         run: |
           forge test -vvv
-        id: test
+        id: test-nondet
+
+      # Verification part of Nova 'test-ivc-nontrivial-with-compression'
+      - name: Regenerate data contracts (use nontrivial example)
+        run: |
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/poseidon/PoseidonNeptuneU24pallas.sol
+          python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/poseidon/PoseidonNeptuneU24vesta.sol
+          python integration-tests-generator.py json/nova-nontrivial-compressed-snark.json json/nova-nontrivial-verifier-key.json json/nova-nontrivial-metadata.json > test/integration-tests.t.sol
+
+      - name: Run forge fmt on re-generated contracts
+        run: |
+          forge fmt
+
+      - name: Run Forge build
+        run: |
+          forge --version
+          forge build
+        id: build-nontrivial
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test-nontrivial
 
       - name: Get sizes of compiled contracts
         run: |

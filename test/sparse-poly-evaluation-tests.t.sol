@@ -33,10 +33,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x2875f52ba1a60c5b478f684b058d0e2bf2ce904bd0a377ce38699d1a2aa69fad);
 
-        SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
-        poly_X[0] = z0;
-        poly_X[1] = z1;
-        poly_X[2] = z2;
+        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
 
         uint256 num_vars = r_y.length;
 
@@ -71,10 +68,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x25b86df67043654b4f2becbaf1ea152688dfeffdb1de89cdf0164c59b0330198);
 
-        SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
-        poly_X[0] = z0;
-        poly_X[1] = z1;
-        poly_X[2] = z2;
+        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
 
         uint256 num_vars = r_y.length;
 

@@ -11,6 +11,19 @@ library SparsePolynomialLib {
         uint256 scalar;
     }
 
+    function setupPoly_X(
+        SparsePolynomialLib.Z memory z0,
+        SparsePolynomialLib.Z memory z1,
+        SparsePolynomialLib.Z memory z2
+    ) public pure returns (SparsePolynomialLib.Z[] memory) {
+        SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
+        poly_X[0] = z0;
+        poly_X[1] = z1;
+        poly_X[2] = z2;
+
+        return poly_X;
+    }
+
     function evaluate(
         uint256 num_vars,
         Z[] memory poly_X,

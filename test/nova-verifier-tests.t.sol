@@ -92,7 +92,7 @@ contract NovaVerifierContractTest is Test {
         uint256 eval_E = 0x1a081bf51d978d12ec79337fa96b1478a40c3dd3ec8005355a8e3fb8ef01b60e;
         uint256 claim_outer_final = 0x346b738474d5b2cda8c002566f1a7004d06cab6b467303a2b7c4b04eaa6df733;
 
-        SpartanVerificationSupStep2Lib.verifyPrimary(
+        SpartanVerificationSubStep2Lib.verifyPrimary(
             tau, r_x, claim_Az, claim_Bz, claim_Cz, eval_E, U_u, claim_outer_final
         );
     }
@@ -137,7 +137,7 @@ contract NovaVerifierContractTest is Test {
         uint256 eval_E = 0x146438b19e9b9c5483f5301af079f68e3562d46419401ac68c94aab3372c0cac;
         uint256 claim_outer_final = 0x157e00e739ad0d53d95e24c8ec0e97081a1f94bb9a4e94a4d198c5533aebc28b;
 
-        SpartanVerificationSupStep2Lib.verifySecondary(
+        SpartanVerificationSubStep2Lib.verifySecondary(
             tau, r_x, claim_Az, claim_Bz, claim_Cz, eval_E, U_u, claim_outer_final
         );
     }

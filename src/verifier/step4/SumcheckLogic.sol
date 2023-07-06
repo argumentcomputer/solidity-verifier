@@ -133,7 +133,7 @@ library PallasPolyLib {
 
     function compress(UniPoly memory poly) public pure returns (CompressedUniPoly memory result) {
         result.coeffs_except_linear_term[0] = poly.coeffs[0];
-        for (uint256 i = 0; i < poly.coeffs.length; i++) {
+        for (uint256 i = 1; i < poly.coeffs.length; i++) {
             result.coeffs_except_linear_term[i - 1] = poly.coeffs[i];
         }
     }

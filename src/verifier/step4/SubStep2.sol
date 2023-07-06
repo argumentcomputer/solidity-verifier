@@ -5,7 +5,7 @@ import "src/verifier/step4/EqPolynomial.sol";
 import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
 
-library SpartanVerificationSupStep2Lib {
+library SpartanVerificationSubStep2Lib {
     function verifyPrimary(
         uint256[] memory tau,
         uint256[] memory r_x,

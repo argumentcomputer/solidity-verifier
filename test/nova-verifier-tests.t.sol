@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/verifier/step1/Step1Logic.sol";
-import "src/verifier/step1/Step1Data.sol";
 import "src/verifier/step2/Step2Logic.sol";
 import "src/verifier/step2/Step2Data.sol";
 import "src/verifier/step3/Step3Logic.sol";
@@ -12,26 +10,6 @@ import "src/poseidon/Sponge.sol";
 import "src/verifier/step4/SubStep2.sol";
 
 contract NovaVerifierContractTest is Test {
-    function testVerificationStep1() public pure {
-        NovaVerifierStep1Lib.VerifierKeyStep1 memory verifierKeyStep1 = NovaVerifierStep1Lib.loadVerifierKeyStep1();
-
-        uint256[] memory r_u_primary_X = NovaVerifierStep1DataLib.get_r_u_primary_X();
-
-        uint256[] memory l_u_primary_X = NovaVerifierStep1DataLib.get_l_u_primary_X();
-
-        uint256[] memory r_u_secondary_X = NovaVerifierStep1DataLib.get_r_u_secondary_X();
-
-        uint256[] memory l_u_secondary_X = NovaVerifierStep1DataLib.get_l_u_secondary_X();
-
-        NovaVerifierStep1Lib.CompressedSnarkStep1 memory proofDataStep1 = NovaVerifierStep1Lib.loadCompressedSnarkStep1(
-            l_u_primary_X, l_u_secondary_X, r_u_primary_X, r_u_secondary_X
-        );
-
-        uint32 numSteps = 3;
-
-        NovaVerifierStep1Lib.verify(proofDataStep1, verifierKeyStep1, numSteps);
-    }
-
     function testVerificationStep2() public view {
         uint32 numSteps = 3;
         uint256[] memory z0_primary = new uint256[](1);

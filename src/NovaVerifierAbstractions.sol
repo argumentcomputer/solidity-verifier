@@ -14,13 +14,25 @@ library Abstractions {
         uint256[] X;
     }
 
-    //struct VerifierKey {
-    //
-    //}
-
     struct CompressedSnark {
         R1CSInstance l_u_secondary;
         RelaxedR1CSInstance r_U_primary;
         RelaxedR1CSInstance r_U_secondary;
+
+        uint256[] zn_primary;
+        uint256[] zn_secondary;
+    }
+
+    struct ROConstants {
+        uint256[] mixConstants;
+        uint256[] addRoundConstants;
+    }
+
+    struct VerifierKey {
+        uint256 f_arity_primary;
+        uint256 f_arity_secondary;
+        uint256 digest;
+        ROConstants ro_consts_primary;
+        ROConstants ro_consts_secondary;
     }
 }

@@ -5,7 +5,7 @@ import "@std/Test.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 library Step1Lib {
-    function verify(Abstractions.CompressedSnark calldata proof, uint32 numSteps, uint256[] calldata z0_primary, uint256[] calldata z0_secondary) public view returns (bool) {
+    function verify(Abstractions.CompressedSnark calldata proof, uint32 numSteps) public view returns (bool) {
         if (numSteps == 0) {
             console.log("[NovaError::ProofVerifyError] numSteps == 0");
             return false;

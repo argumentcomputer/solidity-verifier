@@ -399,7 +399,7 @@ library PrimarySumcheck {
         uint256 num_rounds,
         uint256 degree_bound,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public pure returns (uint256, uint256[] memory) {
+    ) public pure returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         uint256 e = claim;
         uint256[] memory r;
 
@@ -430,7 +430,7 @@ library PrimarySumcheck {
             e = PallasPolyLib.evaluate(poly, r_i);
         }
 
-        return (e, r);
+        return (e, r, transcript);
     }
 }
 
@@ -445,7 +445,7 @@ library SecondarySumcheck {
         uint256 num_rounds,
         uint256 degree_bound,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public pure returns (uint256, uint256[] memory) {
+    ) public pure returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         uint256 e = claim;
         uint256[] memory r;
 
@@ -476,6 +476,6 @@ library SecondarySumcheck {
             e = VestaPolyLib.evaluate(poly, r_i);
         }
 
-        return (e, r);
+        return (e, r, transcript);
     }
 }

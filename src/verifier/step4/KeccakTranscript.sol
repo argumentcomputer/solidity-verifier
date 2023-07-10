@@ -423,18 +423,97 @@ library KeccakTranscriptLib {
         return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
 
-    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
-        public
-        pure
-        returns (KeccakTranscript memory)
-    {
+    function scalarToBytes(uint256 input) private pure returns (uint8[] memory) {
         uint8[] memory input_bytes = new uint8[](32);
 
         for (uint256 i = 0; i < 32; i++) {
             input_bytes[i] = uint8(bytes32(input)[31 - i]);
         }
 
+        return input_bytes;
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory input_bytes = scalarToBytes(input);
         return absorb(keccak, label, input_bytes);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Pallas.PallasAffinePoint memory point)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8 is_infinity;
+        if (Pallas.isInfinity(point)) {
+            is_infinity = 0;
+        } else {
+            is_infinity = 1;
+        }
+
+        uint8[] memory x_bytes = scalarToBytes(point.x);
+        uint8[] memory y_bytes = scalarToBytes(point.y);
+
+        uint8[] memory input = new uint8[](x_bytes.length + y_bytes.length + 1);
+
+        for (uint256 i = 0; i < x_bytes.length; i++) {
+            input[i] = x_bytes[i];
+        }
+        for (uint256 i = 0; i < y_bytes.length; i++) {
+            input[x_bytes.length + i] = y_bytes[i];
+        }
+        input[x_bytes.length + y_bytes.length] = is_infinity;
+
+        return absorb(keccak, label, input);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Vesta.VestaAffinePoint memory point)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8 is_infinity;
+        if (Vesta.isInfinity(point)) {
+            is_infinity = 0;
+        } else {
+            is_infinity = 1;
+        }
+
+        uint8[] memory x_bytes = scalarToBytes(point.x);
+        uint8[] memory y_bytes = scalarToBytes(point.y);
+
+        uint8[] memory input = new uint8[](x_bytes.length + y_bytes.length + 1);
+
+        for (uint256 i = 0; i < x_bytes.length; i++) {
+            input[i] = x_bytes[i];
+        }
+        for (uint256 i = 0; i < y_bytes.length; i++) {
+            input[x_bytes.length + i] = y_bytes[i];
+        }
+        input[x_bytes.length + y_bytes.length] = is_infinity;
+
+        return absorb(keccak, label, input);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256[] memory inputs)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory input = new uint8[](32 * inputs.length);
+
+        for (uint256 i = 0; i < inputs.length; i++) {
+            uint8[] memory input_bytes = scalarToBytes(inputs[i]);
+
+            for (uint256 j = 0; j < 32; j++) {
+                input[32 * i + j] = input_bytes[j];
+            }
+        }
+
+        return absorb(keccak, label, input);
     }
 
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)

@@ -325,7 +325,7 @@ library KeccakTranscriptLib {
     uint32 private constant DOM_SEP_TAG = 0x4e6f4453;
     uint8 private constant KECCAK256_PREFIX_CHALLENGE_LO = 0x00;
     uint8 private constant KECCAK256_PREFIX_CHALLENGE_HI = 0x01;
-    uint256 private constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
+    uint256 public constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
 
     struct KeccakTranscript {
         uint16 round;

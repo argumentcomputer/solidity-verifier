@@ -114,7 +114,7 @@ library PallasPolyLib {
     function evalAtOne(UniPoly memory poly) public pure returns (uint256 result) {
         for (uint256 i = 0; i < poly.coeffs.length; i++) {
             // result += poly.coeffs[i];
-            result = addmod(result, poly.coeffs[i], Pallas.P_MOD);
+            result = addmod(result, poly.coeffs[i], Pallas.R_MOD);
         }
     }
 
@@ -123,9 +123,9 @@ library PallasPolyLib {
         uint256 result = poly.coeffs[0];
         for (uint256 i = 1; i < poly.coeffs.length; i++) {
             // result += power * poly.coeffs[i];
-            result = addmod(result, mulmod(power, poly.coeffs[i], Pallas.P_MOD), Pallas.P_MOD);
+            result = addmod(result, mulmod(power, poly.coeffs[i], Pallas.R_MOD), Pallas.R_MOD);
             // power *= r;
-            power = mulmod(power, r, Pallas.P_MOD);
+            power = mulmod(power, r, Pallas.R_MOD);
         }
 
         return result;
@@ -142,25 +142,28 @@ library PallasPolyLib {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
         uint256 linear_term = addmod(
             hint,
-            Pallas.negateBase(
-                addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Pallas.P_MOD)
+            Pallas.negateScalar(
+                addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Pallas.R_MOD)
             ),
-            Pallas.P_MOD
+            Pallas.R_MOD
         );
+
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
             // linear_term -= poly.coeffs_except_linear_term[i];
-            linear_term = addmod(linear_term, Pallas.negateBase(poly.coeffs_except_linear_term[i]), Pallas.P_MOD);
+            linear_term = addmod(linear_term, Pallas.negateScalar(poly.coeffs_except_linear_term[i]), Pallas.R_MOD);
         }
 
-        uint256[] memory coeffs;
-        coeffs[0] = poly.coeffs_except_linear_term[0];
-        coeffs[1] = linear_term;
+        uint256 coeff_index = 0;
+        uint256[] memory coeffs = new uint256[](poly.coeffs_except_linear_term.length + 1);
+        coeffs[coeff_index] = poly.coeffs_except_linear_term[0];
+        coeff_index++;
+        coeffs[coeff_index] = linear_term;
+        coeff_index++;
 
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
-            coeffs[i + 1] = poly.coeffs_except_linear_term[i];
+            coeffs[coeff_index] = poly.coeffs_except_linear_term[i];
+            coeff_index++;
         }
-
-        require(poly.coeffs_except_linear_term.length + 1 == coeffs.length);
 
         return UniPoly(coeffs);
     }

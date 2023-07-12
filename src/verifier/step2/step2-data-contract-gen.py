@@ -135,7 +135,7 @@ def reverseLimb(input):
 
 def step2DataContractGen(data):
     o = ""
-    o = o + "pragma solidity ^0.8.0;\n"
+    o = o + "pragma solidity ^0.8.16;"
 
     o = o + "library PoseidonConstants {\n"
     o = o + "struct Pallas {\n"

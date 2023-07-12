@@ -5,7 +5,7 @@ import sys
 
 def step1DataContractGen(data):
     o = ""
-    o = o + "pragma solidity ^0.8.0;\n"
+    o = o + "pragma solidity ^0.8.16;"
     o = o + "library NovaVerifierStep1DataLib {\n"
 
     # get_r_u_primary_X

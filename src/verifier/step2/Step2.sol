@@ -12,7 +12,13 @@ library Step2Lib {
     uint32 private constant DOMAIN_SEPARATOR = 0;
     uint32 private constant SQUEEZE_NUM = 1;
 
-    function verify(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk, uint32 numSteps, uint256[] calldata z0_primary, uint256[] calldata z0_secondary) public view returns (bool) {
+    function verify(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKey calldata vk,
+        uint32 numSteps,
+        uint256[] calldata z0_primary,
+        uint256[] calldata z0_secondary
+    ) public view returns (bool) {
         if (!verifyPrimaryStep2(proof, vk, numSteps, z0_primary)) {
             console.log("[Step2 primary] false");
             return false;
@@ -25,9 +31,18 @@ library Step2Lib {
         return true;
     }
 
-    function verifyPrimaryStep2(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk, uint32 numSteps, uint256[] calldata z0_primary) public view returns (bool) {
+    function verifyPrimaryStep2(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKey calldata vk,
+        uint32 numSteps,
+        uint256[] calldata z0_primary
+    ) public view returns (bool) {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        if (!NovaSpongeVestaLib.constantsAreEqual(vk.ro_consts_secondary.mixConstants, vk.ro_consts_secondary.addRoundConstants)) {
+        if (
+            !NovaSpongeVestaLib.constantsAreEqual(
+                vk.ro_consts_secondary.mixConstants, vk.ro_consts_secondary.addRoundConstants
+            )
+        ) {
             console.log("[verifyPrimary] WrongVestaPoseidonConstantsError");
             return false;
         }
@@ -81,15 +96,18 @@ library Step2Lib {
         elementsToHash[counter] = proof.r_U_secondary.u;
         counter++;
 
-
         for (i = 0; i < proof.r_U_secondary.X.length; i++) {
-            elementsToHash[counter] = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & proof.r_U_secondary.X[i]);
+            elementsToHash[counter] =
+                (0x000000000000000000000000000000000000000000000000ffffffffffffffff & proof.r_U_secondary.X[i]);
             counter++;
-            elementsToHash[counter] = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & proof.r_U_secondary.X[i]) >> 64;
+            elementsToHash[counter] =
+                (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & proof.r_U_secondary.X[i]) >> 64;
             counter++;
-            elementsToHash[counter] = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & proof.r_U_secondary.X[i]) >> 128;
+            elementsToHash[counter] =
+                (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & proof.r_U_secondary.X[i]) >> 128;
             counter++;
-            elementsToHash[counter] = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & proof.r_U_secondary.X[i]) >> 192;
+            elementsToHash[counter] =
+                (0xffffffffffffffff000000000000000000000000000000000000000000000000 & proof.r_U_secondary.X[i]) >> 192;
             counter++;
         }
 
@@ -100,22 +118,34 @@ library Step2Lib {
         pattern[0] = absorb;
         pattern[1] = squeeze;
 
-        NovaSpongeVestaLib.SpongeU24Vesta memory sponge = NovaSpongeVestaLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
+        NovaSpongeVestaLib.SpongeU24Vesta memory sponge =
+            NovaSpongeVestaLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
         sponge = NovaSpongeVestaLib.absorb(sponge, elementsToHash);
         (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, SQUEEZE_NUM);
         sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
 
         // in Nova only 250 bits of output hash are significant
-        if((output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[0]) {
+        if (
+            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[0]
+        ) {
             console.log("[Vesta Poseidon hash mismatch (verifyPrimary)] ProofVerifyError");
             return false;
         }
         return true;
     }
 
-    function verifySecondaryStep2(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk, uint32 numSteps, uint256[] calldata z0_secondary) public view returns (bool) {
+    function verifySecondaryStep2(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKey calldata vk,
+        uint32 numSteps,
+        uint256[] calldata z0_secondary
+    ) public view returns (bool) {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        if (!NovaSpongePallasLib.constantsAreEqual(vk.ro_consts_primary.mixConstants, vk.ro_consts_primary.addRoundConstants)) {
+        if (
+            !NovaSpongePallasLib.constantsAreEqual(
+                vk.ro_consts_primary.mixConstants, vk.ro_consts_primary.addRoundConstants
+            )
+        ) {
             console.log("[verifySecondary] WrongPallasPoseidonConstantsError");
             return false;
         }
@@ -169,13 +199,17 @@ library Step2Lib {
         counter++;
 
         for (i = 0; i < proof.r_U_primary.X.length; i++) {
-            elementsToHash[counter] = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & proof.r_U_primary.X[i]);
+            elementsToHash[counter] =
+                (0x000000000000000000000000000000000000000000000000ffffffffffffffff & proof.r_U_primary.X[i]);
             counter++;
-            elementsToHash[counter] = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & proof.r_U_primary.X[i]) >> 64;
+            elementsToHash[counter] =
+                (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & proof.r_U_primary.X[i]) >> 64;
             counter++;
-            elementsToHash[counter] = (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & proof.r_U_primary.X[i]) >> 128;
+            elementsToHash[counter] =
+                (0x0000000000000000ffffffffffffffff00000000000000000000000000000000 & proof.r_U_primary.X[i]) >> 128;
             counter++;
-            elementsToHash[counter] = (0xffffffffffffffff000000000000000000000000000000000000000000000000 & proof.r_U_primary.X[i]) >> 192;
+            elementsToHash[counter] =
+                (0xffffffffffffffff000000000000000000000000000000000000000000000000 & proof.r_U_primary.X[i]) >> 192;
             counter++;
         }
 
@@ -186,7 +220,8 @@ library Step2Lib {
         pattern[0] = absorb;
         pattern[1] = squeeze;
 
-        NovaSpongePallasLib.SpongeU24Pallas memory sponge = NovaSpongePallasLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
+        NovaSpongePallasLib.SpongeU24Pallas memory sponge =
+            NovaSpongePallasLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
 
         sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);
 
@@ -194,7 +229,9 @@ library Step2Lib {
         sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
 
         // in Nova only 250 bits of output hash are significant
-        if((output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[1]) {
+        if (
+            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[1]
+        ) {
             console.log("[Pallas Poseidon hash mismatch (verifyPrimary)] ProofVerifyError");
             return false;
         }

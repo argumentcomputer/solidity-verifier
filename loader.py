@@ -119,6 +119,16 @@ zn_secondary = proof_data['zn_secondary']
 #print("zn_secondary")
 #for item in zn_secondary:
 #    print(item, formatNumber(item))
+nifs_secondary = proof_data['nifs_secondary']
+nifs_secondary_comm_T = nifs_secondary['comm_T']
+nifs_secondary_comm_T_comm = nifs_secondary_comm_T['comm']
+nifs_compressed_comm_T = nifs_secondary_comm_T_comm['repr']
+
+hex_string = ""
+for byteVal in nifs_compressed_comm_T:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+nifs_compressed_comm_T = '0x' + hex_string
 
 
 ProofData = namedtuple(
@@ -138,6 +148,8 @@ ProofData = namedtuple(
 
         'zn_primary',
         'zn_secondary',
+
+        'nifs_compressed_comm_T',
     )
 )
 
@@ -157,6 +169,8 @@ parsedProof = ProofData(
 
     zn_primary,
     zn_secondary,
+
+    nifs_compressed_comm_T,
 )
 
 VerifierKey = namedtuple (
@@ -184,8 +198,8 @@ parsedVk = VerifierKey(
 )
 
 PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-CONTRACT_ADDRESS = "0x610178da211fef7d417bc0e6fed39f05609ad788"
-PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[]))"
+CONTRACT_ADDRESS = "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1"
+PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256))"
 PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[])))"
 
 # expects hex number as string without '0x'
@@ -219,7 +233,8 @@ def pushToProof(data):
     command = command + addNumbersArray(data.r_u_secondary_X, True) + ','
     command = command + addNumber(data.r_u_secondary_u, True) + '),'
     command = command + addNumbersArray(data.zn_primary, True) + ','
-    command = command + addNumbersArray(data.zn_secondary, True) + ')\" '
+    command = command + addNumbersArray(data.zn_secondary, True) + ','
+    command = command + addNumber(data.nifs_compressed_comm_T, False) + ')\" '
     command = command + '--private-key ' + PRIVATE_KEY
     os.system(command)
 

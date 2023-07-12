@@ -26,7 +26,7 @@ def poseidon_EVM_asm(params, libName):
 
     o = ""
 
-    o = o + "pragma solidity ^0.8.0;\n"
+    o = o + "pragma solidity ^0.8.16;"
     o = o + "library " + libName + "{\n"
     o = o + "struct " + struct + "{\n"
 

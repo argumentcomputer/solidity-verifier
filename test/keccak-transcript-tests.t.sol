@@ -81,41 +81,7 @@ contract KeccakTranscriptContractTest is Test {
         assertEq(scalarVesta, expectedVesta);
     }
 
-    function testKeccakTranscriptPallas() public {
-        uint8[] memory input = new uint8[](4); // b"test" in Rust
-        input[0] = 0x74;
-        input[1] = 0x65;
-        input[2] = 0x73;
-        input[3] = 0x74;
-
-        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
-
-        uint256 input1 = 123456789;
-        uint8[] memory label1 = new uint8[](2); // b"s1" in Rust
-        label1[0] = 0x73;
-        label1[1] = 0x31;
-
-        uint256 input2 = 987654321;
-        uint8[] memory label2 = new uint8[](2); // b"s2" in Rust
-        label2[0] = 0x73;
-        label2[1] = 0x32;
-
-        KeccakTranscriptLib.KeccakTranscript memory transcript1 = KeccakTranscriptLib.absorb(transcript, label1, input1);
-        KeccakTranscriptLib.KeccakTranscript memory transcript2 =
-            KeccakTranscriptLib.absorb(transcript1, label2, input2);
-
-        uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
-        squeezeLabel[0] = 0x63;
-        squeezeLabel[1] = 0x31;
-
-        ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curvePallas();
-        (, uint256 output) = KeccakTranscriptLib.squeeze(transcript2, curve, squeezeLabel);
-
-        uint256 expected = 0x3484d00943072ca9baa6dcd107e9bf09d599558b2a8b37ebd9e50e340c5d03a3;
-        assertEq(output, expected);
-    }
-
-    // Following test has been ported: https://github.com/microsoft/Nova/blob/main/src/provider/keccak.rs#L107
+    // Following test has been ported: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/provider/keccak.rs#L138
     // TODO: For some reason, test vector passes if using Vesta curve parameters, but in reference implementation type of point is Pallas
     function testKeccakTranscriptVesta() public {
         uint8[] memory input = new uint8[](4); // b"test" in Rust
@@ -136,35 +102,82 @@ contract KeccakTranscriptContractTest is Test {
         label2[0] = 0x73;
         label2[1] = 0x32;
 
-        KeccakTranscriptLib.KeccakTranscript memory transcript1 = KeccakTranscriptLib.absorb(transcript, label1, input1);
-        KeccakTranscriptLib.KeccakTranscript memory transcript2 =
-            KeccakTranscriptLib.absorb(transcript1, label2, input2);
+        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
+        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
 
         uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
         squeezeLabel[0] = 0x63;
         squeezeLabel[1] = 0x31;
 
         ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curveVesta();
-        (KeccakTranscriptLib.KeccakTranscript memory transcript3, uint256 output) =
-            KeccakTranscriptLib.squeeze(transcript2, curve, squeezeLabel);
+        uint256 output;
+        (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        uint256 expected = 0x0c34755d6b4566f930b8371afd2e4818ae49878a10527fd4443dbec811582d43;
+        uint256 expected = 0x5ddffa8dc091862132788b8976af88b9a2c70594727e611c7217ba4c30c8c70a;
         assertEq(output, expected);
 
-        uint256 input3 = 128;
+        uint256 s3 = 128;
         uint8[] memory label3 = new uint8[](2); // b"s3" in Rust
         label3[0] = 0x73;
         label3[1] = 0x33;
-        KeccakTranscriptLib.KeccakTranscript memory transcript4 =
-            KeccakTranscriptLib.absorb(transcript3, label3, input3);
 
-        uint8[] memory squeezeLabel1 = new uint8[](2); // b"c2" in Rust
-        squeezeLabel1[0] = 0x63;
-        squeezeLabel1[1] = 0x32;
+        transcript = KeccakTranscriptLib.absorb(transcript, label3, s3);
 
-        (, uint256 output1) = KeccakTranscriptLib.squeeze(transcript4, curve, squeezeLabel1);
+        // b"c2" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x32;
+        (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        uint256 expected1 = 0x107a4d1de226bea79c5e636a56c7919b00f96e4567d7b1f318cdab538d90f765;
-        assertEq(output1, expected1);
+        expected = 0x4d4bf42c065870395749fa1c4fb641df1e0d53f05309b03d5b1db7f0be3aa13d;
+        assertEq(output, expected);
+    }
+
+    function testKeccakTranscriptPallas() public {
+        uint8[] memory input = new uint8[](4); // b"test" in Rust
+        input[0] = 0x74;
+        input[1] = 0x65;
+        input[2] = 0x73;
+        input[3] = 0x74;
+
+        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
+
+        uint256 input1 = 2;
+        uint8[] memory label1 = new uint8[](2); // b"s1" in Rust
+        label1[0] = 0x73;
+        label1[1] = 0x31;
+
+        uint256 input2 = 5;
+        uint8[] memory label2 = new uint8[](2); // b"s2" in Rust
+        label2[0] = 0x73;
+        label2[1] = 0x32;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
+        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
+
+        uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x31;
+
+        ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curvePallas();
+        uint256 output;
+        (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        uint256 expected = 0xc64ec10ff9437f1053c8647b52358f10e59d80e7302a777dfecf8d49f0e29121;
+        assertEq(output, expected);
+
+        uint256 s3 = 128;
+        uint8[] memory label3 = new uint8[](2); // b"s3" in Rust
+        label3[0] = 0x73;
+        label3[1] = 0x33;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label3, s3);
+
+        // b"c2" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x32;
+        (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        expected = 0xe3585da385704879ec03ef201dbf228e7b227a5af709f83f3ed5f92a5037d633;
+        assertEq(output, expected);
     }
 }

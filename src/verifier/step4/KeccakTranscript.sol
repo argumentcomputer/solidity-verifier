@@ -325,7 +325,7 @@ library KeccakTranscriptLib {
     uint32 private constant DOM_SEP_TAG = 0x4e6f4453;
     uint8 private constant KECCAK256_PREFIX_CHALLENGE_LO = 0x00;
     uint8 private constant KECCAK256_PREFIX_CHALLENGE_HI = 0x01;
-    uint256 private constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
+    uint256 public constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
 
     struct KeccakTranscript {
         uint16 round;
@@ -432,6 +432,12 @@ library KeccakTranscriptLib {
 
         uint256 index = 0;
 
+        // copy transcript
+        for (uint256 i = 0; i < keccak.transcript.length; i++) {
+            input[index + i] = keccak.transcript[i];
+        }
+        index += keccak.transcript.length;
+
         // copy DOM_SEP_TAG
         input[index] = uint8((DOM_SEP_TAG >> 24) & 0xFF);
         input[index + 1] = uint8((DOM_SEP_TAG >> 16) & 0xFF);
@@ -450,12 +456,6 @@ library KeccakTranscriptLib {
         }
         index += keccak.state.length;
 
-        // copy transcript
-        for (uint256 i = 0; i < keccak.transcript.length; i++) {
-            input[index + i] = keccak.transcript[i];
-        }
-        index += keccak.transcript.length;
-
         // append label
         for (uint256 i = 0; i < label.length; i++) {
             input[index + i] = label[i];
@@ -471,6 +471,8 @@ library KeccakTranscriptLib {
         KeccakTranscript memory transcript = KeccakTranscript(round, computeUpdatedState(input), new uint8[](0));
 
         uint256 scalar = ScalarFromUniformLib.scalarFromUniform(transcript.state, curve);
+
+        scalar = Field.reverse256(scalar);
 
         // TODO make state transferring through blockchain
         return (transcript, scalar);

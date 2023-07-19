@@ -424,4 +424,80 @@ library SumcheckData {
         proof_array[13] = poly;
         return SecondarySumcheck.SumcheckProof(proof_array);
     }
+
+    function returnPrimaryTranscriptData() public pure returns (uint8[] memory) {
+        uint8[] memory digest = new uint8[](32);
+        digest[0] = 0x23;
+        digest[1] = 0xa9;
+        digest[2] = 0x65;
+        digest[3] = 0xae;
+        digest[4] = 0xf5;
+        digest[5] = 0x44;
+        digest[6] = 0x37;
+        digest[7] = 0x51;
+        digest[8] = 0x77;
+        digest[9] = 0xe0;
+        digest[10] = 0xae;
+        digest[11] = 0x37;
+        digest[12] = 0x26;
+        digest[13] = 0x8b;
+        digest[14] = 0x5b;
+        digest[15] = 0x32;
+        digest[16] = 0xca;
+        digest[17] = 0x91;
+        digest[18] = 0x55;
+        digest[19] = 0x28;
+        digest[20] = 0xac;
+        digest[21] = 0x3b;
+        digest[22] = 0x12;
+        digest[23] = 0x23;
+        digest[24] = 0xe5;
+        digest[25] = 0x68;
+        digest[26] = 0xfb;
+        digest[27] = 0x1c;
+        digest[28] = 0xef;
+        digest[29] = 0x6b;
+        digest[30] = 0x41;
+        digest[31] = 0x03;
+
+        return digest;
+    }
+
+    function returnSecondaryTranscriptData() public pure returns (uint8[] memory) {
+        uint8[] memory digest = new uint8[](32);
+        digest[0] = 0x11;
+        digest[1] = 0x73;
+        digest[2] = 0x20;
+        digest[3] = 0xb4;
+        digest[4] = 0x29;
+        digest[5] = 0x57;
+        digest[6] = 0x30;
+        digest[7] = 0x8a;
+        digest[8] = 0x3a;
+        digest[9] = 0x95;
+        digest[10] = 0xd2;
+        digest[11] = 0x08;
+        digest[12] = 0x54;
+        digest[13] = 0x2d;
+        digest[14] = 0xaa;
+        digest[15] = 0x4c;
+        digest[16] = 0xc7;
+        digest[17] = 0xbf;
+        digest[18] = 0xd6;
+        digest[19] = 0x6d;
+        digest[20] = 0x70;
+        digest[21] = 0xfc;
+        digest[22] = 0xa6;
+        digest[23] = 0xce;
+        digest[24] = 0x14;
+        digest[25] = 0x9e;
+        digest[26] = 0xd4;
+        digest[27] = 0x51;
+        digest[28] = 0x7c;
+        digest[29] = 0x6d;
+        digest[30] = 0xc2;
+        digest[31] = 0x01;
+
+        return digest;
+    }
 }

@@ -2,9 +2,8 @@
 pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
-import "src/pasta/Pallas.sol";
-import "src/poseidon/PoseidonNeptuneU24pallas.sol";
-import "src/poseidon/PoseidonNeptuneU24vesta.sol";
+import "src/blocks/poseidon/PoseidonNeptuneU24pallas.sol";
+import "src/blocks/poseidon/PoseidonNeptuneU24vesta.sol";
 
 library SpongeOpLib {
     enum SpongeOpType {

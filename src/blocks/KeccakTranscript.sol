@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.16;
 
-import "src/pasta/Vesta.sol";
-import "src/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/pasta/Pallas.sol";
 
 library ScalarFromUniformLib {
     uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;

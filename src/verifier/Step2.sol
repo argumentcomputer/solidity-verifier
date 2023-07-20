@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
 import "src/NovaVerifierAbstractions.sol";
-import "src/poseidon/Sponge.sol";
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
+import "src/blocks/poseidon/Sponge.sol";
+import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
 
 library Step2Lib {
     uint256 private constant NUM_FE_WITHOUT_IO_FOR_CRHF = 17;

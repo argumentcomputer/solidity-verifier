@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/poseidon/Sponge.sol";
+import "src/blocks/poseidon/Sponge.sol";
 
 // TODO: add other sponge (in simplex mode) tests from neptune: https://github.com/lurk-lab/neptune/blob/master/src/sponge/vanilla.rs#L501
 contract SpongeContractTest is Test {

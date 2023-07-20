@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import "src/pasta/Vesta.sol";
-import "src/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/pasta/Pallas.sol";
 
 library PolyEvalInstanceUtilities {
     function powers(uint256 s, uint256 len, uint256 modulus) internal pure returns (uint256[] memory) {

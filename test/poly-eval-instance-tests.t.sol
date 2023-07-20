@@ -48,7 +48,7 @@ contract PolyEvalInstanceTest is Test {
             0x2b9ba1235a1ef95ab89c4c25f520b7598d995e11e6257b587914cc426c4c31ef
         );
 
-        PolyEvalInstanceLib.PolyEvalInstancePallas memory actual =
+        PolyEvalInstanceLib.PolyEvalInstance memory actual =
             PolyEvalInstanceLib.batchPrimary(comm_vec, tau, eval_vec, c);
 
         uint256 e_expected = 0x2b005e5de5ae62075c66de1c5343c86a235ffc0184fd317079c6687f53596bd4;
@@ -58,8 +58,8 @@ contract PolyEvalInstanceTest is Test {
         );
 
         assertEq(actual.e, e_expected);
-        assertEq(actual.c.x, c_expected.x);
-        assertEq(actual.c.y, c_expected.y);
+        assertEq(actual.c_x, c_expected.x);
+        assertEq(actual.c_y, c_expected.y);
         assertEq(tau.length, actual.x.length);
         for (uint256 index = 0; index < tau.length; index++) {
             assertEq(tau[index], actual.x[index]);
@@ -118,7 +118,7 @@ contract PolyEvalInstanceTest is Test {
             )
         );
 
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory actual =
+        PolyEvalInstanceLib.PolyEvalInstance memory actual =
             PolyEvalInstanceLib.batchSecondary(comm_vec, tau, eval_vec, c);
 
         uint256 e_expected = 0x2144bc0d13b5cfc99beab8db542dd270bd2a8af3911e754ca0ca0818a5b9a5ba;
@@ -128,8 +128,8 @@ contract PolyEvalInstanceTest is Test {
         );
 
         assertEq(actual.e, e_expected);
-        assertEq(actual.c.x, c_expected.x);
-        assertEq(actual.c.y, c_expected.y);
+        assertEq(actual.c_x, c_expected.x);
+        assertEq(actual.c_y, c_expected.y);
         assertEq(tau.length, actual.x.length);
         for (uint256 index = 0; index < tau.length; index++) {
             assertEq(tau[index], actual.x[index]);

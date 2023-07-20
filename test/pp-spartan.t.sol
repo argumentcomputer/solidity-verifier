@@ -119,7 +119,7 @@ contract PpSpartanComputations is Test {
 
     function check_rand_eq_bound_r_sat(uint256[] memory r, uint256[] memory rx, uint256 rand_eq_bound_r_sat) public {
         require(r.length == rx.length);
-        assertEq(rand_eq_bound_r_sat, EqPolinomialLib.evaluatePallas(r, rx));
+        assertEq(rand_eq_bound_r_sat, EqPolinomialLib.evaluate(r, rx, Pallas.P_MOD, Pallas.negateBase));
     }
 
     function testFinalStep3Verification() public {
@@ -584,7 +584,7 @@ contract PpSpartanComputations is Test {
     function check_u_computation(
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256[] memory tau,
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory expected
+        PolyEvalInstanceLib.PolyEvalInstance memory expected
     ) private returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         (Vesta.VestaAffinePoint[] memory comm_vec, Vesta.VestaAffinePoint[] memory comms_E, uint256[] memory evals) =
             loadInputForU();
@@ -603,10 +603,10 @@ contract PpSpartanComputations is Test {
         (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
         c = Field.reverse256(c);
 
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u = PolyEvalInstanceLib.batchSecondary(comm_vec, tau, evals, c);
+        PolyEvalInstanceLib.PolyEvalInstance memory u = PolyEvalInstanceLib.batchSecondary(comm_vec, tau, evals, c);
 
-        assertEq(expected.c.x, u.c.x);
-        assertEq(expected.c.y, u.c.y);
+        assertEq(expected.c_x, u.c_x);
+        assertEq(expected.c_y, u.c_y);
         assertEq(expected.e, u.e);
         assertEq(expected.x.length, u.x.length);
         for (uint256 index = 0; index < u.x.length; index++) {
@@ -702,7 +702,7 @@ contract PpSpartanComputations is Test {
             uint256,
             uint256[] memory,
             uint256,
-            PolyEvalInstanceLib.PolyEvalInstanceVesta memory
+            PolyEvalInstanceLib.PolyEvalInstance memory
         )
     {
         // secondary
@@ -727,11 +727,9 @@ contract PpSpartanComputations is Test {
 
         KeccakTranscriptLib.KeccakTranscript memory transcript = check_tau_computation(tau_expected);
 
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_expected = PolyEvalInstanceLib.PolyEvalInstanceVesta(
-            Vesta.VestaAffinePoint(
-                0x15353461b0478bc4adc71d396fdb3d98aef58ac5184a56985b145ff8a72056cd,
-                0x2042fe5212f18f19e509506eb626870011bfd54556493e761833a88dc40cadc0
-            ),
+        PolyEvalInstanceLib.PolyEvalInstance memory u_expected = PolyEvalInstanceLib.PolyEvalInstance(
+            0x15353461b0478bc4adc71d396fdb3d98aef58ac5184a56985b145ff8a72056cd,
+            0x2042fe5212f18f19e509506eb626870011bfd54556493e761833a88dc40cadc0,
             tau_expected,
             0x2144bc0d13b5cfc99beab8db542dd270bd2a8af3911e754ca0ca0818a5b9a5ba
         );
@@ -782,7 +780,7 @@ contract PpSpartanComputations is Test {
         uint256 claim_sat_final;
         uint256[] memory r_sat;
         uint256 c_inner;
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u;
+        PolyEvalInstanceLib.PolyEvalInstance memory u;
 
         (transcript, rand_eq, tau, claim_sat_final, r_sat, c_inner, u) = compute_tau_claim_sat_final_r_sat_c_inner();
 
@@ -813,8 +811,8 @@ contract PpSpartanComputations is Test {
             assertEq(r_sat[index], r_sat_expected[index]);
         }
 
-        uint256 taus_bound_r_sat = EqPolinomialLib.evaluatePallas(tau, r_sat);
-        uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluatePallas(rand_eq, r_sat);
+        uint256 taus_bound_r_sat = EqPolinomialLib.evaluate(tau, r_sat, Pallas.P_MOD, Pallas.negateBase);
+        uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluate(rand_eq, r_sat, Pallas.P_MOD, Pallas.negateBase);
 
         assertEq(0x22f427ab378ad36181e799afb461c7959e81ead14d9cbb1cf817c3799fbdeaf1, taus_bound_r_sat);
         assertEq(0x08fa71bd727e1f0539be7441ee184c610e4012207be66fc1fc948b009aa7cb84, rand_eq_bound_r_sat);

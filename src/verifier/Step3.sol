@@ -17,22 +17,42 @@ library Step3Lib {
         uint256 claim_mem_final_expected,
         uint256 claim_outer_final_expected,
         uint256 claim_inner_final_expected,
-        uint256 claim_sat_final
-    ) public pure returns (bool) {
-        uint256 modulusPallas = Pallas.P_MOD;
+        uint256 claim_sat_final,
+        uint256 modulus
+    ) public view returns (bool) {
         uint256 actual = addmod(
-            addmod(claim_mem_final_expected, claim_outer_final_expected, modulusPallas),
+            addmod(claim_mem_final_expected, claim_outer_final_expected, modulus),
             claim_inner_final_expected,
-            modulusPallas
+            modulus
         );
 
-        return actual == claim_sat_final;
+        if (actual != claim_sat_final) {
+            console.log("claim_sat_final [expected]");
+            console.logBytes32(bytes32(claim_sat_final));
+            console.log("claim_sat_final [actual]");
+            console.logBytes32(bytes32(actual));
+            console.log("-------------------------------------------------");
+
+            console.log("claim_mem_final");
+            console.logBytes32(bytes32(claim_mem_final_expected));
+
+            console.log("claim_outer_final");
+            console.logBytes32(bytes32(claim_outer_final_expected));
+
+            console.log("claim_inner_final");
+            console.logBytes32(bytes32(claim_inner_final_expected));
+
+            return false;
+        }
+
+        return true;
     }
 
     function compute_claim_inner_final(
         Abstractions.CompressedSnark calldata proof,
         uint256 c_inner,
-        uint256[] memory coeffs
+        uint256[] memory coeffs,
+        uint256 modulus
     ) public view returns (uint256) {
         if (coeffs.length < 10) {
             console.log("[Step3Lib:compute_claim_inner_final] coeffs.len < 10");
@@ -47,54 +67,56 @@ library Step3Lib {
         uint256 coeffs_9 = coeffs[9];
 
         uint256 actual;
-        uint256 modulusPallas = Pallas.P_MOD;
         assembly {
-            let tmp := mulmod(c_inner, c_inner, modulusPallas)
-            tmp := mulmod(tmp, self_eval_val_C, modulusPallas)
-            tmp := addmod(tmp, self_eval_val_A, modulusPallas)
-            actual := mulmod(c_inner, self_eval_val_B, modulusPallas)
-            actual := addmod(actual, tmp, modulusPallas)
-            actual := mulmod(actual, self_eval_E_col, modulusPallas)
-            actual := mulmod(actual, self_eval_E_row, modulusPallas)
-            actual := mulmod(actual, coeffs_9, modulusPallas)
+            let tmp := mulmod(c_inner, c_inner, modulus)
+            tmp := mulmod(tmp, self_eval_val_C, modulus)
+            tmp := addmod(tmp, self_eval_val_A, modulus)
+            actual := mulmod(c_inner, self_eval_val_B, modulus)
+            actual := addmod(actual, tmp, modulus)
+            actual := mulmod(actual, self_eval_E_col, modulus)
+            actual := mulmod(actual, self_eval_E_row, modulus)
+            actual := mulmod(actual, coeffs_9, modulus)
         }
 
         return actual;
     }
 
     function compute_claim_outer_final(
-        Abstractions.CompressedSnark calldata proof,
+        Abstractions.CompressedSnark storage proof,
         uint256 f_U_secondary_u,
         uint256[] memory coeffs,
-        uint256 taus_bound_r_sat
-    ) public view returns (uint256) {
+        uint256 taus_bound_r_sat,
+        uint256 modulus,
+        function (uint256) returns (uint256) negateBase
+    ) internal returns (uint256) {
         if (coeffs.length < 9) {
             console.log("[Step3Lib:compute_claim_outer_final] coeffs.len < 9");
             revert();
         }
 
-        uint256 modulusPallas = Pallas.P_MOD;
-        uint256 actual = mulmod(f_U_secondary_u, proof.f_W_snark_secondary.eval_Cz, modulusPallas);
-        actual = Pallas.negateBase(actual);
+        uint256 actual = mulmod(f_U_secondary_u, proof.f_W_snark_secondary.eval_Cz, modulus);
+        actual = negateBase(actual);
         uint256 minus_self_eval_E = Pallas.negateBase(proof.f_W_snark_secondary.eval_E);
         uint256 coeffs_8 = coeffs[8];
         uint256 self_eval_Az = proof.f_W_snark_secondary.eval_Az;
         uint256 self_eval_Bz = proof.f_W_snark_secondary.eval_Bz;
         assembly {
-            let tmp := mulmod(self_eval_Az, self_eval_Bz, modulusPallas)
-            tmp := addmod(tmp, minus_self_eval_E, modulusPallas)
-            actual := addmod(actual, tmp, modulusPallas)
-            actual := mulmod(actual, taus_bound_r_sat, modulusPallas)
-            actual := mulmod(actual, coeffs_8, modulusPallas)
+            let tmp := mulmod(self_eval_Az, self_eval_Bz, modulus)
+            tmp := addmod(tmp, minus_self_eval_E, modulus)
+            actual := addmod(actual, tmp, modulus)
+            actual := mulmod(actual, taus_bound_r_sat, modulus)
+            actual := mulmod(actual, coeffs_8, modulus)
         }
         return actual;
     }
 
     function compute_claim_mem_final(
-        Abstractions.CompressedSnark calldata proof,
+        Abstractions.CompressedSnark storage proof,
         uint256[] memory coeffs,
-        uint256 rand_eq_bound_r_sat
-    ) public view returns (uint256) {
+        uint256 rand_eq_bound_r_sat,
+        uint256 modulus,
+        function (uint256) returns (uint256) negateBase
+    ) internal returns (uint256) {
         uint256 len = 8;
         if (coeffs.length < len) {
             console.log("[Step3Lib:compute_claim_mem_final_expected] coeffs.length < len");
@@ -120,8 +142,6 @@ library Step3Lib {
             revert();
         }
 
-        uint256 modulusPallas = Pallas.P_MOD;
-
         uint256 actual;
 
         uint256 coeffs_item;
@@ -133,13 +153,13 @@ library Step3Lib {
             coeffs_item = coeffs[index];
             eval_left_arr_item = proof.f_W_snark_secondary.eval_left_arr[index];
             eval_right_arr_item = proof.f_W_snark_secondary.eval_right_arr[index];
-            tmp = Pallas.negateBase(proof.f_W_snark_secondary.eval_output_arr[index]);
+            tmp = negateBase(proof.f_W_snark_secondary.eval_output_arr[index]);
             assembly {
-                let tmp1 := mulmod(eval_left_arr_item, eval_right_arr_item, modulusPallas)
-                tmp1 := addmod(tmp1, tmp, modulusPallas)
-                tmp1 := mulmod(tmp1, rand_eq_bound_r_sat, modulusPallas)
-                tmp1 := mulmod(tmp1, coeffs_item, modulusPallas)
-                actual := addmod(actual, tmp1, modulusPallas)
+                let tmp1 := mulmod(eval_left_arr_item, eval_right_arr_item, modulus)
+                tmp1 := addmod(tmp1, tmp, modulus)
+                tmp1 := mulmod(tmp1, rand_eq_bound_r_sat, modulus)
+                tmp1 := mulmod(tmp1, coeffs_item, modulus)
+                actual := addmod(actual, tmp1, modulus)
             }
         }
 
@@ -151,7 +171,8 @@ library Step3Lib {
         Abstractions.VerifierKey calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256 claim_inner,
-        uint256[] memory coeffs
+        uint256[] memory coeffs,
+        uint256 p_modulus
     ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         // TODO: simplify convertions between abstractions
         Abstractions.CompressedPolys[] memory polys = proof.f_W_snark_secondary.sc_sat.compressed_polys;
@@ -164,14 +185,14 @@ library Step3Lib {
         // degreeBound is hardcoded to 3 in Rust
         return SecondarySumcheck.verify(
             SumcheckUtilities.SumcheckProof(compressed_polys),
-            mulmod(coeffs[9], claim_inner, Pallas.P_MOD),
+            mulmod(coeffs[9], claim_inner, p_modulus),
             log2(vk.vk_secondary.S_comm.N),
             3,
             transcript
         );
     }
 
-    function compute_coeffs(KeccakTranscriptLib.KeccakTranscript memory transcript)
+    function compute_coeffs_secondary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
         pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory)
@@ -190,7 +211,7 @@ library Step3Lib {
         return (transcript, coeffs);
     }
 
-    function compute_rand_eq(
+    function compute_rand_eq_secondary(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript
@@ -230,10 +251,10 @@ library Step3Lib {
         return (transcript, rand_eq);
     }
 
-    function compute_u(Abstractions.CompressedSnark calldata proof, uint256[] memory tau, uint256 c)
+    function compute_u_secondary(Abstractions.CompressedSnark calldata proof, uint256[] memory tau, uint256 c)
         public
         view
-        returns (PolyEvalInstanceLib.PolyEvalInstanceVesta memory)
+        returns (PolyEvalInstanceLib.PolyEvalInstance memory)
     {
         uint256[] memory evals = new uint256[](3);
         evals[0] = proof.f_W_snark_secondary.eval_Az_at_tau;
@@ -248,7 +269,7 @@ library Step3Lib {
         return PolyEvalInstanceLib.batchSecondary(comm_vec, tau, evals, c);
     }
 
-    function compute_c(
+    function compute_c_secondary(
         Abstractions.CompressedSnark calldata proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
     ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
@@ -278,7 +299,7 @@ library Step3Lib {
         return (transcript, c);
     }
 
-    function compute_gamma_1(KeccakTranscriptLib.KeccakTranscript memory transcript)
+    function compute_gamma_1_secondary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
         pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
@@ -294,7 +315,7 @@ library Step3Lib {
         return (transcript, gamma_1);
     }
 
-    function compute_gamma_2(KeccakTranscriptLib.KeccakTranscript memory transcript)
+    function compute_gamma_2_secondary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
         pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
@@ -310,7 +331,7 @@ library Step3Lib {
         return (transcript, gamma_2);
     }
 
-    function compute_tau(
+    function compute_tau_secondary(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
@@ -365,19 +386,19 @@ library Step3Lib {
         view
         returns (Vesta.VestaAffinePoint memory, Vesta.VestaAffinePoint memory, uint256[] memory, uint256)
     {
-        (uint256[] memory elementsToHash, Vesta.VestaAffinePoint memory comm_T) = prepareElementsToHash(proof, vk);
+        (uint256[] memory elementsToHash, Vesta.VestaAffinePoint memory comm_T) = prepareElementsToHashSecondary(proof, vk);
 
-        return foldInstance(
+        return foldInstanceSecondary(
             Abstractions.RelaxedR1CSInstance(
                 proof.r_U_secondary.comm_W, proof.r_U_secondary.comm_E, proof.r_U_secondary.X, proof.r_U_secondary.u
             ),
             Abstractions.R1CSInstance(proof.l_u_secondary.comm_W, proof.l_u_secondary.X),
             comm_T,
-            compute_r(elementsToHash)
+            compute_r_secondary(elementsToHash)
         );
     }
 
-    function compute_r(uint256[] memory elementsToHash) private pure returns (uint256) {
+    function compute_r_secondary(uint256[] memory elementsToHash) private pure returns (uint256) {
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, NUM_FE_FOR_RO);
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
@@ -393,7 +414,7 @@ library Step3Lib {
         return output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
     }
 
-    function prepareElementsToHash(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
+    function prepareElementsToHashSecondary(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
         private
         view
         returns (uint256[] memory, Vesta.VestaAffinePoint memory)
@@ -490,7 +511,7 @@ library Step3Lib {
         return (elementsToHash, point);
     }
 
-    function foldInstance(
+    function foldInstanceSecondary(
         Abstractions.RelaxedR1CSInstance memory U1,
         Abstractions.R1CSInstance memory u2,
         Vesta.VestaAffinePoint memory comm_T,

@@ -79,7 +79,7 @@ contract NovaVerifierContract {
     function verifyStep3InnerSecondary(
         uint256 f_U_secondary_u,
         uint256 c_inner,
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3,
+        PolyEvalInstanceLib.PolyEvalInstance memory u_step3,
         uint256[] memory coeffs,
         uint256[] memory tau,
         uint256[] memory rand_eq
@@ -87,18 +87,18 @@ contract NovaVerifierContract {
         uint256 claim_sat_final;
         uint256[] memory r_sat;
         (claim_sat_final, r_sat, transcript) =
-            Step3Lib.compute_claim_sat_final_r_sat(proof, vk, transcript, u_step3.e, coeffs);
+            Step3Lib.compute_claim_sat_final_r_sat(proof, vk, transcript, u_step3.e, coeffs, Pallas.P_MOD);
 
-        uint256 taus_bound_r_sat = EqPolinomialLib.evaluatePallas(tau, r_sat);
-        uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluatePallas(rand_eq, r_sat);
+        uint256 taus_bound_r_sat = EqPolinomialLib.evaluate(tau, r_sat, Pallas.P_MOD, Pallas.negateBase);
+        uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluate(rand_eq, r_sat, Pallas.P_MOD, Pallas.negateBase);
 
-        uint256 claim_mem_final = Step3Lib.compute_claim_mem_final(proof, coeffs, rand_eq_bound_r_sat);
+        uint256 claim_mem_final = Step3Lib.compute_claim_mem_final(proof, coeffs, rand_eq_bound_r_sat, Pallas.P_MOD, Pallas.negateBase);
 
-        uint256 claim_outer_final = Step3Lib.compute_claim_outer_final(proof, f_U_secondary_u, coeffs, taus_bound_r_sat);
+        uint256 claim_outer_final = Step3Lib.compute_claim_outer_final(proof, f_U_secondary_u, coeffs, taus_bound_r_sat, Pallas.P_MOD, Pallas.negateBase);
 
-        uint256 claim_inner_final = Step3Lib.compute_claim_inner_final(proof, c_inner, coeffs);
+        uint256 claim_inner_final = Step3Lib.compute_claim_inner_final(proof, c_inner, coeffs, Pallas.P_MOD);
 
-        return Step3Lib.final_verification(claim_mem_final, claim_outer_final, claim_inner_final, claim_sat_final);
+        return Step3Lib.final_verification(claim_mem_final, claim_outer_final, claim_inner_final, claim_sat_final, Pallas.P_MOD);
     }
 
     function verifyStep3PrecomputeSecondary()
@@ -106,7 +106,7 @@ contract NovaVerifierContract {
         returns (
             uint256[] memory tau,
             uint256 c,
-            PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3,
+            PolyEvalInstanceLib.PolyEvalInstance memory u_step3,
             uint256[] memory rand_eq,
             uint256[] memory coeffs,
             uint256 U_u
@@ -121,22 +121,22 @@ contract NovaVerifierContract {
         (f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u) =
             Step3Lib.compute_f_U_secondary(proof, vk);
 
-        (transcript, tau) = Step3Lib.compute_tau(
+        (transcript, tau) = Step3Lib.compute_tau_secondary(
             proof, vk, transcript, f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u
         );
 
-        (transcript, c) = Step3Lib.compute_c(proof, transcript);
+        (transcript, c) = Step3Lib.compute_c_secondary(proof, transcript);
 
-        u_step3 = Step3Lib.compute_u(proof, tau, c);
+        u_step3 = Step3Lib.compute_u_secondary(proof, tau, c);
 
         // We need this in order to update state of the transcript
-        (transcript, /* gamma1*/ ) = Step3Lib.compute_gamma_1(transcript);
-        (transcript, /* gamma2*/ ) = Step3Lib.compute_gamma_2(transcript);
+        (transcript, /* gamma1*/ ) = Step3Lib.compute_gamma_1_secondary(transcript);
+        (transcript, /* gamma2*/ ) = Step3Lib.compute_gamma_2_secondary(transcript);
         ////////////////////////////////////////////////////////////////
 
-        (transcript, rand_eq) = Step3Lib.compute_rand_eq(proof, vk, transcript);
+        (transcript, rand_eq) = Step3Lib.compute_rand_eq_secondary(proof, vk, transcript);
 
-        (transcript, coeffs) = Step3Lib.compute_coeffs(transcript);
+        (transcript, coeffs) = Step3Lib.compute_coeffs_secondary(transcript);
 
         U_u = f_U_secondary_u;
     }
@@ -144,7 +144,7 @@ contract NovaVerifierContract {
     function verifyStep3Secondary() private returns (bool) {
         uint256[] memory tau;
         uint256 c_inner;
-        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3;
+        PolyEvalInstanceLib.PolyEvalInstance memory u_step3;
         uint256[] memory rand_eq;
         uint256[] memory coeffs;
         uint256 f_U_secondary_u;

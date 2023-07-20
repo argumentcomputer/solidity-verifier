@@ -19,14 +19,10 @@ library PolyEvalInstanceUtilities {
 }
 
 library PolyEvalInstanceLib {
-    struct PolyEvalInstanceVesta {
-        Vesta.VestaAffinePoint c;
-        uint256[] x;
-        uint256 e;
-    }
-
-    struct PolyEvalInstancePallas {
-        Pallas.PallasAffinePoint c;
+    struct PolyEvalInstance {
+        // c is an affine point
+        uint256 c_x;
+        uint256 c_y;
         uint256[] x;
         uint256 e;
     }
@@ -36,7 +32,7 @@ library PolyEvalInstanceLib {
         uint256[] memory x,
         uint256[] memory eval_vec,
         uint256 s
-    ) public view returns (PolyEvalInstancePallas memory) {
+    ) public view returns (PolyEvalInstance memory) {
         require(
             comm_vec.length == eval_vec.length, "[PolyEvalInstanceLib.batchPrimary]: comm_vec.length != eval_vec.length"
         );
@@ -55,7 +51,7 @@ library PolyEvalInstanceLib {
             c_out = Pallas.add(temp, c_out);
         }
         // x is just a copy of input
-        return PolyEvalInstancePallas(c_out, x, e);
+        return PolyEvalInstance(c_out.x, c_out.y, x, e);
     }
 
     function batchSecondary(
@@ -63,7 +59,7 @@ library PolyEvalInstanceLib {
         uint256[] memory x,
         uint256[] memory eval_vec,
         uint256 s
-    ) public view returns (PolyEvalInstanceVesta memory) {
+    ) public view returns (PolyEvalInstance memory) {
         require(
             comm_vec.length == eval_vec.length,
             "[PolyEvalInstanceLib.batchSecondary]: comm_vec.length != eval_vec.length"
@@ -85,6 +81,6 @@ library PolyEvalInstanceLib {
         }
 
         // x is just a copy of input
-        return PolyEvalInstanceVesta(c_out, x, e);
+        return PolyEvalInstance(c_out.x, c_out.y, x, e);
     }
 }

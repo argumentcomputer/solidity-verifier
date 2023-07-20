@@ -48,6 +48,16 @@ f_arity_secondary = vk_data['F_arity_secondary']
 digest = vk_data['digest']
 #print("digest: ", digest)
 
+vk_secondary = vk_data['vk_secondary']
+S_comm = vk_secondary['S_comm']
+vk_secondary_S_comm_N = S_comm['N']
+#print(N)
+
+vk_secondary_digest = vk_secondary['digest']
+#print(vk_secondary_digest)
+
+
+
 compressed_snark_file = sys.argv[2]
 if not os.path.exists(compressed_snark_file):
     print("compressed-snark (json) input file is missing")
@@ -131,6 +141,86 @@ for byteVal in nifs_compressed_comm_T:
 nifs_compressed_comm_T = '0x' + hex_string
 
 
+
+f_W_snark_secondary = proof_data['f_W_snark_secondary']
+f_W_snark_secondary_comm_Az = f_W_snark_secondary['comm_Az']['comm']['repr']
+hex_string = ""
+for byteVal in f_W_snark_secondary_comm_Az:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+f_W_snark_secondary_comm_Az = '0x' + hex_string
+
+f_W_snark_secondary_comm_Bz = f_W_snark_secondary['comm_Bz']['comm']['repr']
+hex_string = ""
+for byteVal in f_W_snark_secondary_comm_Bz:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+f_W_snark_secondary_comm_Bz = '0x' + hex_string
+f_W_snark_secondary_comm_Cz = f_W_snark_secondary['comm_Cz']['comm']['repr']
+hex_string = ""
+for byteVal in f_W_snark_secondary_comm_Cz:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+f_W_snark_secondary_comm_Cz = '0x' + hex_string
+#print(f_W_snark_secondary_comm_Az)
+#print(f_W_snark_secondary_comm_Bz)
+#print(f_W_snark_secondary_comm_Cz)
+
+f_W_snark_secondary_comm_E_row = f_W_snark_secondary['comm_E_row']['comm']['repr']
+hex_string = ""
+for byteVal in f_W_snark_secondary_comm_E_row:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+f_W_snark_secondary_comm_E_row = '0x' + hex_string
+
+f_W_snark_secondary_comm_E_col = f_W_snark_secondary['comm_E_col']['comm']['repr']
+hex_string = ""
+for byteVal in f_W_snark_secondary_comm_E_col:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+f_W_snark_secondary_comm_E_col = '0x' + hex_string
+#print(f_W_snark_secondary_comm_E_row)
+#print(f_W_snark_secondary_comm_E_col)
+
+
+f_W_snark_secondary_eval_Az_at_tau = f_W_snark_secondary['eval_Az_at_tau']
+f_W_snark_secondary_eval_Bz_at_tau = f_W_snark_secondary['eval_Bz_at_tau']
+f_W_snark_secondary_eval_Cz_at_tau = f_W_snark_secondary['eval_Cz_at_tau']
+
+f_W_snark_secondary_comm_output_arr = f_W_snark_secondary['comm_output_arr']
+tmp = []
+for item in f_W_snark_secondary_comm_output_arr:
+    hex_string = ""
+    for byteVal in item['comm']['repr']:
+        hex_string = hex_string + f'{byteVal:02x}'
+    tmp.append('0x' + hex_string)
+f_W_snark_secondary_comm_output_arr = tmp
+
+f_W_snark_secondary_claims_product_arr = f_W_snark_secondary['claims_product_arr']
+
+sc_sat = f_W_snark_secondary['sc_sat']
+compressed_polys = sc_sat['compressed_polys']
+tmp = []
+for item in compressed_polys:
+    val = item['coeffs_except_linear_term']
+    tmp.append(val)
+f_W_snark_secondary_sc_sat = tmp
+
+f_W_snark_secondary_eval_left_arr = f_W_snark_secondary['eval_left_arr']
+f_W_snark_secondary_eval_right_arr = f_W_snark_secondary['eval_right_arr']
+f_W_snark_secondary_eval_output_arr = f_W_snark_secondary['eval_output_arr']
+
+f_W_snark_secondary_eval_Az = f_W_snark_secondary['eval_Az']
+f_W_snark_secondary_eval_Bz = f_W_snark_secondary['eval_Bz']
+f_W_snark_secondary_eval_Cz = f_W_snark_secondary['eval_Cz']
+f_W_snark_secondary_eval_E = f_W_snark_secondary['eval_E']
+
+f_W_snark_secondary_eval_val_A = f_W_snark_secondary['eval_val_A']
+f_W_snark_secondary_eval_val_B = f_W_snark_secondary['eval_val_B']
+f_W_snark_secondary_eval_val_C = f_W_snark_secondary['eval_val_C']
+f_W_snark_secondary_eval_E_row = f_W_snark_secondary['eval_E_row']
+f_W_snark_secondary_eval_E_col = f_W_snark_secondary['eval_E_col']
+
 ProofData = namedtuple(
     '_ProofData', (
         'l_u_secondary_comm_W_comm',
@@ -150,6 +240,35 @@ ProofData = namedtuple(
         'zn_secondary',
 
         'nifs_compressed_comm_T',
+        'f_W_snark_secondary_comm_Az',
+        'f_W_snark_secondary_comm_Bz',
+        'f_W_snark_secondary_comm_Cz',
+
+        'f_W_snark_secondary_comm_E_row',
+        'f_W_snark_secondary_comm_E_col',
+        'f_W_snark_secondary_eval_Az_at_tau',
+        'f_W_snark_secondary_eval_Bz_at_tau',
+        'f_W_snark_secondary_eval_Cz_at_tau',
+
+        'f_W_snark_secondary_comm_output_arr',
+        'f_W_snark_secondary_claims_product_arr',
+
+        'f_W_snark_secondary_sc_sat',
+
+        'f_W_snark_secondary_eval_left_arr',
+        'f_W_snark_secondary_eval_right_arr',
+        'f_W_snark_secondary_eval_output_arr',
+
+        'f_W_snark_secondary_eval_Az',
+        'f_W_snark_secondary_eval_Bz',
+        'f_W_snark_secondary_eval_Cz',
+        'f_W_snark_secondary_eval_E',
+
+        'f_W_snark_secondary_eval_val_A',
+        'f_W_snark_secondary_eval_val_B',
+        'f_W_snark_secondary_eval_val_C',
+        'f_W_snark_secondary_eval_E_row',
+        'f_W_snark_secondary_eval_E_col',
     )
 )
 
@@ -171,6 +290,37 @@ parsedProof = ProofData(
     zn_secondary,
 
     nifs_compressed_comm_T,
+
+    f_W_snark_secondary_comm_Az,
+    f_W_snark_secondary_comm_Bz,
+    f_W_snark_secondary_comm_Cz,
+
+    f_W_snark_secondary_comm_E_row,
+    f_W_snark_secondary_comm_E_col,
+
+    f_W_snark_secondary_eval_Az_at_tau,
+    f_W_snark_secondary_eval_Bz_at_tau,
+    f_W_snark_secondary_eval_Cz_at_tau,
+
+    f_W_snark_secondary_comm_output_arr,
+    f_W_snark_secondary_claims_product_arr,
+
+    f_W_snark_secondary_sc_sat,
+
+    f_W_snark_secondary_eval_left_arr,
+    f_W_snark_secondary_eval_right_arr,
+    f_W_snark_secondary_eval_output_arr,
+
+    f_W_snark_secondary_eval_Az,
+    f_W_snark_secondary_eval_Bz,
+    f_W_snark_secondary_eval_Cz,
+    f_W_snark_secondary_eval_E,
+
+    f_W_snark_secondary_eval_val_A,
+    f_W_snark_secondary_eval_val_B,
+    f_W_snark_secondary_eval_val_C,
+    f_W_snark_secondary_eval_E_row,
+    f_W_snark_secondary_eval_E_col,
 )
 
 VerifierKey = namedtuple (
@@ -183,6 +333,9 @@ VerifierKey = namedtuple (
         'f_arity_primary',
         'f_arity_secondary',
         'digest',
+
+        'vk_secondary_S_comm_N',
+        'vk_secondary_digest',
     )
 )
 
@@ -195,12 +348,16 @@ parsedVk = VerifierKey(
     f_arity_primary,
     f_arity_secondary,
     digest,
+
+    vk_secondary_S_comm_N,
+    vk_secondary_digest,
 )
 
 PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-CONTRACT_ADDRESS = "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1"
-PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256))"
-PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[])))"
+CONTRACT_ADDRESS = "0x851356ae760d987e095750cceb3bc6014560891c"
+
+PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)))"
+PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256),uint256)))"
 
 # expects hex number as string without '0x'
 def addNumber(number, useReversing):
@@ -218,6 +375,23 @@ def addNumbersArray(numbers, useReversing):
     nums = nums + addNumber(numbers[len(numbers) - 1], useReversing)
     return nums + ']'
 
+
+# Input should be represented as : [['x', 'y', 'z'], ['x1', 'y1'], ['y2, 'z2']]
+# Output should be represented as : ([(['x', 'y', 'z']),(['x1', 'y1']),(['y2, 'z2'])])
+def addScSat(scSat, useReversing):
+    scSatString = '(['
+    # add body
+    for item in scSat[:len(scSat) - 1]:
+        scSatString = scSatString + '('
+        scSatString = scSatString + addNumbersArray(item, useReversing)
+        scSatString = scSatString + '),'
+    # add tail
+    scSatString = scSatString + '('
+    scSatString = scSatString + addNumbersArray(scSat[len(scSat) - 1], useReversing)
+    scSatString = scSatString + ')'
+    return scSatString + '])'
+
+
 def pushToProof(data):
     command = 'cast send' + ' '
     command = command + CONTRACT_ADDRESS + ' \"'
@@ -234,11 +408,33 @@ def pushToProof(data):
     command = command + addNumber(data.r_u_secondary_u, True) + '),'
     command = command + addNumbersArray(data.zn_primary, True) + ','
     command = command + addNumbersArray(data.zn_secondary, True) + ','
-    command = command + addNumber(data.nifs_compressed_comm_T, False) + ')\" '
-    command = command + '--private-key ' + PRIVATE_KEY
+    command = command + addNumber(data.nifs_compressed_comm_T, False) + ',('
+    command = command + addNumber(data.f_W_snark_secondary_comm_Az, False) + ','
+    command = command + addNumber(data.f_W_snark_secondary_comm_Bz, False) + ','
+    command = command + addNumber(data.f_W_snark_secondary_comm_Cz, False) + ','
+    command = command + addNumber(data.f_W_snark_secondary_comm_E_row, False) + ','
+    command = command + addNumber(data.f_W_snark_secondary_comm_E_col, False) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Az_at_tau, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Bz_at_tau, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Cz_at_tau, True) + ','
+    command = command + addNumbersArray(data.f_W_snark_secondary_comm_output_arr, False) + ','
+    command = command + addNumbersArray(data.f_W_snark_secondary_claims_product_arr, True) + ','
+    command = command + addScSat(data.f_W_snark_secondary_sc_sat, True) + ','
+    command = command + addNumbersArray(data.f_W_snark_secondary_eval_left_arr, True) + ','
+    command = command + addNumbersArray(data.f_W_snark_secondary_eval_right_arr, True) + ','
+    command = command + addNumbersArray(data.f_W_snark_secondary_eval_output_arr, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Az, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Bz, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_Cz, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_E, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_val_A, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_val_B, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_val_C, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_E_row, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_E_col, True) + ')'
+    command = command + ')\" --private-key ' + PRIVATE_KEY
+    #print(command)
     os.system(command)
-
-
 
 # TODO currently it pushes only constants for a single round of Poseidon just for comparison with hardcoded ones in Poseidon Solidity contract
 def pushToVk(data):
@@ -251,8 +447,11 @@ def pushToVk(data):
     command = command + addNumbersArray(data.constants_mixConstantsPrimary[0], True) + ','
     command = command + addNumbersArray(data.constants_addRoundConstantsPrimary, True) + '),('
     command = command + addNumbersArray(data.constants_mixConstantsSecondary[0], True) + ','
-    command = command + addNumbersArray(data.constants_addRoundConstantsSecondary, True) + '))\" '
-    command = command + '--private-key ' + PRIVATE_KEY
+    command = command + addNumbersArray(data.constants_addRoundConstantsSecondary, True) + '),(('
+    command = command + addNumber(hex(data.vk_secondary_S_comm_N), False) + '),'
+    command = command + addNumber(data.vk_secondary_digest, True) + ')'
+    command = command + ')\" --private-key ' + PRIVATE_KEY
+    #print(command)
     os.system(command)
 
 pushToProof(parsedProof)

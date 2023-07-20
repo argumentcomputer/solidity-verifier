@@ -2,49 +2,54 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/verifier/step1/Step1.sol";
-import "src/verifier/step2/Step2.sol";
-import "src/verifier/step3/Step3.sol";
+import "src/blocks/KeccakTranscript.sol";
+import "src/blocks/PolyEvalInstance.sol";
+import "src/verifier/Step1.sol";
+import "src/verifier/Step2.sol";
+import "src/verifier/Step3.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
     Abstractions.VerifierKey public vk;
     Abstractions.CompressedSnark public proof;
 
-    uint256 public comm_W_x;
-    uint256 public comm_W_y;
-    uint256 public comm_E_x;
-    uint256 public comm_E_y;
-    uint256[] public X;
-    uint256 public u;
+    KeccakTranscriptLib.KeccakTranscript private transcript;
 
+    constructor() {
+        uint8[] memory init_input = new uint8[](16); // Rust's b"RelaxedR1CSSNARK"
+        init_input[0] = 0x52;
+        init_input[1] = 0x65;
+        init_input[2] = 0x6c;
+        init_input[3] = 0x61;
+        init_input[4] = 0x78;
+        init_input[5] = 0x65;
+        init_input[6] = 0x64;
+        init_input[7] = 0x52;
+        init_input[8] = 0x31;
+        init_input[9] = 0x43;
+        init_input[10] = 0x53;
+        init_input[11] = 0x53;
+        init_input[12] = 0x4e;
+        init_input[13] = 0x41;
+        init_input[14] = 0x52;
+        init_input[15] = 0x4b;
+
+        transcript = KeccakTranscriptLib.instantiate(init_input);
+    }
+
+    // cast send 0x0ed64d01d0b4b655e410ef1441dd677b695639e7 "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)))" "((1,[1]),(1,1,[1],1),(1,1,[1],1),[1],[1],1,(1,1,1,1,1,1,1,1,[1],[1],([([1])]),[1],[1],[1],1,1,1,1,1,1,1,1,1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
     function pushToProof(Abstractions.CompressedSnark calldata input) public {
         proof = input;
     }
 
+    // cast send 0x7a2088a1bfc9d81c55368ae168c2c02570cb814f "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256),uint256)))" "(1,1,1,([1],[1]),([1],[1]),((1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
     function pushToVk(Abstractions.VerifierKey calldata input) public {
         vk = input;
     }
 
-    function pushToNifsOutputExpected(
-        uint256 comm_W_x_input,
-        uint256 comm_W_y_input,
-        uint256 comm_E_x_input,
-        uint256 comm_E_y_input,
-        uint256[] calldata X_input,
-        uint256 u_input
-    ) public {
-        comm_W_x = comm_W_x_input;
-        comm_W_y = comm_W_y_input;
-        comm_E_x = comm_E_x_input;
-        comm_E_y = comm_E_y_input;
-        X = X_input;
-        u = u_input;
-    }
-
+    // cast call 0x7a2088a1bfc9d81c55368ae168c2c02570cb814f "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
     function verify(uint32 numSteps, uint256[] calldata z0_primary, uint256[] calldata z0_secondary)
         public
-        view
         returns (bool)
     {
         // number of steps cannot be zero
@@ -59,52 +64,92 @@ contract NovaVerifierContract {
             return false;
         }
 
+        // fold the running instance and last instance to get a folded instance
+        // check the satisfiability of the folded instances using SNARKs proving the knowledge of their satisfying witnesses
+
+        // Sumcheck protocol verification (secondary) part from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1565
+        if (!verifyStep3Secondary()) {
+            console.log("[Step3 Secondary] false");
+            return false;
+        }
+
         return true;
     }
 
-    // https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1565
-    function verifyStep3() public returns (bool) {
-        Step3Lib.RelaxedR1CSInstance memory f_U_secondary = Step3Lib.compute_f_U_secondary(proof, vk);
+    function verifyStep3InnerSecondary(
+        uint256 f_U_secondary_u,
+        uint256 c_inner,
+        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3,
+        uint256[] memory coeffs,
+        uint256[] memory tau,
+        uint256[] memory rand_eq
+    ) private returns (bool) {
+        uint256 claim_sat_final;
+        uint256[] memory r_sat;
+        (claim_sat_final, r_sat, transcript) =
+            Step3Lib.compute_claim_sat_final_r_sat(proof, vk, transcript, u_step3.e, coeffs);
 
-        // TODO add rest of Step 3 verification logic
+        uint256 taus_bound_r_sat = EqPolinomialLib.evaluatePallas(tau, r_sat);
+        uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluatePallas(rand_eq, r_sat);
 
-        if (f_U_secondary.comm_W.x != comm_W_x) {
-            console.log("f_U_secondary.comm_W.x != comm_W_x");
-            return false;
-        }
+        uint256 claim_mem_final = Step3Lib.compute_claim_mem_final(proof, coeffs, rand_eq_bound_r_sat);
 
-        if (f_U_secondary.comm_W.y != comm_W_y) {
-            console.log("f_U_secondary.comm_W.y != comm_W_y");
-            return false;
-        }
+        uint256 claim_outer_final = Step3Lib.compute_claim_outer_final(proof, f_U_secondary_u, coeffs, taus_bound_r_sat);
 
-        if (f_U_secondary.comm_E.x != comm_E_x) {
-            console.log("f_U_secondary.comm_W.x != comm_W_x");
-            return false;
-        }
+        uint256 claim_inner_final = Step3Lib.compute_claim_inner_final(proof, c_inner, coeffs);
 
-        if (f_U_secondary.comm_E.y != comm_E_y) {
-            console.log("f_U_secondary.comm_W.y != comm_W_y");
-            return false;
-        }
+        return Step3Lib.final_verification(claim_mem_final, claim_outer_final, claim_inner_final, claim_sat_final);
+    }
 
-        if (f_U_secondary.X.length != X.length) {
-            console.log("f_U_secondary.X.length != X.length");
-            return false;
-        }
+    function verifyStep3PrecomputeSecondary()
+        private
+        returns (
+            uint256[] memory tau,
+            uint256 c,
+            PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3,
+            uint256[] memory rand_eq,
+            uint256[] memory coeffs,
+            uint256 U_u
+        )
+    {
+        // f_U_secondary instance (RelaxedR1CSInstance with uncompressed commitments)
+        Vesta.VestaAffinePoint memory f_U_secondary_comm_W;
+        Vesta.VestaAffinePoint memory f_U_secondary_comm_E;
+        uint256[] memory f_U_secondary_X;
+        uint256 f_U_secondary_u;
 
-        for (uint256 index = 0; index < f_U_secondary.X.length; index++) {
-            if (f_U_secondary.X[index] != X[index]) {
-                console.log("f_U_secondary.X != X at position: ", index);
-                return false;
-            }
-        }
+        (f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u) =
+            Step3Lib.compute_f_U_secondary(proof, vk);
 
-        if (f_U_secondary.u != u) {
-            console.log("f_U_secondary.u != u");
-            return false;
-        }
+        (transcript, tau) = Step3Lib.compute_tau(
+            proof, vk, transcript, f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u
+        );
 
-        return true;
+        (transcript, c) = Step3Lib.compute_c(proof, transcript);
+
+        u_step3 = Step3Lib.compute_u(proof, tau, c);
+
+        // We need this in order to update state of the transcript
+        (transcript, /* gamma1*/ ) = Step3Lib.compute_gamma_1(transcript);
+        (transcript, /* gamma2*/ ) = Step3Lib.compute_gamma_2(transcript);
+        ////////////////////////////////////////////////////////////////
+
+        (transcript, rand_eq) = Step3Lib.compute_rand_eq(proof, vk, transcript);
+
+        (transcript, coeffs) = Step3Lib.compute_coeffs(transcript);
+
+        U_u = f_U_secondary_u;
+    }
+
+    function verifyStep3Secondary() private returns (bool) {
+        uint256[] memory tau;
+        uint256 c_inner;
+        PolyEvalInstanceLib.PolyEvalInstanceVesta memory u_step3;
+        uint256[] memory rand_eq;
+        uint256[] memory coeffs;
+        uint256 f_U_secondary_u;
+        (tau, c_inner, u_step3, rand_eq, coeffs, f_U_secondary_u) = verifyStep3PrecomputeSecondary();
+
+        return verifyStep3InnerSecondary(f_U_secondary_u, c_inner, u_step3, coeffs, tau, rand_eq);
     }
 }

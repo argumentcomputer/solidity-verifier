@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/verifier/step4/KeccakTranscript.sol";
+import "src/blocks/KeccakTranscript.sol";
 
 contract KeccakTranscriptContractTest is Test {
     function testScalarFromUniform() public {

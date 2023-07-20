@@ -5,7 +5,7 @@ import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
 
 library PolyEvalInstanceUtilities {
-    function powers(uint256 s, uint256 len, uint256 modulus) internal returns (uint256[] memory) {
+    function powers(uint256 s, uint256 len, uint256 modulus) internal pure returns (uint256[] memory) {
         require(len >= 1);
         uint256[] memory result = new uint256[](len);
         result[0] = 1;
@@ -36,7 +36,7 @@ library PolyEvalInstanceLib {
         uint256[] memory x,
         uint256[] memory eval_vec,
         uint256 s
-    ) public returns (PolyEvalInstancePallas memory) {
+    ) public view returns (PolyEvalInstancePallas memory) {
         require(
             comm_vec.length == eval_vec.length, "[PolyEvalInstanceLib.batchPrimary]: comm_vec.length != eval_vec.length"
         );
@@ -63,7 +63,7 @@ library PolyEvalInstanceLib {
         uint256[] memory x,
         uint256[] memory eval_vec,
         uint256 s
-    ) public returns (PolyEvalInstanceVesta memory) {
+    ) public view returns (PolyEvalInstanceVesta memory) {
         require(
             comm_vec.length == eval_vec.length,
             "[PolyEvalInstanceLib.batchSecondary]: comm_vec.length != eval_vec.length"

@@ -5,7 +5,12 @@ import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
 
 library EqPolinomialLib {
-    function evaluate(uint256[] memory r, uint256[] memory rx, uint256 modulus, function (uint256) returns (uint256) negateBase) internal returns (uint256) {
+    function evaluate(
+        uint256[] memory r,
+        uint256[] memory rx,
+        uint256 modulus,
+        function (uint256) returns (uint256) negateBase
+    ) internal returns (uint256) {
         require(r.length == rx.length, "[EqPolinomialLib.evaluatePallas] wrong input data length");
 
         uint256 resultIter = 0;

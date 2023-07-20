@@ -21,9 +21,7 @@ library Step3Lib {
         uint256 modulus
     ) public view returns (bool) {
         uint256 actual = addmod(
-            addmod(claim_mem_final_expected, claim_outer_final_expected, modulus),
-            claim_inner_final_expected,
-            modulus
+            addmod(claim_mem_final_expected, claim_outer_final_expected, modulus), claim_inner_final_expected, modulus
         );
 
         if (actual != claim_sat_final) {
@@ -386,7 +384,8 @@ library Step3Lib {
         view
         returns (Vesta.VestaAffinePoint memory, Vesta.VestaAffinePoint memory, uint256[] memory, uint256)
     {
-        (uint256[] memory elementsToHash, Vesta.VestaAffinePoint memory comm_T) = prepareElementsToHashSecondary(proof, vk);
+        (uint256[] memory elementsToHash, Vesta.VestaAffinePoint memory comm_T) =
+            prepareElementsToHashSecondary(proof, vk);
 
         return foldInstanceSecondary(
             Abstractions.RelaxedR1CSInstance(
@@ -414,11 +413,10 @@ library Step3Lib {
         return output[0] & 0x00000000000000000000000000000000ffffffffffffffffffffffffffffffff;
     }
 
-    function prepareElementsToHashSecondary(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
-        private
-        view
-        returns (uint256[] memory, Vesta.VestaAffinePoint memory)
-    {
+    function prepareElementsToHashSecondary(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKey calldata vk
+    ) private view returns (uint256[] memory, Vesta.VestaAffinePoint memory) {
         uint256 counter = 0;
         uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO);
         elementsToHash[counter] = vk.digest;

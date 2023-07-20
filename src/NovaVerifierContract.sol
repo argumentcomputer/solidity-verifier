@@ -92,13 +92,18 @@ contract NovaVerifierContract {
         uint256 taus_bound_r_sat = EqPolinomialLib.evaluate(tau, r_sat, Pallas.P_MOD, Pallas.negateBase);
         uint256 rand_eq_bound_r_sat = EqPolinomialLib.evaluate(rand_eq, r_sat, Pallas.P_MOD, Pallas.negateBase);
 
-        uint256 claim_mem_final = Step3Lib.compute_claim_mem_final(proof, coeffs, rand_eq_bound_r_sat, Pallas.P_MOD, Pallas.negateBase);
+        uint256 claim_mem_final =
+            Step3Lib.compute_claim_mem_final(proof, coeffs, rand_eq_bound_r_sat, Pallas.P_MOD, Pallas.negateBase);
 
-        uint256 claim_outer_final = Step3Lib.compute_claim_outer_final(proof, f_U_secondary_u, coeffs, taus_bound_r_sat, Pallas.P_MOD, Pallas.negateBase);
+        uint256 claim_outer_final = Step3Lib.compute_claim_outer_final(
+            proof, f_U_secondary_u, coeffs, taus_bound_r_sat, Pallas.P_MOD, Pallas.negateBase
+        );
 
         uint256 claim_inner_final = Step3Lib.compute_claim_inner_final(proof, c_inner, coeffs, Pallas.P_MOD);
 
-        return Step3Lib.final_verification(claim_mem_final, claim_outer_final, claim_inner_final, claim_sat_final, Pallas.P_MOD);
+        return Step3Lib.final_verification(
+            claim_mem_final, claim_outer_final, claim_inner_final, claim_sat_final, Pallas.P_MOD
+        );
     }
 
     function verifyStep3PrecomputeSecondary()

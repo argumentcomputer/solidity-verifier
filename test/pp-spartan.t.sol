@@ -553,7 +553,11 @@ contract PpSpartanComputations is Test {
 
         label = new uint8[](1); // Rust's b"U"
         label[0] = 0x55;
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(U));
+        transcript = KeccakTranscriptLib.absorb(
+            transcript,
+            label,
+            Abstractions.toTranscriptBytes(Vesta.decompress(U.comm_W), Vesta.decompress(U.comm_E), U.X, U.u)
+        );
 
         label = new uint8[](1); // Rust's b"c"
         label[0] = 0x63;
@@ -563,7 +567,7 @@ contract PpSpartanComputations is Test {
         commitments[1] = comm_Bz;
         commitments[2] = comm_Cz;
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(commitments));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(commitments));
 
         label = new uint8[](1); // Rust's b"t"
         label[0] = 0x74;
@@ -592,11 +596,11 @@ contract PpSpartanComputations is Test {
         uint8[] memory label = new uint8[](1);
         label[0] = 0x65; // Rust's b"e"
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(evals));
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(comms_E));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comms_E));
 
         // Question to reference implemnetation: Do we need this absorbing, that duplicates one above?
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(evals));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
 
         label[0] = 0x63; // Rust's b"c"
         uint256 c;
@@ -659,12 +663,11 @@ contract PpSpartanComputations is Test {
         uint8[] memory label = new uint8[](1);
         label[0] = 0x6f; // Rust's b"o"
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(comm_output_vec));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comm_output_vec));
 
         label[0] = 0x63; // Rust's b"c"
 
-        transcript =
-            KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(claims_product_arr));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(claims_product_arr));
 
         uint256 num_rounds = log2(vk_S_comm_N);
 

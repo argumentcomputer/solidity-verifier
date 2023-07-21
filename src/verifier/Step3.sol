@@ -25,6 +25,7 @@ library Step3Lib {
         );
 
         if (actual != claim_sat_final) {
+            console.log("------------------[Step3Lib::final_verification]------------------");
             console.log("claim_sat_final [expected]");
             console.logBytes32(bytes32(claim_sat_final));
             console.log("claim_sat_final [actual]");
@@ -47,7 +48,7 @@ library Step3Lib {
     }
 
     function compute_claim_inner_final(
-        Abstractions.CompressedSnark calldata proof,
+        Abstractions.RelaxedR1CSSNARK calldata proof,
         uint256 c_inner,
         uint256[] memory coeffs,
         uint256 modulus
@@ -57,11 +58,11 @@ library Step3Lib {
             revert();
         }
 
-        uint256 self_eval_val_A = proof.f_W_snark_secondary.eval_val_A;
-        uint256 self_eval_val_B = proof.f_W_snark_secondary.eval_val_B;
-        uint256 self_eval_val_C = proof.f_W_snark_secondary.eval_val_C;
-        uint256 self_eval_E_col = proof.f_W_snark_secondary.eval_E_col;
-        uint256 self_eval_E_row = proof.f_W_snark_secondary.eval_E_row;
+        uint256 self_eval_val_A = proof.eval_val_A;
+        uint256 self_eval_val_B = proof.eval_val_B;
+        uint256 self_eval_val_C = proof.eval_val_C;
+        uint256 self_eval_E_col = proof.eval_E_col;
+        uint256 self_eval_E_row = proof.eval_E_row;
         uint256 coeffs_9 = coeffs[9];
 
         uint256 actual;
@@ -80,8 +81,8 @@ library Step3Lib {
     }
 
     function compute_claim_outer_final(
-        Abstractions.CompressedSnark storage proof,
-        uint256 f_U_secondary_u,
+        Abstractions.RelaxedR1CSSNARK storage proof,
+        uint256 r_U_primary_u,
         uint256[] memory coeffs,
         uint256 taus_bound_r_sat,
         uint256 modulus,
@@ -92,12 +93,12 @@ library Step3Lib {
             revert();
         }
 
-        uint256 actual = mulmod(f_U_secondary_u, proof.f_W_snark_secondary.eval_Cz, modulus);
+        uint256 actual = mulmod(r_U_primary_u, proof.eval_Cz, modulus);
         actual = negateBase(actual);
-        uint256 minus_self_eval_E = Pallas.negateBase(proof.f_W_snark_secondary.eval_E);
+        uint256 minus_self_eval_E = negateBase(proof.eval_E);
         uint256 coeffs_8 = coeffs[8];
-        uint256 self_eval_Az = proof.f_W_snark_secondary.eval_Az;
-        uint256 self_eval_Bz = proof.f_W_snark_secondary.eval_Bz;
+        uint256 self_eval_Az = proof.eval_Az;
+        uint256 self_eval_Bz = proof.eval_Bz;
         assembly {
             let tmp := mulmod(self_eval_Az, self_eval_Bz, modulus)
             tmp := addmod(tmp, minus_self_eval_E, modulus)
@@ -109,7 +110,7 @@ library Step3Lib {
     }
 
     function compute_claim_mem_final(
-        Abstractions.CompressedSnark storage proof,
+        Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory coeffs,
         uint256 rand_eq_bound_r_sat,
         uint256 modulus,
@@ -121,19 +122,19 @@ library Step3Lib {
             revert();
         }
 
-        if (proof.f_W_snark_secondary.eval_left_arr.length != len) {
+        if (proof.eval_left_arr.length != len) {
             console.log(
                 "[Step3Lib:compute_claim_mem_final_expected] proof.f_W_snark_secondary.eval_left_arr.length != len"
             );
             revert();
         }
-        if (proof.f_W_snark_secondary.eval_right_arr.length != len) {
+        if (proof.eval_right_arr.length != len) {
             console.log(
                 "[Step3Lib:compute_claim_mem_final_expected] proof.f_W_snark_secondary.eval_right_arr.length != len"
             );
             revert();
         }
-        if (proof.f_W_snark_secondary.eval_output_arr.length != len) {
+        if (proof.eval_output_arr.length != len) {
             console.log(
                 "[Step3Lib:compute_claim_mem_final_expected] proof.f_W_snark_secondary.eval_output_arr.length != len"
             );
@@ -149,9 +150,9 @@ library Step3Lib {
         uint256 tmp;
         for (uint256 index = 0; index < len; index++) {
             coeffs_item = coeffs[index];
-            eval_left_arr_item = proof.f_W_snark_secondary.eval_left_arr[index];
-            eval_right_arr_item = proof.f_W_snark_secondary.eval_right_arr[index];
-            tmp = negateBase(proof.f_W_snark_secondary.eval_output_arr[index]);
+            eval_left_arr_item = proof.eval_left_arr[index];
+            eval_right_arr_item = proof.eval_right_arr[index];
+            tmp = negateBase(proof.eval_output_arr[index]);
             assembly {
                 let tmp1 := mulmod(eval_left_arr_item, eval_right_arr_item, modulus)
                 tmp1 := addmod(tmp1, tmp, modulus)
@@ -164,7 +165,45 @@ library Step3Lib {
         return actual;
     }
 
-    function compute_claim_sat_final_r_sat(
+    function compute_claim_sat_final_r_sat_primary(
+        Abstractions.RelaxedR1CSSNARK calldata proof,
+        Abstractions.VerifierKeyS1 calldata vk,
+        KeccakTranscriptLib.KeccakTranscript memory transcript,
+        uint256 claim_inner,
+        uint256[] memory coeffs,
+        uint256 p_modulus,
+        bool enableLogging
+    ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
+        // TODO: simplify convertions between abstractions
+        Abstractions.CompressedPolys[] memory polys = proof.sc_sat.compressed_polys;
+        SumcheckUtilities.CompressedUniPoly[] memory compressed_polys =
+            new SumcheckUtilities.CompressedUniPoly[](polys.length);
+        for (uint256 index = 0; index < polys.length; index++) {
+            compressed_polys[index] = SumcheckUtilities.CompressedUniPoly(polys[index].coeffs_except_linear_term);
+        }
+
+        if (enableLogging) {
+            console.log("-----------compute_claim_sat_final_r_sat_primary------------");
+            console.log("CompressedUniPoly");
+            for (uint256 index = 0; index < compressed_polys.length; index++) {
+                console.log(index);
+                for (uint256 i = 0; i < compressed_polys[index].coeffs_except_linear_term.length; i++) {
+                    console.logBytes32(bytes32(compressed_polys[index].coeffs_except_linear_term[i]));
+                }
+            }
+        }
+
+        // degreeBound is hardcoded to 3 in Rust
+        return PrimarySumcheck.verify(
+            SumcheckUtilities.SumcheckProof(compressed_polys),
+            mulmod(coeffs[9], claim_inner, p_modulus),
+            log2(vk.S_comm.N),
+            3,
+            transcript
+        );
+    }
+
+    function compute_claim_sat_final_r_sat_secondary(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
@@ -190,6 +229,25 @@ library Step3Lib {
         );
     }
 
+    function compute_coeffs_primary(KeccakTranscriptLib.KeccakTranscript memory transcript)
+        public
+        pure
+        returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory)
+    {
+        uint8[] memory label = new uint8[](1);
+        label[0] = 0x72; // Rust's b"r"
+
+        // in Rust length of coeffs is hardcoded to 10
+        uint256[] memory coeffs = new uint256[](10);
+        (transcript, coeffs[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
+        coeffs[0] = Field.reverse256(coeffs[0]);
+
+        for (uint256 index = 1; index < coeffs.length; index++) {
+            coeffs[index] = mulmod(coeffs[index - 1], coeffs[0], Vesta.P_MOD);
+        }
+        return (transcript, coeffs);
+    }
+
     function compute_coeffs_secondary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
         pure
@@ -207,6 +265,45 @@ library Step3Lib {
             coeffs[index] = mulmod(coeffs[index - 1], coeffs[0], Pallas.P_MOD);
         }
         return (transcript, coeffs);
+    }
+
+    function compute_rand_eq_primary(
+        Abstractions.RelaxedR1CSSNARK calldata proof,
+        Abstractions.VerifierKeyS1 calldata vk,
+        KeccakTranscriptLib.KeccakTranscript memory transcript
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
+        uint256[] memory claims_product_arr = proof.claims_product_arr;
+        require(claims_product_arr.length == 8, "[Step3.compute_rand_eq_primary]: claims_product_arr.length != 8");
+
+        uint256[] memory comm_output_arr = proof.comm_output_arr;
+        require(comm_output_arr.length == 8, "[Step3.compute_rand_eq_primary]: comm_output_arr.length != 8");
+
+        Pallas.PallasAffinePoint[] memory comm_output_vec = new Pallas.PallasAffinePoint[](comm_output_arr.length);
+        uint256 index;
+        for (index = 0; index < comm_output_vec.length; index++) {
+            comm_output_vec[index] = Pallas.decompress(comm_output_arr[index]);
+        }
+
+        uint8[] memory label = new uint8[](1);
+        label[0] = 0x6f; // Rust's b"o"
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comm_output_vec));
+
+        label[0] = 0x63; // Rust's b"c"
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(claims_product_arr));
+
+        uint256 num_rounds = log2(vk.S_comm.N);
+
+        label[0] = 0x65; // Rust's b"e"
+        uint256[] memory rand_eq = new uint256[](num_rounds);
+        for (index = 0; index < num_rounds; index++) {
+            (transcript, rand_eq[index]) =
+                KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
+            rand_eq[index] = Field.reverse256(rand_eq[index]);
+        }
+
+        return (transcript, rand_eq);
     }
 
     function compute_rand_eq_secondary(
@@ -229,12 +326,11 @@ library Step3Lib {
         uint8[] memory label = new uint8[](1);
         label[0] = 0x6f; // Rust's b"o"
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(comm_output_vec));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comm_output_vec));
 
         label[0] = 0x63; // Rust's b"c"
 
-        transcript =
-            KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(claims_product_arr));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(claims_product_arr));
 
         uint256 num_rounds = log2(vk.vk_secondary.S_comm.N);
 
@@ -267,6 +363,24 @@ library Step3Lib {
         return PolyEvalInstanceLib.batchSecondary(comm_vec, tau, evals, c);
     }
 
+    function compute_u_primary(Abstractions.RelaxedR1CSSNARK calldata proof, uint256[] memory tau, uint256 c)
+        public
+        view
+        returns (PolyEvalInstanceLib.PolyEvalInstance memory)
+    {
+        uint256[] memory evals = new uint256[](3);
+        evals[0] = proof.eval_Az_at_tau;
+        evals[1] = proof.eval_Bz_at_tau;
+        evals[2] = proof.eval_Cz_at_tau;
+
+        Pallas.PallasAffinePoint[] memory comm_vec = new Pallas.PallasAffinePoint[](3);
+        comm_vec[0] = Pallas.decompress(proof.comm_Az);
+        comm_vec[1] = Pallas.decompress(proof.comm_Bz);
+        comm_vec[2] = Pallas.decompress(proof.comm_Cz);
+
+        return PolyEvalInstanceLib.batchPrimary(comm_vec, tau, evals, c);
+    }
+
     function compute_c_secondary(
         Abstractions.CompressedSnark calldata proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
@@ -283,15 +397,45 @@ library Step3Lib {
         uint8[] memory label = new uint8[](1);
         label[0] = 0x65; // Rust's b"e"
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(evals));
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(comms_E));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comms_E));
 
         // Question to reference implemnetation: Do we need this absorbing, that duplicates one above?
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(evals));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
 
         label[0] = 0x63; // Rust's b"c"
         uint256 c;
         (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
+        c = Field.reverse256(c);
+
+        return (transcript, c);
+    }
+
+    function compute_c_primary(
+        Abstractions.RelaxedR1CSSNARK calldata proof,
+        KeccakTranscriptLib.KeccakTranscript memory transcript
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+        Pallas.PallasAffinePoint[] memory comms_E = new Pallas.PallasAffinePoint[](2);
+        comms_E[0] = Pallas.decompress(proof.comm_E_row);
+        comms_E[1] = Pallas.decompress(proof.comm_E_col);
+
+        uint256[] memory evals = new uint256[](3);
+        evals[0] = proof.eval_Az_at_tau;
+        evals[1] = proof.eval_Bz_at_tau;
+        evals[2] = proof.eval_Cz_at_tau;
+
+        uint8[] memory label = new uint8[](1);
+        label[0] = 0x65; // Rust's b"e"
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(comms_E));
+
+        // Question to reference implemnetation: Do we need this absorbing, that duplicates one above?
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(evals));
+
+        label[0] = 0x63; // Rust's b"c"
+        uint256 c;
+        (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
         c = Field.reverse256(c);
 
         return (transcript, c);
@@ -329,29 +473,113 @@ library Step3Lib {
         return (transcript, gamma_2);
     }
 
-    function compute_tau_secondary(
+    function compute_gamma_1_primary(KeccakTranscriptLib.KeccakTranscript memory transcript)
+        public
+        pure
+        returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
+    {
+        uint8[] memory label = new uint8[](2);
+        label[0] = 0x67; // Rust's b"g1"
+        label[1] = 0x31;
+
+        uint256 gamma_1;
+        (transcript, gamma_1) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
+        gamma_1 = Field.reverse256(gamma_1);
+
+        return (transcript, gamma_1);
+    }
+
+    function compute_gamma_2_primary(KeccakTranscriptLib.KeccakTranscript memory transcript)
+        public
+        pure
+        returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
+    {
+        uint8[] memory label = new uint8[](2);
+        label[0] = 0x67; // Rust's b"g2"
+        label[1] = 0x32;
+
+        uint256 gamma_2;
+        (transcript, gamma_2) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
+        gamma_2 = Field.reverse256(gamma_2);
+
+        return (transcript, gamma_2);
+    }
+
+    function compute_tau_primary(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk,
+        Abstractions.VerifierKeyS1 calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
-        Vesta.VestaAffinePoint memory f_U_secondary_comm_W,
-        Vesta.VestaAffinePoint memory f_U_secondary_comm_E,
-        uint256[] memory f_U_secondary_X,
-        uint256 f_U_secondary_u
+        bool useLogging
     ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
         uint8[] memory label = new uint8[](2); // Rust's b"vk"
         label[0] = 0x76;
         label[1] = 0x6b;
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, vk.vk_secondary.digest);
+        transcript = KeccakTranscriptLib.absorb(transcript, label, vk.digest);
+
+        label = new uint8[](1); // Rust's b"U"
+        label[0] = 0x55;
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(proof.r_U_primary));
+
+        label = new uint8[](1); // Rust's b"c"
+        label[0] = 0x63;
+
+        Pallas.PallasAffinePoint[] memory commitments = new Pallas.PallasAffinePoint[](3);
+        commitments[0] = Pallas.decompress(proof.r_W_snark_primary.comm_Az);
+        commitments[1] = Pallas.decompress(proof.r_W_snark_primary.comm_Bz);
+        commitments[2] = Pallas.decompress(proof.r_W_snark_primary.comm_Cz);
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(commitments));
+
+        label = new uint8[](1); // Rust's b"t"
+        label[0] = 0x74;
+
+        uint256[] memory tau = new uint256[](17);
+
+        for (uint256 index = 0; index < tau.length; index++) {
+            (transcript, tau[index]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
+            tau[index] = Field.reverse256(tau[index]);
+        }
+
+        if (useLogging) {
+            console.log("----------------compute_tau_primary--------------");
+            console.log("vk.digest");
+            console.logBytes32(bytes32(vk.digest));
+            console.log("proof.r_W_snark_primary.comm_Az");
+            console.logBytes32(bytes32(proof.r_W_snark_primary.comm_Az));
+            console.log("proof.r_W_snark_primary.comm_Bz");
+            console.logBytes32(bytes32(proof.r_W_snark_primary.comm_Bz));
+            console.log("proof.r_W_snark_primary.comm_Cz");
+            console.logBytes32(bytes32(proof.r_W_snark_primary.comm_Cz));
+            console.log("vk.S_comm.N");
+            console.log(vk.S_comm.N);
+        }
+
+        return (transcript, tau);
+    }
+
+    function compute_tau_secondary(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKeyS2 calldata vk,
+        KeccakTranscriptLib.KeccakTranscript memory transcript,
+        Vesta.VestaAffinePoint memory f_U_secondary_comm_W,
+        Vesta.VestaAffinePoint memory f_U_secondary_comm_E,
+        uint256[] memory f_U_secondary_X,
+        uint256 f_U_secondary_u,
+        bool useLogging
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
+        uint8[] memory label = new uint8[](2); // Rust's b"vk"
+        label[0] = 0x76;
+        label[1] = 0x6b;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label, vk.digest);
 
         label = new uint8[](1); // Rust's b"U"
         label[0] = 0x55;
         transcript = KeccakTranscriptLib.absorb(
             transcript,
             label,
-            Abstractions.toTranscriptBytesVesta(
-                f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u
-            )
+            Abstractions.toTranscriptBytes(f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u)
         );
 
         label = new uint8[](1); // Rust's b"c"
@@ -362,12 +590,12 @@ library Step3Lib {
         commitments[1] = Vesta.decompress(proof.f_W_snark_secondary.comm_Bz);
         commitments[2] = Vesta.decompress(proof.f_W_snark_secondary.comm_Cz);
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytesVesta(commitments));
+        transcript = KeccakTranscriptLib.absorb(transcript, label, Abstractions.toTranscriptBytes(commitments));
 
         label = new uint8[](1); // Rust's b"t"
         label[0] = 0x74;
 
-        uint256 num_rounds_sat = log2(vk.vk_secondary.S_comm.N);
+        uint256 num_rounds_sat = log2(vk.S_comm.N);
 
         uint256[] memory tau = new uint256[](num_rounds_sat);
 
@@ -376,6 +604,21 @@ library Step3Lib {
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
             tau[index] = Field.reverse256(tau[index]);
         }
+
+        if (useLogging) {
+            console.log("----------------compute_tau_secondary--------------");
+            console.log("vk.digest");
+            console.logBytes32(bytes32(vk.digest));
+            console.log("proof.f_W_snark_secondary.comm_Az");
+            console.logBytes32(bytes32(proof.f_W_snark_secondary.comm_Az));
+            console.log("proof.f_W_snark_secondary.comm_Bz");
+            console.logBytes32(bytes32(proof.f_W_snark_secondary.comm_Bz));
+            console.log("proof.f_W_snark_secondary.comm_Cz");
+            console.logBytes32(bytes32(proof.f_W_snark_secondary.comm_Cz));
+            console.log("vk.S_comm.N");
+            console.log(vk.S_comm.N);
+        }
+
         return (transcript, tau);
     }
 

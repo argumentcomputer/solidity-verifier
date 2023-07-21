@@ -162,6 +162,7 @@ library PrimarySumcheck {
 
             label[0] = 0x63; // b"c" in Rust
             (transcript, r[index]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label); // Vesta
+            r[index] = Field.reverse256(r[index]);
 
             e = SumcheckUtilities.evaluate(uni_poly, r[index], Pallas.R_MOD); // Pallas
         }

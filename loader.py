@@ -58,6 +58,16 @@ vk_secondary_digest = vk_secondary['digest']
 
 
 
+vk_primary = vk_data['vk_primary']
+vk_primary_num_cons = vk_primary['num_cons']
+vk_primary_num_vars = vk_primary['num_vars']
+S_comm = vk_primary['S_comm']
+vk_primary_S_comm_N = S_comm['N']
+#print(N)
+
+vk_primary_digest = vk_primary['digest']
+
+
 compressed_snark_file = sys.argv[2]
 if not os.path.exists(compressed_snark_file):
     print("compressed-snark (json) input file is missing")
@@ -221,6 +231,82 @@ f_W_snark_secondary_eval_val_C = f_W_snark_secondary['eval_val_C']
 f_W_snark_secondary_eval_E_row = f_W_snark_secondary['eval_E_row']
 f_W_snark_secondary_eval_E_col = f_W_snark_secondary['eval_E_col']
 
+
+
+
+r_W_snark_primary = proof_data['r_W_snark_primary']
+r_W_snark_primary_comm_Az = r_W_snark_primary['comm_Az']['comm']['repr']
+hex_string = ""
+for byteVal in r_W_snark_primary_comm_Az:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+r_W_snark_primary_comm_Az = '0x' + hex_string
+
+r_W_snark_primary_comm_Bz = r_W_snark_primary['comm_Bz']['comm']['repr']
+hex_string = ""
+for byteVal in r_W_snark_primary_comm_Bz:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+r_W_snark_primary_comm_Bz = '0x' + hex_string
+r_W_snark_primary_comm_Cz = r_W_snark_primary['comm_Cz']['comm']['repr']
+hex_string = ""
+for byteVal in r_W_snark_primary_comm_Cz:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+r_W_snark_primary_comm_Cz = '0x' + hex_string
+
+r_W_snark_primary_comm_E_row = r_W_snark_primary['comm_E_row']['comm']['repr']
+hex_string = ""
+for byteVal in r_W_snark_primary_comm_E_row:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+r_W_snark_primary_comm_E_row = '0x' + hex_string
+
+r_W_snark_primary_comm_E_col = r_W_snark_primary['comm_E_col']['comm']['repr']
+hex_string = ""
+for byteVal in r_W_snark_primary_comm_E_col:
+    hex_string = hex_string + f'{byteVal:02x}'
+
+r_W_snark_primary_comm_E_col = '0x' + hex_string
+
+r_W_snark_primary_eval_Az_at_tau = r_W_snark_primary['eval_Az_at_tau']
+r_W_snark_primary_eval_Bz_at_tau = r_W_snark_primary['eval_Bz_at_tau']
+r_W_snark_primary_eval_Cz_at_tau = r_W_snark_primary['eval_Cz_at_tau']
+
+r_W_snark_primary_comm_output_arr = r_W_snark_primary['comm_output_arr']
+tmp = []
+for item in r_W_snark_primary_comm_output_arr:
+    hex_string = ""
+    for byteVal in item['comm']['repr']:
+        hex_string = hex_string + f'{byteVal:02x}'
+    tmp.append('0x' + hex_string)
+r_W_snark_primary_comm_output_arr = tmp
+
+r_W_snark_primary_claims_product_arr = r_W_snark_primary['claims_product_arr']
+
+sc_sat = r_W_snark_primary['sc_sat']
+compressed_polys = sc_sat['compressed_polys']
+tmp = []
+for item in compressed_polys:
+    val = item['coeffs_except_linear_term']
+    tmp.append(val)
+r_W_snark_primary_sc_sat = tmp
+
+r_W_snark_primary_eval_left_arr = r_W_snark_primary['eval_left_arr']
+r_W_snark_primary_eval_right_arr = r_W_snark_primary['eval_right_arr']
+r_W_snark_primary_eval_output_arr = r_W_snark_primary['eval_output_arr']
+
+r_W_snark_primary_eval_Az = r_W_snark_primary['eval_Az']
+r_W_snark_primary_eval_Bz = r_W_snark_primary['eval_Bz']
+r_W_snark_primary_eval_Cz = r_W_snark_primary['eval_Cz']
+r_W_snark_primary_eval_E = r_W_snark_primary['eval_E']
+
+r_W_snark_primary_eval_val_A = r_W_snark_primary['eval_val_A']
+r_W_snark_primary_eval_val_B = r_W_snark_primary['eval_val_B']
+r_W_snark_primary_eval_val_C = r_W_snark_primary['eval_val_C']
+r_W_snark_primary_eval_E_row = r_W_snark_primary['eval_E_row']
+r_W_snark_primary_eval_E_col = r_W_snark_primary['eval_E_col']
+
 ProofData = namedtuple(
     '_ProofData', (
         'l_u_secondary_comm_W_comm',
@@ -269,6 +355,43 @@ ProofData = namedtuple(
         'f_W_snark_secondary_eval_val_C',
         'f_W_snark_secondary_eval_E_row',
         'f_W_snark_secondary_eval_E_col',
+
+
+
+
+
+
+
+
+        'r_W_snark_primary_comm_Az',
+        'r_W_snark_primary_comm_Bz',
+        'r_W_snark_primary_comm_Cz',
+
+        'r_W_snark_primary_comm_E_row',
+        'r_W_snark_primary_comm_E_col',
+        'r_W_snark_primary_eval_Az_at_tau',
+        'r_W_snark_primary_eval_Bz_at_tau',
+        'r_W_snark_primary_eval_Cz_at_tau',
+
+        'r_W_snark_primary_comm_output_arr',
+        'r_W_snark_primary_claims_product_arr',
+
+        'r_W_snark_primary_sc_sat',
+
+        'r_W_snark_primary_eval_left_arr',
+        'r_W_snark_primary_eval_right_arr',
+        'r_W_snark_primary_eval_output_arr',
+
+        'r_W_snark_primary_eval_Az',
+        'r_W_snark_primary_eval_Bz',
+        'r_W_snark_primary_eval_Cz',
+        'r_W_snark_primary_eval_E',
+
+        'r_W_snark_primary_eval_val_A',
+        'r_W_snark_primary_eval_val_B',
+        'r_W_snark_primary_eval_val_C',
+        'r_W_snark_primary_eval_E_row',
+        'r_W_snark_primary_eval_E_col',
     )
 )
 
@@ -321,6 +444,40 @@ parsedProof = ProofData(
     f_W_snark_secondary_eval_val_C,
     f_W_snark_secondary_eval_E_row,
     f_W_snark_secondary_eval_E_col,
+
+
+
+
+    r_W_snark_primary_comm_Az,
+    r_W_snark_primary_comm_Bz,
+    r_W_snark_primary_comm_Cz,
+
+    r_W_snark_primary_comm_E_row,
+    r_W_snark_primary_comm_E_col,
+
+    r_W_snark_primary_eval_Az_at_tau,
+    r_W_snark_primary_eval_Bz_at_tau,
+    r_W_snark_primary_eval_Cz_at_tau,
+
+    r_W_snark_primary_comm_output_arr,
+    r_W_snark_primary_claims_product_arr,
+
+    r_W_snark_primary_sc_sat,
+
+    r_W_snark_primary_eval_left_arr,
+    r_W_snark_primary_eval_right_arr,
+    r_W_snark_primary_eval_output_arr,
+
+    r_W_snark_primary_eval_Az,
+    r_W_snark_primary_eval_Bz,
+    r_W_snark_primary_eval_Cz,
+    r_W_snark_primary_eval_E,
+
+    r_W_snark_primary_eval_val_A,
+    r_W_snark_primary_eval_val_B,
+    r_W_snark_primary_eval_val_C,
+    r_W_snark_primary_eval_E_row,
+    r_W_snark_primary_eval_E_col,
 )
 
 VerifierKey = namedtuple (
@@ -336,6 +493,11 @@ VerifierKey = namedtuple (
 
         'vk_secondary_S_comm_N',
         'vk_secondary_digest',
+
+        'vk_primary_num_cons',
+        'vk_primary_num_vars',
+        'vk_primary_S_comm_N',
+        'vk_primary_digest',
     )
 )
 
@@ -351,13 +513,18 @@ parsedVk = VerifierKey(
 
     vk_secondary_S_comm_N,
     vk_secondary_digest,
+
+    vk_primary_num_cons,
+    vk_primary_num_vars,
+    vk_primary_S_comm_N,
+    vk_primary_digest,
 )
 
 PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-CONTRACT_ADDRESS = "0x1613beb3b2c4f22ee086b2b38c1476a3ce7f78e8"
+CONTRACT_ADDRESS = "0x8f86403a4de0bb5791fa46b8e795c547942fe4cf"
 
-PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)))"
-PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256),uint256)))"
+PUSH_TO_PROOF_FUNC_SIG = "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)))"
+PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256),uint256),(uint256,uint256,(uint256),uint256)))"
 
 # expects hex number as string without '0x'
 def addNumber(number, useReversing):
@@ -431,7 +598,30 @@ def pushToProof(data):
     command = command + addNumber(data.f_W_snark_secondary_eval_val_B, True) + ','
     command = command + addNumber(data.f_W_snark_secondary_eval_val_C, True) + ','
     command = command + addNumber(data.f_W_snark_secondary_eval_E_row, True) + ','
-    command = command + addNumber(data.f_W_snark_secondary_eval_E_col, True) + ')'
+    command = command + addNumber(data.f_W_snark_secondary_eval_E_col, True) + '),('
+    command = command + addNumber(data.r_W_snark_primary_comm_Az, False) + ','
+    command = command + addNumber(data.r_W_snark_primary_comm_Bz, False) + ','
+    command = command + addNumber(data.r_W_snark_primary_comm_Cz, False) + ','
+    command = command + addNumber(data.r_W_snark_primary_comm_E_row, False) + ','
+    command = command + addNumber(data.r_W_snark_primary_comm_E_col, False) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Az_at_tau, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Bz_at_tau, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Cz_at_tau, True) + ','
+    command = command + addNumbersArray(data.r_W_snark_primary_comm_output_arr, False) + ','
+    command = command + addNumbersArray(data.r_W_snark_primary_claims_product_arr, True) + ','
+    command = command + addScSat(data.r_W_snark_primary_sc_sat, True) + ','
+    command = command + addNumbersArray(data.r_W_snark_primary_eval_left_arr, True) + ','
+    command = command + addNumbersArray(data.r_W_snark_primary_eval_right_arr, True) + ','
+    command = command + addNumbersArray(data.r_W_snark_primary_eval_output_arr, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Az, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Bz, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_Cz, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_E, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_val_A, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_val_B, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_val_C, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_E_row, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_E_col, True) + ')'
     command = command + ')\" --private-key ' + PRIVATE_KEY
     #print(command)
     os.system(command)
@@ -449,7 +639,11 @@ def pushToVk(data):
     command = command + addNumbersArray(data.constants_mixConstantsSecondary[0], True) + ','
     command = command + addNumbersArray(data.constants_addRoundConstantsSecondary, True) + '),(('
     command = command + addNumber(hex(data.vk_secondary_S_comm_N), False) + '),'
-    command = command + addNumber(data.vk_secondary_digest, True) + ')'
+    command = command + addNumber(data.vk_secondary_digest, True) + '),('
+    command = command + addNumber(hex(data.vk_primary_num_cons), False) + ','
+    command = command + addNumber(hex(data.vk_primary_num_vars), False) + ',('
+    command = command + addNumber(hex(data.vk_primary_S_comm_N), False) + '),'
+    command = command + addNumber(data.vk_primary_digest, True) + ')'
     command = command + ')\" --private-key ' + PRIVATE_KEY
     #print(command)
     os.system(command)

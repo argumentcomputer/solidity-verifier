@@ -7,6 +7,7 @@ import "src/blocks/PolyEvalInstance.sol";
 import "src/verifier/Step1.sol";
 import "src/verifier/Step2.sol";
 import "src/verifier/Step3.sol";
+import "src/verifier/Step4.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
@@ -91,6 +92,12 @@ contract NovaVerifierContract {
         // Sumcheck protocol verification (primary)
         if (!verifyStep3Primary()) {
             console.log("[Step3 Secondary] false");
+            return false;
+        }
+
+        // check the required multiset relationship
+        if (!Step4Lib.verify(proof)) {
+            console.log("[Step4] false");
             return false;
         }
 

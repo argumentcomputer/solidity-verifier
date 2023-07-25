@@ -502,8 +502,8 @@ contract NovaVerifierContractTest is Test {
         uint8[] memory t_label = new uint8[](1);
         t_label[0] = 0x74; // b"t"
 
-        for (uint256 idx = 0; idx < 14; idx ++) {
-            (transcript, ) = KeccakTranscriptLib.squeeze(transcript, curve, t_label);
+        for (uint256 idx = 0; idx < 14; idx++) {
+            (transcript,) = KeccakTranscriptLib.squeeze(transcript, curve, t_label);
         }
 
         PrimarySumcheck.SumcheckProof memory outer_proof = SumcheckData.returnPrimaryOuterData();
@@ -798,8 +798,8 @@ contract NovaVerifierContractTest is Test {
         uint8[] memory t_label = new uint8[](1);
         t_label[0] = 0x74; // b"t"
 
-        for (uint256 idx = 0; idx < 14; idx ++) {
-            (transcript, ) = KeccakTranscriptLib.squeeze(transcript, curve, t_label);
+        for (uint256 idx = 0; idx < 14; idx++) {
+            (transcript,) = KeccakTranscriptLib.squeeze(transcript, curve, t_label);
         }
 
         PrimarySumcheck.SumcheckProof memory outer_proof = SumcheckData.returnPrimaryOuterData();

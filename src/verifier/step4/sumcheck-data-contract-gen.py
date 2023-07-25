@@ -29,11 +29,12 @@ def reverse_bytes(val):
     return ba.hex()
 
 def sumcheck_data_contract_gen(data, ver: Version):
-    output = f"{ver.get_curve()}PolyLib.CompressedUniPoly[] memory proof_array;\n"
-    output += "uint256[] memory poly_array;\n"
+    compressed_polynomials = data["compressed_polys"]
+    output = f"{ver.get_curve()}PolyLib.CompressedUniPoly[] memory proof_array = new {ver.get_curve()}PolyLib.CompressedUniPoly[]({len(compressed_polynomials)});\n"
+    degree = len(compressed_polynomials[0]["coeffs_except_linear_term"])
+    output += f"uint256[] memory poly_array = new uint256[]({degree});\n"
     output += f"{ver.get_curve()}PolyLib.CompressedUniPoly memory poly;\n"
 
-    compressed_polynomials = data["compressed_polys"]
     for poly_idx, poly in enumerate(compressed_polynomials):
         coeffs = poly["coeffs_except_linear_term"]
         for coeff_idx, coeff in enumerate(coeffs):

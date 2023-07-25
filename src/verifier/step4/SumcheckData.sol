@@ -7,8 +7,8 @@ import "src/verifier/step4/SumcheckLogic.sol";
 library SumcheckData {
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnPrimaryOuterData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
-        PallasPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        PallasPolyLib.CompressedUniPoly[] memory proof_array = new PallasPolyLib.CompressedUniPoly[](14);
+        uint256[] memory poly_array = new uint256[](3);
         PallasPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
         poly_array[1] = 0x2f7edd33613c0e4232f0ba80c27ba5604d3ed2e8178854592577ea1b3eab5631;
@@ -85,8 +85,8 @@ library SumcheckData {
 
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnPrimaryInnerData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
-        PallasPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        PallasPolyLib.CompressedUniPoly[] memory proof_array = new PallasPolyLib.CompressedUniPoly[](15);
+        uint256[] memory poly_array = new uint256[](2);
         PallasPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0xb31a90ec837f6240eb4e0dd16d19a87a7caa763a490a9eeeb9390650f616471c;
         poly_array[1] = 0x7af842d7b5b0716a25738a188c51cde25bbe4153a631d9dda3ae97c8fdcbdd12;
@@ -153,8 +153,8 @@ library SumcheckData {
 
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnPrimaryBatchData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
-        PallasPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        PallasPolyLib.CompressedUniPoly[] memory proof_array = new PallasPolyLib.CompressedUniPoly[](14);
+        uint256[] memory poly_array = new uint256[](2);
         PallasPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0x638768287dd7f02ed2e9b72fe3056c92ef9c9077913face294115a0fa2c55521;
         poly_array[1] = 0x542e742eaba90f450c31a2f45f8fad8d4a7115a8e16106121f7cd7b0f1d0fa27;
@@ -217,8 +217,8 @@ library SumcheckData {
 
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnSecondaryOuterData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
-        VestaPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        VestaPolyLib.CompressedUniPoly[] memory proof_array = new VestaPolyLib.CompressedUniPoly[](14);
+        uint256[] memory poly_array = new uint256[](3);
         VestaPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
         poly_array[1] = 0x755951ccebef6518ead6a519a1d51c3a948f9b445ab6304b1eb829a0c2960709;
@@ -295,8 +295,8 @@ library SumcheckData {
 
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnSecondaryInnerData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
-        VestaPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        VestaPolyLib.CompressedUniPoly[] memory proof_array = new VestaPolyLib.CompressedUniPoly[](15);
+        uint256[] memory poly_array = new uint256[](2);
         VestaPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0xc592c9c47ab8341a58ea5b299b0889d41baf2d5f0c6bb03d72302aaf8cd25a2c;
         poly_array[1] = 0x38f1d05cf792ec813cfb44863785641ecae6ad7b9ffa071e32d8bf2fd967c811;
@@ -363,8 +363,8 @@ library SumcheckData {
 
     // This function returns a SumcheckProof for the relevant corresponding field
     function returnSecondaryBatchData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
-        VestaPolyLib.CompressedUniPoly[] memory proof_array;
-        uint256[] memory poly_array;
+        VestaPolyLib.CompressedUniPoly[] memory proof_array = new VestaPolyLib.CompressedUniPoly[](14);
+        uint256[] memory poly_array = new uint256[](2);
         VestaPolyLib.CompressedUniPoly memory poly;
         poly_array[0] = 0xcb18ab8d62982ca68048831de859ab26df838a0bcff8465faa7ef3bf47dd7837;
         poly_array[1] = 0x2e3283b8be3006435bef0d7c9ebe3cb4725d28415c9d3a6dfde336e499064336;
@@ -425,6 +425,7 @@ library SumcheckData {
         return SecondarySumcheck.SumcheckProof(proof_array);
     }
 
+    // This function returns R1CS structure digest as a uint8[]
     function returnPrimaryTranscriptData() public pure returns (uint8[] memory) {
         uint8[] memory digest = new uint8[](32);
         digest[0] = 0x23;
@@ -462,6 +463,7 @@ library SumcheckData {
 
         return digest;
     }
+    // This function returns R1CS structure digest as a uint8[]
 
     function returnSecondaryTranscriptData() public pure returns (uint8[] memory) {
         uint8[] memory digest = new uint8[](32);

@@ -10,7 +10,7 @@ import "src/blocks/PolyEvalInstance.sol";
 import "src/blocks/Sumcheck.sol";
 import "src/NovaVerifierAbstractions.sol";
 
-contract PpSpartanComputations is Test {
+contract PpSpartanStep3Computations is Test {
     function check_claim_inner_final_expected(
         uint256 coeffs_9,
         uint256 self_eval_E_row,

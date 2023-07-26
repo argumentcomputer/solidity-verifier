@@ -292,7 +292,7 @@ library VestaPolyLib {
         for (uint256 i = 0; i < r.length; i++) {
             bool[] memory bits = getBits(P.Z[i].entry, r.length);
             // result += computeChi(bits, r) * P.Z[i].idx;
-            result = addmod(result, mulmod(computeChi(bits, r), P.Z[i].idx, Vesta.P_MOD), Vesta.P_MOD);
+            result = addmod(result, mulmod(computeChi(bits, r), P.Z[i].idx, Vesta.R_MOD), Vesta.R_MOD);
         }
 
         return result;
@@ -309,7 +309,7 @@ library VestaPolyLib {
     function evalAtOne(UniPoly memory poly) public pure returns (uint256 result) {
         for (uint256 i = 0; i < poly.coeffs.length; i++) {
             // result += poly.coeffs[i];
-            result = addmod(result, poly.coeffs[i], Vesta.P_MOD);
+            result = addmod(result, poly.coeffs[i], Vesta.R_MOD);
         }
     }
 
@@ -318,9 +318,9 @@ library VestaPolyLib {
         uint256 result = poly.coeffs[0];
         for (uint256 i = 1; i < poly.coeffs.length; i++) {
             // result += power * poly.coeffs[i];
-            result = addmod(result, mulmod(power, poly.coeffs[i], Vesta.P_MOD), Vesta.P_MOD);
+            result = addmod(result, mulmod(power, poly.coeffs[i], Vesta.R_MOD), Vesta.R_MOD);
             // power *= r;
-            power = mulmod(power, r, Vesta.P_MOD);
+            power = mulmod(power, r, Vesta.R_MOD);
         }
 
         return result;
@@ -337,23 +337,21 @@ library VestaPolyLib {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
         uint256 linear_term = addmod(
             hint,
-            Vesta.negateBase(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.P_MOD)),
-            Vesta.P_MOD
+            Vesta.negateScalar(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.R_MOD)),
+            Vesta.R_MOD
         );
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
             // linear_term -= poly.coeffs_except_linear_term[i];
-            linear_term = addmod(linear_term, Vesta.negateBase(poly.coeffs_except_linear_term[i]), Vesta.P_MOD);
+            linear_term = addmod(linear_term, Vesta.negateScalar(poly.coeffs_except_linear_term[i]), Vesta.R_MOD);
         }
 
-        uint256[] memory coeffs;
+        uint256[] memory coeffs = new uint256[](poly.coeffs_except_linear_term.length + 1);
         coeffs[0] = poly.coeffs_except_linear_term[0];
         coeffs[1] = linear_term;
 
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
             coeffs[i + 1] = poly.coeffs_except_linear_term[i];
         }
-
-        require(poly.coeffs_except_linear_term.length + 1 == coeffs.length);
 
         return UniPoly(coeffs);
     }
@@ -450,32 +448,35 @@ library SecondarySumcheck {
         uint256 num_rounds,
         uint256 degree_bound,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public pure returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
+    ) public view returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         uint256 e = claim;
-        uint256[] memory r;
+        uint256[] memory r = new uint256[](num_rounds);
 
-        uint8[] memory p_label;
-        uint8[] memory c_label;
+        uint8[] memory p_label = new uint8[](1);
+        uint8[] memory c_label = new uint8[](1);
 
         p_label[0] = 112;
         c_label[0] = 99;
 
         require(proof.compressed_polys.length == num_rounds, "Wrong number of polynomials");
 
+        VestaPolyLib.UniPoly memory poly;
+        
         for (uint256 i = 0; i < num_rounds; i++) {
-            VestaPolyLib.UniPoly memory poly = VestaPolyLib.decompress(proof.compressed_polys[i], e);
+            poly = VestaPolyLib.decompress(proof.compressed_polys[i], e);
 
             require(VestaPolyLib.degree(poly) == degree_bound, "Polynomial has wrong degree");
             require(
-                addmod(VestaPolyLib.evalAtZero(poly), VestaPolyLib.evalAtOne(poly), Vesta.P_MOD) == e,
+                addmod(VestaPolyLib.evalAtZero(poly), VestaPolyLib.evalAtOne(poly), Vesta.R_MOD) == e,
                 "Polynomial decompression yields incorrect result"
             );
-
+            
             transcript = KeccakTranscriptLib.absorb(transcript, p_label, VestaPolyLib.toTranscriptBytes(poly));
 
             uint256 r_i;
-            (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.Curve.VESTA, c_label);
+            (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), c_label);
 
+            console.log("got here");
             r[i] = r_i;
 
             e = VestaPolyLib.evaluate(poly, r_i);

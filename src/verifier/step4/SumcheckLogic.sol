@@ -337,7 +337,9 @@ library VestaPolyLib {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
         uint256 linear_term = addmod(
             hint,
-            Vesta.negateScalar(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.R_MOD)),
+            Vesta.negateScalar(
+                addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], Vesta.R_MOD)
+            ),
             Vesta.R_MOD
         );
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {
@@ -461,7 +463,7 @@ library SecondarySumcheck {
         require(proof.compressed_polys.length == num_rounds, "Wrong number of polynomials");
 
         VestaPolyLib.UniPoly memory poly;
-        
+
         for (uint256 i = 0; i < num_rounds; i++) {
             poly = VestaPolyLib.decompress(proof.compressed_polys[i], e);
 
@@ -470,7 +472,7 @@ library SecondarySumcheck {
                 addmod(VestaPolyLib.evalAtZero(poly), VestaPolyLib.evalAtOne(poly), Vesta.R_MOD) == e,
                 "Polynomial decompression yields incorrect result"
             );
-            
+
             transcript = KeccakTranscriptLib.absorb(transcript, p_label, VestaPolyLib.toTranscriptBytes(poly));
 
             uint256 r_i;

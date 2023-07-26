@@ -450,7 +450,7 @@ library SecondarySumcheck {
         uint256 num_rounds,
         uint256 degree_bound,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public view returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
+    ) public pure returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         uint256 e = claim;
         uint256[] memory r = new uint256[](num_rounds);
 
@@ -478,7 +478,6 @@ library SecondarySumcheck {
             uint256 r_i;
             (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), c_label);
 
-            console.log("got here");
             r[i] = r_i;
 
             e = VestaPolyLib.evaluate(poly, r_i);

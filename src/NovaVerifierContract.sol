@@ -9,14 +9,21 @@ import "src/verifier/Step2.sol";
 import "src/verifier/Step3.sol";
 import "src/verifier/Step4.sol";
 import "src/verifier/Step5.sol";
+import "src/verifier/Step6.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
+    struct Step5IntermediateData {
+        uint256[] r_prod;
+    }
+
     struct Step3IntermediateData {
         uint256[] tau;
         uint256 gamma1;
         uint256 gamma2;
         uint256[] r_sat;
+        uint256[] U_X;
+        uint256 U_u;
     }
 
     struct Step3PrecomputeOutput {
@@ -26,6 +33,7 @@ contract NovaVerifierContract {
         uint256[] rand_eq;
         uint256[] coeffs;
         uint256 U_u;
+        uint256[] U_X;
         uint256 gamma1;
         uint256 gamma2;
     }
@@ -68,8 +76,7 @@ contract NovaVerifierContract {
         return (transcriptPrimaryInstance, transcriptSecondaryInstance);
     }
 
-    // cast send 0x7a9ec1d04904907de0ed7b6839ccdd59c3716ac9 "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint
-    //256,uint256,uint256,uint256,uint256[],uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256)))" "((1,[1]),(1,1,[1],1),(1,1,[1],1),[1],[1],1,(1,1,1,1,1,1,1,1,[1],[1],([([1])]),[1],[1],[1],1,1,1,1,1,1,1,1,1,[1],1),(1,1,1,1,1,1,1,1,[1],[1],([([1])]),[1],[1],[1],1,1,1,1,1,1,1,1,1,[1],1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    // cast send 0xc351628eb244ec633d5f21fbd6621e1a683b1181 "pushToProof(((uint256,uint256[]),(uint256,uint256,uint256[],uint256),(uint256,uint256,uint256[],uint256),uint256[],uint256[],uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)))" "((1,[1]),(1,1,[1],1),(1,1,[1],1),[1],[1],1,(1,1,1,1,1,1,1,1,[1],[1],([([1])]),[1],[1],[1],1,1,1,1,1,1,1,1,1,[1],1,1,1,1,1,1,1,1,1),(1,1,1,1,1,1,1,1,[1],[1],([([1])]),[1],[1],[1],1,1,1,1,1,1,1,1,1,[1],1,1,1,1,1,1,1,1,1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
     function pushToProof(Abstractions.CompressedSnark calldata input) public {
         proof = input;
     }
@@ -101,6 +108,8 @@ contract NovaVerifierContract {
 
         Step3IntermediateData memory step3PrimaryOutput;
         Step3IntermediateData memory step3SecondaryOutput;
+        Step5IntermediateData memory step5PrimaryOutput;
+        Step5IntermediateData memory step5SecondaryOutput;
         bool success;
 
         // fold the running instance and last instance to get a folded instance
@@ -128,20 +137,111 @@ contract NovaVerifierContract {
         }
 
         // multiset check for the row
-        if (!verifyStep5Primary(step3PrimaryOutput)) {
+        (step5PrimaryOutput, success) = verifyStep5Primary(step3PrimaryOutput);
+        if (!success) {
             console.log("[Step5 Primary] false");
             return false;
         }
 
-        if (!verifyStep5Secondary(step3SecondaryOutput)) {
+        (step5SecondaryOutput, success) = verifyStep5Secondary(step3SecondaryOutput);
+        if (!success) {
             console.log("[Step5 Secondary] false");
+            return false;
+        }
+
+        // multiset check for the col
+        if (!verifyStep6Primary(step5PrimaryOutput, step3PrimaryOutput)) {
+            console.log("[Step6 Primary] false");
+            return false;
+        }
+
+        if (!verifyStep6Secondary(step5SecondaryOutput, step3SecondaryOutput)) {
+            console.log("[Step6 Secondary] false");
             return false;
         }
 
         return true;
     }
 
-    function verifyStep5Primary(Step3IntermediateData memory step3PrimaryOutput) private returns (bool) {
+    function verifyStep6Secondary(Step5IntermediateData memory step5Output, Step3IntermediateData memory step3Output)
+        public
+        returns (bool)
+    {
+        uint256[] memory r_prod = step5Output.r_prod;
+        uint256 gamma1 = step3Output.gamma1;
+        uint256 gamma2 = step3Output.gamma2;
+        uint256[] memory U_X = step3Output.U_X;
+        uint256 U_u = step3Output.U_u;
+
+        uint256 eval_Z = Step6Lib.compute_eval_Z(
+            proof.f_W_snark_secondary,
+            U_X,
+            U_u,
+            vk.vk_primary.S_comm.N,
+            vk.vk_primary.num_vars,
+            r_prod,
+            Pallas.P_MOD,
+            Pallas.negateBase
+        );
+
+        (uint256 claim_init_expected_col, uint256 claim_audit_expected_col) = Step6Lib.compute_claims_init_audit(
+            proof.f_W_snark_secondary, gamma1, gamma2, eval_Z, r_prod, Pallas.P_MOD, Pallas.negateBase
+        );
+
+        (uint256 claim_read_expected_col, uint256 claim_write_expected_col) = Step6Lib.compute_claims_read_write(
+            proof.f_W_snark_secondary, gamma1, gamma2, Pallas.P_MOD, Pallas.negateBase
+        );
+
+        return Step6Lib.finalVerification(
+            proof.f_W_snark_secondary,
+            claim_init_expected_col,
+            claim_read_expected_col,
+            claim_write_expected_col,
+            claim_audit_expected_col
+        );
+    }
+
+    function verifyStep6Primary(Step5IntermediateData memory step5Output, Step3IntermediateData memory step3Output)
+        private
+        returns (bool)
+    {
+        uint256[] memory r_prod = step5Output.r_prod;
+        uint256 gamma1 = step3Output.gamma1;
+        uint256 gamma2 = step3Output.gamma2;
+        uint256[] memory U_X = step3Output.U_X;
+        uint256 U_u = step3Output.U_u;
+
+        uint256 eval_Z = Step6Lib.compute_eval_Z(
+            proof.r_W_snark_primary,
+            U_X,
+            U_u,
+            vk.vk_primary.S_comm.N,
+            vk.vk_primary.num_vars,
+            r_prod,
+            Vesta.P_MOD,
+            Vesta.negateBase
+        );
+
+        (uint256 claim_init_expected_col, uint256 claim_audit_expected_col) = Step6Lib.compute_claims_init_audit(
+            proof.r_W_snark_primary, gamma1, gamma2, eval_Z, r_prod, Vesta.P_MOD, Vesta.negateBase
+        );
+
+        (uint256 claim_read_expected_col, uint256 claim_write_expected_col) =
+            Step6Lib.compute_claims_read_write(proof.r_W_snark_primary, gamma1, gamma2, Vesta.P_MOD, Vesta.negateBase);
+
+        return Step6Lib.finalVerification(
+            proof.r_W_snark_primary,
+            claim_init_expected_col,
+            claim_read_expected_col,
+            claim_write_expected_col,
+            claim_audit_expected_col
+        );
+    }
+
+    function verifyStep5Primary(Step3IntermediateData memory step3PrimaryOutput)
+        private
+        returns (Step5IntermediateData memory, bool)
+    {
         uint256 c;
         (transcriptPrimary, c) = Step5Lib.compute_c_primary(proof.r_W_snark_primary, transcriptPrimary);
 
@@ -161,16 +261,22 @@ contract NovaVerifierContract {
             proof.r_W_snark_primary, step3PrimaryOutput.gamma1, step3PrimaryOutput.gamma2, Vesta.P_MOD, Vesta.negateBase
         );
 
-        return Step5Lib.final_verification(
-            proof.r_W_snark_primary,
-            claim_init_expected_row,
-            claim_read_expected_row,
-            claim_write_expected_row,
-            claim_audit_expected_row
+        return (
+            Step5IntermediateData(r_prod),
+            Step5Lib.final_verification(
+                proof.r_W_snark_primary,
+                claim_init_expected_row,
+                claim_read_expected_row,
+                claim_write_expected_row,
+                claim_audit_expected_row
+                )
         );
     }
 
-    function verifyStep5Secondary(Step3IntermediateData memory step3SecondaryOutput) private returns (bool) {
+    function verifyStep5Secondary(Step3IntermediateData memory step3SecondaryOutput)
+        private
+        returns (Step5IntermediateData memory, bool)
+    {
         uint256 c;
         (transcriptSecondary, c) = Step5Lib.compute_c_secondary(proof.f_W_snark_secondary, transcriptSecondary);
 
@@ -194,12 +300,15 @@ contract NovaVerifierContract {
             Pallas.negateBase
         );
 
-        return Step5Lib.final_verification(
-            proof.f_W_snark_secondary,
-            claim_init_expected_row,
-            claim_read_expected_row,
-            claim_write_expected_row,
-            claim_audit_expected_row
+        return (
+            Step5IntermediateData(r_prod),
+            Step5Lib.final_verification(
+                proof.f_W_snark_secondary,
+                claim_init_expected_row,
+                claim_read_expected_row,
+                claim_write_expected_row,
+                claim_audit_expected_row
+                )
         );
     }
 
@@ -208,7 +317,12 @@ contract NovaVerifierContract {
 
         (uint256[] memory r_sat, bool success) = verifyStep3InnerPrimary(precompute);
 
-        return (Step3IntermediateData(precompute.tau, precompute.gamma1, precompute.gamma2, r_sat), success);
+        return (
+            Step3IntermediateData(
+                precompute.tau, precompute.gamma1, precompute.gamma2, r_sat, precompute.U_X, precompute.U_u
+                ),
+            success
+        );
     }
 
     function verifyStep3InnerPrimary(Step3PrecomputeOutput memory precompute)
@@ -282,6 +396,7 @@ contract NovaVerifierContract {
         (transcriptPrimary, precomputeOutput.coeffs) = Step3Lib.compute_coeffs_primary(transcriptPrimary);
 
         precomputeOutput.U_u = proof.r_U_primary.u;
+        precomputeOutput.U_X = proof.r_U_primary.X;
 
         if (printLogs) {
             uint256 index = 0;
@@ -329,7 +444,12 @@ contract NovaVerifierContract {
 
         (uint256[] memory r_sat, bool success) = verifyStep3InnerSecondary(precompute);
 
-        return (Step3IntermediateData(precompute.tau, precompute.gamma1, precompute.gamma2, r_sat), success);
+        return (
+            Step3IntermediateData(
+                precompute.tau, precompute.gamma1, precompute.gamma2, r_sat, precompute.U_X, precompute.U_u
+                ),
+            success
+        );
     }
 
     function verifyStep3InnerSecondary(Step3PrecomputeOutput memory precompute)
@@ -339,7 +459,13 @@ contract NovaVerifierContract {
         uint256 claim_sat_final;
         uint256[] memory r_sat;
         (claim_sat_final, r_sat, transcriptSecondary) = Step3Lib.compute_claim_sat_final_r_sat_secondary(
-            proof, vk, transcriptSecondary, precompute.u_step3.e, precompute.coeffs, Pallas.P_MOD
+            proof.f_W_snark_secondary,
+            vk.vk_secondary,
+            transcriptSecondary,
+            precompute.u_step3.e,
+            precompute.coeffs,
+            Pallas.P_MOD,
+            printLogs
         );
 
         uint256 taus_bound_r_sat = EqPolinomialLib.evaluate(precompute.tau, r_sat, Pallas.P_MOD, Pallas.negateBase);
@@ -420,6 +546,7 @@ contract NovaVerifierContract {
         (transcriptSecondary, precomputeOutput.coeffs) = Step3Lib.compute_coeffs_secondary(transcriptSecondary);
 
         precomputeOutput.U_u = f_U_secondary_u;
+        precomputeOutput.U_X = f_U_secondary_X;
 
         if (printLogs) {
             uint256 index = 0;

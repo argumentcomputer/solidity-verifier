@@ -236,6 +236,12 @@ f_W_snark_secondary_eval_row_audit_ts = f_W_snark_secondary['eval_row_audit_ts']
 f_W_snark_secondary_eval_row = f_W_snark_secondary['eval_row']
 f_W_snark_secondary_eval_E_row_at_r_prod = f_W_snark_secondary['eval_E_row_at_r_prod']
 f_W_snark_secondary_eval_row_read_ts = f_W_snark_secondary['eval_row_read_ts']
+f_W_snark_secondary_eval_col_audit_ts = f_W_snark_secondary['eval_col_audit_ts']
+f_W_snark_secondary_eval_col = f_W_snark_secondary['eval_col']
+f_W_snark_secondary_eval_E_col_at_r_prod = f_W_snark_secondary['eval_E_col_at_r_prod']
+f_W_snark_secondary_eval_col_read_ts = f_W_snark_secondary['eval_col_read_ts']
+f_W_snark_secondary_eval_W = f_W_snark_secondary['eval_W']
+
 
 
 
@@ -318,6 +324,12 @@ r_W_snark_primary_eval_row_audit_ts = r_W_snark_primary['eval_row_audit_ts']
 r_W_snark_primary_eval_row = r_W_snark_primary['eval_row']
 r_W_snark_primary_eval_E_row_at_r_prod = r_W_snark_primary['eval_E_row_at_r_prod']
 r_W_snark_primary_eval_row_read_ts = r_W_snark_primary['eval_row_read_ts']
+r_W_snark_primary_eval_col_audit_ts = r_W_snark_primary['eval_col_audit_ts']
+r_W_snark_primary_eval_col = r_W_snark_primary['eval_col']
+r_W_snark_primary_eval_E_col_at_r_prod = r_W_snark_primary['eval_E_col_at_r_prod']
+r_W_snark_primary_eval_col_read_ts = r_W_snark_primary['eval_col_read_ts']
+r_W_snark_primary_eval_W = r_W_snark_primary['eval_W']
+
 
 ProofData = namedtuple(
     '_ProofData', (
@@ -372,9 +384,11 @@ ProofData = namedtuple(
         'f_W_snark_secondary_eval_row',
         'f_W_snark_secondary_eval_E_row_at_r_prod',
         'f_W_snark_secondary_eval_row_read_ts',
-
-
-
+        'f_W_snark_secondary_eval_col_audit_ts',
+        'f_W_snark_secondary_eval_col',
+        'f_W_snark_secondary_eval_E_col_at_r_prod',
+        'f_W_snark_secondary_eval_col_read_ts',
+        'f_W_snark_secondary_eval_W',
 
 
         'r_W_snark_primary_comm_Az',
@@ -411,6 +425,11 @@ ProofData = namedtuple(
         'r_W_snark_primary_eval_row',
         'r_W_snark_primary_eval_E_row_at_r_prod',
         'r_W_snark_primary_eval_row_read_ts',
+        'r_W_snark_primary_eval_col_audit_ts',
+        'r_W_snark_primary_eval_col',
+        'r_W_snark_primary_eval_E_col_at_r_prod',
+        'r_W_snark_primary_eval_col_read_ts',
+        'r_W_snark_primary_eval_W',
     )
 )
 
@@ -468,8 +487,11 @@ parsedProof = ProofData(
     f_W_snark_secondary_eval_row,
     f_W_snark_secondary_eval_E_row_at_r_prod,
     f_W_snark_secondary_eval_row_read_ts,
-
-
+    f_W_snark_secondary_eval_col_audit_ts,
+    f_W_snark_secondary_eval_col,
+    f_W_snark_secondary_eval_E_col_at_r_prod,
+    f_W_snark_secondary_eval_col_read_ts,
+    f_W_snark_secondary_eval_W,
 
 
     r_W_snark_primary_comm_Az,
@@ -507,6 +529,11 @@ parsedProof = ProofData(
     r_W_snark_primary_eval_row,
     r_W_snark_primary_eval_E_row_at_r_prod,
     r_W_snark_primary_eval_row_read_ts,
+    r_W_snark_primary_eval_col_audit_ts,
+    r_W_snark_primary_eval_col,
+    r_W_snark_primary_eval_E_col_at_r_prod,
+    r_W_snark_primary_eval_col_read_ts,
+    r_W_snark_primary_eval_W,
 )
 
 VerifierKey = namedtuple (
@@ -550,7 +577,7 @@ parsedVk = VerifierKey(
 )
 
 PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-CONTRACT_ADDRESS = "0x2bdcc0de6be1f7d2ee689a0342d76f52e8efaba3"
+CONTRACT_ADDRESS = "0xc351628eb244ec633d5f21fbd6621e1a683b1181"
 
 PUSH_TO_PROOF_FUNC_SIG = "pushToProof((" \
                          "(uint256,uint256[])," \
@@ -559,8 +586,8 @@ PUSH_TO_PROOF_FUNC_SIG = "pushToProof((" \
                          "uint256[]," \
                          "uint256[]," \
                          "uint256," \
-                         "(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256)," \
-                         "(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256)" \
+                         "(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)," \
+                         "(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256[],((uint256[])[]),uint256[],uint256[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)" \
                          "))"
 PUSH_TO_VK_FUNC_SIG = "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256),uint256),(uint256,uint256,(uint256),uint256)))"
 
@@ -641,7 +668,12 @@ def pushToProof(data):
     command = command + addNumber(data.f_W_snark_secondary_eval_row_audit_ts, True) + ','
     command = command + addNumber(data.f_W_snark_secondary_eval_row, True) + ','
     command = command + addNumber(data.f_W_snark_secondary_eval_E_row_at_r_prod, True) + ','
-    command = command + addNumber(data.f_W_snark_secondary_eval_row_read_ts, True) + '),('
+    command = command + addNumber(data.f_W_snark_secondary_eval_row_read_ts, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_col_audit_ts, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_col, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_E_col_at_r_prod, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_col_read_ts, True) + ','
+    command = command + addNumber(data.f_W_snark_secondary_eval_W, True) + '),('
 
     command = command + addNumber(data.r_W_snark_primary_comm_Az, False) + ','
     command = command + addNumber(data.r_W_snark_primary_comm_Bz, False) + ','
@@ -670,7 +702,12 @@ def pushToProof(data):
     command = command + addNumber(data.r_W_snark_primary_eval_row_audit_ts, True) + ','
     command = command + addNumber(data.r_W_snark_primary_eval_row, True) + ','
     command = command + addNumber(data.r_W_snark_primary_eval_E_row_at_r_prod, True) + ','
-    command = command + addNumber(data.r_W_snark_primary_eval_row_read_ts, True) + ')'
+    command = command + addNumber(data.r_W_snark_primary_eval_row_read_ts, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_col_audit_ts, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_col, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_E_col_at_r_prod, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_col_read_ts, True) + ','
+    command = command + addNumber(data.r_W_snark_primary_eval_W, True) + ')'
     command = command + ')\" --private-key ' + PRIVATE_KEY
     #print(command)
     os.system(command)

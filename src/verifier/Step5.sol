@@ -16,7 +16,7 @@ library Step5Lib {
         uint256 claim_read_expected_row,
         uint256 claim_write_expected_row,
         uint256 claim_audit_expected_row
-    ) public returns (bool) {
+    ) public pure returns (bool) {
         if (claim_init_expected_row != proof.eval_input_arr[0]) {
             return false;
         }
@@ -40,7 +40,7 @@ library Step5Lib {
         uint256 ts,
         uint256 modulus,
         function (uint256) returns (uint256) negate
-    ) private returns (uint256) {
+    ) internal returns (uint256) {
         uint256 result = val;
         uint256 tmp = ts;
         uint256 minus_gamma2 = negate(gamma2);
@@ -106,7 +106,7 @@ library Step5Lib {
         return (claim_read, claim_write);
     }
 
-    function compute_r_prod(uint256 c, uint256[] memory r_sat) public returns (uint256[] memory) {
+    function compute_r_prod(uint256 c, uint256[] memory r_sat) public pure returns (uint256[] memory) {
         uint256[] memory rand_ext = new uint256[](r_sat.length + 1);
         for (uint256 index = 0; index < r_sat.length; index++) {
             rand_ext[index] = r_sat[index];
@@ -122,7 +122,7 @@ library Step5Lib {
         return r_prod;
     }
 
-    function compute_c_inner(Abstractions.RelaxedR1CSSNARK storage proof) private returns (uint8[] memory) {
+    function compute_c_inner(Abstractions.RelaxedR1CSSNARK storage proof) private view returns (uint8[] memory) {
         uint256 index = 0;
         uint256[] memory eval_vec =
             new uint256[](9 + proof.eval_left_arr.length + proof.eval_right_arr.length + proof.eval_output_arr.length);
@@ -174,7 +174,7 @@ library Step5Lib {
     function compute_c_primary(
         Abstractions.RelaxedR1CSSNARK storage proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         uint8[] memory input = compute_c_inner(proof);
 
         uint8[] memory label = new uint8[](1);
@@ -194,7 +194,7 @@ library Step5Lib {
     function compute_c_secondary(
         Abstractions.RelaxedR1CSSNARK storage proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         uint8[] memory input = compute_c_inner(proof);
 
         uint8[] memory label = new uint8[](1);

@@ -10,6 +10,7 @@ import "src/NovaVerifierAbstractions.sol";
 contract PpSpartanStep5Computations is Test {
     function loadDataForFinalVerification()
         private
+        pure
         returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)
     {
         uint256 self_eval_input_arr_0 = 0x259ca7141dabcc8b8fe1f99033c3864ecdda5ce134960487fb6ad829750c178b;
@@ -39,7 +40,7 @@ contract PpSpartanStep5Computations is Test {
         uint256 claim_read_expected_row,
         uint256 claim_write_expected_row,
         uint256 claim_audit_expected_row
-    ) private returns (bool) {
+    ) private pure returns (bool) {
         uint256 self_eval_input_arr_0;
         uint256 self_eval_input_arr_1;
         uint256 self_eval_input_arr_2;
@@ -66,7 +67,7 @@ contract PpSpartanStep5Computations is Test {
         return true;
     }
 
-    function testFinalVerification() public {
+    function testFinalVerification() public pure {
         // primary
 
         uint256 claim_init_expected_row;
@@ -86,6 +87,7 @@ contract PpSpartanStep5Computations is Test {
 
     function loadDataForClaimsInitAudit()
         private
+        pure
         returns (uint256[] memory, uint256[] memory, uint256, uint256, uint256)
     {
         uint256[] memory r_prod = new uint256[](17);
@@ -214,7 +216,7 @@ contract PpSpartanStep5Computations is Test {
         return (claim_read, claim_write);
     }
 
-    function loadDataForClaimsReadWrite() private returns (uint256, uint256, uint256, uint256, uint256) {
+    function loadDataForClaimsReadWrite() private pure returns (uint256, uint256, uint256, uint256, uint256) {
         uint256 eval_row = 0x01c4e19f9061888370440ee422429adaad35d48103b8feacab8aa189f35307a9;
         uint256 eval_E_row_at_r_prod = 0x33a9e536648e6e70892b52cb92f77b3fba23983fe3f051b0167b883906ef8e2c;
         uint256 eval_row_read_ts = 0x1f028067c1a3091aa323ab801432abdabe174d2a7182ece2a4adf33dbaec9dcb;
@@ -245,7 +247,7 @@ contract PpSpartanStep5Computations is Test {
         assertEq(claim_write_expected, claim_write);
     }
 
-    function loadDataForRProd() private returns (uint256, uint256[] memory, uint256[] memory) {
+    function loadDataForRProd() private pure returns (uint256, uint256[] memory, uint256[] memory) {
         uint256 c = 0x1741b54a11d0633c0349b0e317ced512a59ef40b772fbe94415e42af34a25c99;
         uint256[] memory r_sat = new uint256[](17);
         r_sat[0] = 0x066b998f211c11d58f5c4ce0eb59a7ba543bdab2c99b5061c097723eb0ed8ff9;
@@ -288,7 +290,7 @@ contract PpSpartanStep5Computations is Test {
         return (c, r_sat, r_prod_expected);
     }
 
-    function compute_r_prod(uint256 c, uint256[] memory r_sat) private returns (uint256[] memory) {
+    function compute_r_prod(uint256 c, uint256[] memory r_sat) private pure returns (uint256[] memory) {
         uint256[] memory rand_ext = new uint256[](r_sat.length + 1);
         for (uint256 index = 0; index < r_sat.length; index++) {
             rand_ext[index] = r_sat[index];
@@ -315,7 +317,7 @@ contract PpSpartanStep5Computations is Test {
         }
     }
 
-    function loadTranscript() private returns (KeccakTranscriptLib.KeccakTranscript memory) {
+    function loadTranscript() private pure returns (KeccakTranscriptLib.KeccakTranscript memory) {
         uint16 rounds = 55;
         uint8[] memory state = new uint8[](64);
         state[0] = 0xf9;
@@ -390,6 +392,7 @@ contract PpSpartanStep5Computations is Test {
 
     function loadDataForC()
         private
+        pure
         returns (
             uint256[] memory,
             uint256[] memory,
@@ -454,7 +457,7 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory eval_left_arr,
         uint256[] memory eval_right_arr,
         uint256[] memory eval_output_arr
-    ) private returns (uint256[] memory) {
+    ) private pure returns (uint256[] memory) {
         uint256 index = 0;
         uint256[] memory eval_vec =
         new uint256[](eval_left_arr.length + eval_right_arr.length + eval_output_arr.length + eval_A_B_C_z.length + evals_E.length + evals_val.length);

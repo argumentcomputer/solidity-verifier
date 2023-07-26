@@ -55,6 +55,11 @@ library Abstractions {
         uint256 eval_row;
         uint256 eval_E_row_at_r_prod;
         uint256 eval_row_read_ts;
+        uint256 eval_col_audit_ts;
+        uint256 eval_col;
+        uint256 eval_E_col_at_r_prod;
+        uint256 eval_col_read_ts;
+        uint256 eval_W;
     }
 
     struct CompressedSnark {

@@ -7,7 +7,7 @@ import "src/blocks/pasta/Vesta.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 library Step4Lib {
-    function verify(Abstractions.CompressedSnark calldata proof) public view returns (bool) {
+    function verify(Abstractions.CompressedSnark calldata proof) public pure returns (bool) {
         if (!verifyInner(proof.r_W_snark_primary, Vesta.P_MOD)) {
             return false;
         } else if (!verifyInner(proof.f_W_snark_secondary, Pallas.P_MOD)) {
@@ -16,7 +16,7 @@ library Step4Lib {
         return true;
     }
 
-    function verifyInner(Abstractions.RelaxedR1CSSNARK calldata proof, uint256 modulus) private view returns (bool) {
+    function verifyInner(Abstractions.RelaxedR1CSSNARK calldata proof, uint256 modulus) private pure returns (bool) {
         // row
         uint256 left = mulmod(proof.claims_product_arr[0], proof.claims_product_arr[2], modulus);
         uint256 right = mulmod(proof.claims_product_arr[1], proof.claims_product_arr[3], modulus);

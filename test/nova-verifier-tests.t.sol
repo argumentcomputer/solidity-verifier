@@ -801,14 +801,14 @@ contract NovaVerifierContractTest is Test {
             (transcript,) = KeccakTranscriptLib.squeeze(transcript, curve, t_label);
         }
 
-        PrimarySumcheck.SumcheckProof memory outer_proof = SumcheckData.returnPrimaryOuterData();
+        SecondarySumcheck.SumcheckProof memory outer_proof = SumcheckData.returnSecondaryOuterData();
 
         uint256 claim_final;
-        uint256[] memory r_x;
+        uint256[] memory r_x = new uint256[](14);
 
-        (claim_final, r_x, transcript) = PrimarySumcheck.verify(outer_proof, 0, 14, 3, transcript);
+        (claim_final, r_x, transcript) = SecondarySumcheck.verify(outer_proof, 0, 14, 3, transcript);
 
-        uint256[] memory r_x_result;
+        uint256[] memory r_x_result = new uint256[](14);
         r_x_result[0] = 0x0f165407419e8c2e7685d7d70bf99a758d8d7fbea89da907b3aeaa7bee833a56;
         r_x_result[1] = 0x29560c2a6cfae551d9c4dca9c51099996b3d3c2bdd2498e787f046506ba52814;
         r_x_result[2] = 0x362da2eabc9f9e7d98621f197a1302f443ce859376ef1855b994adeed58fe545;

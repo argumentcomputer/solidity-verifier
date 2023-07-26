@@ -263,7 +263,7 @@ contract NovaVerifierContractTest is Test {
         uint8[] memory vk_comm_label = new uint8[](1);
         vk_comm_label[0] = 0x43; // b"C"
 
-        uint8[] memory U = new uint8[](226); // TODO: Add this to the data contract
+        uint8[] memory U = new uint8[](226);
         U[0] = 0xab;
         U[1] = 0xf4;
         U[2] = 0xc0;
@@ -509,11 +509,11 @@ contract NovaVerifierContractTest is Test {
         PrimarySumcheck.SumcheckProof memory outer_proof = SumcheckData.returnPrimaryOuterData();
 
         uint256 claim_final;
-        uint256[] memory r_x;
+        uint256[] memory r_x = new uint256[](14);
 
         (claim_final, r_x, transcript) = PrimarySumcheck.verify(outer_proof, 0, 14, 3, transcript);
 
-        uint256[] memory r_x_result;
+        uint256[] memory r_x_result = new uint256[](14);
         r_x_result[0] = 0x265e1d73ee4ce9a23d98bf74a9807abd1c0bedf6368e8db884c05bd9336549bd;
         r_x_result[1] = 0x3a009bec1c4dc776ba75c643de9e61b3070a4a6b3865b5751a3d6f517e483a4a;
         r_x_result[2] = 0x3932891c1f17ba15d07baba47d6599058812a73225d11a554ced25ad00fd78dd;
@@ -531,7 +531,6 @@ contract NovaVerifierContractTest is Test {
 
         assertEq(claim_final, 0x346b738474d5b2cda8c002566f1a7004d06cab6b467303a2b7c4b04eaa6df733);
         assertEq(r_x, r_x_result);
-        // TODO: Extend this test to include Inner and Batch proofs
     }
 
     function testSumcheckSecondary() public {

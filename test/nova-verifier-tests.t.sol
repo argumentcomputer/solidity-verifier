@@ -558,7 +558,7 @@ contract NovaVerifierContractTest is Test {
         uint8[] memory vk_comm_label = new uint8[](1);
         vk_comm_label[0] = 0x43; // b"C"
 
-        uint8[] memory U = new uint8[](226); // TODO: Add this to the data contract
+        uint8[] memory U = new uint8[](226);
         U[0] = 0x58;
         U[1] = 0x72;
         U[2] = 0xeb;
@@ -826,6 +826,5 @@ contract NovaVerifierContractTest is Test {
 
         assertEq(claim_final, 0x157e00e739ad0d53d95e24c8ec0e97081a1f94bb9a4e94a4d198c5533aebc28b);
         assertEq(r_x, r_x_result);
-        // TODO: Extend this test to include Inner and Batch proofs
     }
 }

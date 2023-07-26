@@ -404,29 +404,31 @@ library PrimarySumcheck {
         KeccakTranscriptLib.KeccakTranscript memory transcript
     ) public pure returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
         uint256 e = claim;
-        uint256[] memory r;
+        uint256[] memory r = new uint256[](num_rounds);
 
-        uint8[] memory p_label;
-        uint8[] memory c_label;
+        uint8[] memory p_label = new uint8[](1);
+        uint8[] memory c_label = new uint8[](1);
 
         p_label[0] = 112;
         c_label[0] = 99;
 
         require(proof.compressed_polys.length == num_rounds, "Wrong number of polynomials");
 
+        PallasPolyLib.UniPoly memory poly;
+
         for (uint256 i = 0; i < num_rounds; i++) {
-            PallasPolyLib.UniPoly memory poly = PallasPolyLib.decompress(proof.compressed_polys[i], e);
+            poly = PallasPolyLib.decompress(proof.compressed_polys[i], e);
 
             require(PallasPolyLib.degree(poly) == degree_bound, "Polynomial has wrong degree");
             require(
-                addmod(PallasPolyLib.evalAtZero(poly), PallasPolyLib.evalAtOne(poly), Pallas.P_MOD) == e,
+                addmod(PallasPolyLib.evalAtZero(poly), PallasPolyLib.evalAtOne(poly), Pallas.R_MOD) == e,
                 "Polynomial decompression yields incorrect result"
             );
 
             transcript = KeccakTranscriptLib.absorb(transcript, p_label, PallasPolyLib.toTranscriptBytes(poly));
 
             uint256 r_i;
-            (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.Curve.PALLAS, c_label);
+            (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), c_label);
 
             r[i] = r_i;
 

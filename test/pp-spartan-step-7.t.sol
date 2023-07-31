@@ -11,11 +11,11 @@ import "src/blocks/Sumcheck.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract PpSpartanStep7Computations is Test {
-    function finalVerification(uint256 left, uint256 right) private returns (bool) {
+    function finalVerification(uint256 left, uint256 right) private pure returns (bool) {
         return left == right;
     }
 
-    function testFinalVerification() public {
+    function testFinalVerification() public pure {
         uint256 claim_batch_final = 0x03c54cc9b90ea2e26e195ebf06841c63239b4f29f1fe29acf76db79efa88c58c;
         uint256 claim_batch_final_expected = 0x03c54cc9b90ea2e26e195ebf06841c63239b4f29f1fe29acf76db79efa88c58c;
 
@@ -24,6 +24,7 @@ contract PpSpartanStep7Computations is Test {
 
     function load_data_for_claim_batch_final_right()
         public
+        pure
         returns (uint256[] memory, PolyEvalInstanceLib.PolyEvalInstance[] memory, uint256[] memory, uint256[] memory)
     {
         uint256[] memory r_z = new uint256[](17);
@@ -596,6 +597,7 @@ contract PpSpartanStep7Computations is Test {
 
     function compute_c(KeccakTranscriptLib.KeccakTranscript memory transcript, uint256[] memory eval_vec)
         private
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
     {
         uint8[] memory input = Abstractions.toTranscriptBytes(eval_vec);
@@ -616,6 +618,7 @@ contract PpSpartanStep7Computations is Test {
 
     function compute_rho(KeccakTranscriptLib.KeccakTranscript memory transcript)
         private
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
     {
         uint8[] memory label = new uint8[](1);
@@ -654,7 +657,7 @@ contract PpSpartanStep7Computations is Test {
         assertEq(expected, rho);
     }
 
-    function load_u_vec() private returns (PolyEvalInstanceLib.PolyEvalInstance[] memory) {
+    function load_u_vec() private pure returns (PolyEvalInstanceLib.PolyEvalInstance[] memory) {
         uint256[] memory x;
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec = new PolyEvalInstanceLib.PolyEvalInstance[](7);
 
@@ -836,7 +839,7 @@ contract PpSpartanStep7Computations is Test {
         return u_vec;
     }
 
-    function load_u_vec_padded() private returns (PolyEvalInstanceLib.PolyEvalInstance[] memory) {
+    function load_u_vec_padded() private pure returns (PolyEvalInstanceLib.PolyEvalInstance[] memory) {
         uint256[] memory x;
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_padded = new PolyEvalInstanceLib.PolyEvalInstance[](7);
 
@@ -1122,7 +1125,7 @@ contract PpSpartanStep7Computations is Test {
     function compute_sc_proof_batch_verification_input(
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_padded,
         uint256 rho
-    ) private returns (uint256, uint256) {
+    ) private pure returns (uint256, uint256) {
         require(u_vec_padded.length >= 1, "u_vec_padded.length is empty");
 
         uint256 num_rounds_z = u_vec_padded[0].x.length;

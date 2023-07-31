@@ -15,7 +15,7 @@ library PolyEvalInstanceLib {
         uint256 e;
     }
 
-    function pad(PolyEvalInstance[] memory p) public returns (PolyEvalInstance[] memory) {
+    function pad(PolyEvalInstance[] memory p) public pure returns (PolyEvalInstance[] memory) {
         uint256 j;
         uint256 i;
         uint256 x_length_max;

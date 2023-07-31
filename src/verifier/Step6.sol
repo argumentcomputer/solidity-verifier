@@ -180,7 +180,7 @@ library Step6Lib {
         uint256[] memory r_prod_unpad,
         uint256 U_x,
         uint256 U_y
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory x = new uint256[](r_prod_unpad.length - 1);
         for (uint256 index = 0; index < r_prod_unpad.length - 1; index++) {
             x[index] = r_prod_unpad[index + 1];

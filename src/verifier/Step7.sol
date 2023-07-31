@@ -97,7 +97,7 @@ library Step7Lib {
     function compute_c_secondary(
         Abstractions.RelaxedR1CSSNARK calldata proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+    ) public pure returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;
@@ -128,7 +128,7 @@ library Step7Lib {
     function compute_c_primary(
         Abstractions.RelaxedR1CSSNARK calldata proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+    ) public pure returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;
@@ -158,6 +158,7 @@ library Step7Lib {
 
     function compute_rho_primary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
     {
         uint8[] memory label = new uint8[](1);
@@ -172,6 +173,7 @@ library Step7Lib {
 
     function compute_rho_secondary(KeccakTranscriptLib.KeccakTranscript memory transcript)
         public
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory, uint256)
     {
         uint8[] memory label = new uint8[](1);
@@ -188,7 +190,7 @@ library Step7Lib {
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_padded,
         uint256 rho,
         uint256 modulus
-    ) public returns (uint256, uint256, uint256[] memory) {
+    ) public pure returns (uint256, uint256, uint256[] memory) {
         require(u_vec_padded.length >= 1, "u_vec_padded.length is empty");
 
         uint256 num_rounds_z = u_vec_padded[0].x.length;
@@ -217,6 +219,7 @@ library Step7Lib {
 
     function compute_u_vec_padded(PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec)
         public
+        pure
         returns (PolyEvalInstanceLib.PolyEvalInstance[] memory)
     {
         return PolyEvalInstanceLib.pad(u_vec);
@@ -229,7 +232,7 @@ library Step7Lib {
         uint256 U_comm_E_y,
         uint256[] memory r_sat,
         uint256 c
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;
@@ -262,7 +265,7 @@ library Step7Lib {
         uint256 U_comm_E_y,
         uint256[] memory r_sat,
         uint256 c
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;

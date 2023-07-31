@@ -532,7 +532,7 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory powers_of_rho,
         uint256[] memory eval_output_arr,
         uint256[] memory r_sat
-    ) private returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) private view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(comm_output_arr.length == powers_of_rho.length);
         require(eval_output_arr.length == powers_of_rho.length);
 
@@ -560,6 +560,7 @@ contract PpSpartanStep5Computations is Test {
 
     function load_data_for_u_vec_computation()
         private
+        pure
         returns (
             uint256[] memory,
             uint256[] memory,
@@ -688,7 +689,7 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory powers_of_rho,
         uint256[] memory r_sat,
         uint256[] memory claims_product_arr
-    ) private returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) private view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(comm_output_arr.length == powers_of_rho.length);
         require(claims_product_arr.length == powers_of_rho.length);
 
@@ -744,7 +745,7 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory powers_of_rho,
         uint256[] memory eval_output2_arr,
         uint256[] memory rand_ext
-    ) private returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) private view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(comm_output_arr.length == powers_of_rho.length);
         require(eval_output2_arr.length == powers_of_rho.length);
 
@@ -979,11 +980,25 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory rho = new uint256[](num_claims);
         (transcript, rho[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
         rho[0] = Field.reverse256(rho[0]);
-        console.logBytes32(bytes32(rho[0]));
-
         for (uint256 index = 1; index < num_claims; index++) {
             rho[index] = mulmod(rho[index - 1], rho[0], Vesta.P_MOD);
-            console.logBytes32(bytes32(rho[index]));
+        }
+
+        uint256[] memory rho_expected = new uint256[](10);
+        rho_expected[0] = 0x3c504078ca4d63f647b80e830b1595e92e689186ed80b7248e7bf2cbf05529f8;
+        rho_expected[1] = 0x360409f4189ed0b22a1ebc94802ef545af64f49f9a9eceb96caae1e263f048ac;
+        rho_expected[2] = 0x31cf45ecf85012858998c5440f28d444650c407491501ae25e3c7ed3fec4f804;
+        rho_expected[3] = 0x3e8a7142425bb426663f45368a77051c9b95a61b3ce918bfed7ff8b59707d0bf;
+        rho_expected[4] = 0x3703b5f474684a4a95f8c6a7f82d41262a87647a64f50745a7acfcfa3089b147;
+        rho_expected[5] = 0x1ef3028b22b2db6a0f3664d886858b81a71d8034346c226ca4b4ffbb93c25b13;
+        rho_expected[6] = 0x020b242d85f14483cbfb7f7e418abc7344b07119a13efd764d403b2b6c48dcc0;
+        rho_expected[7] = 0x0d5041a6c3c71686e8a49d1474bf738c2fee3b927ea2d754e011f89e938a1fbe;
+        rho_expected[8] = 0x3db6301b8b6df899f7116be8d5b0d26831e57399de1d51ee85026a67ca4cb16d;
+        rho_expected[9] = 0x3d960468d708028d987abc5ac7de00c42b6375029c4123a7c4e0537d2d6cd805;
+
+        assertEq(rho.length, rho_expected.length);
+        for (uint256 index = 0; index < rho.length; index++) {
+            assertEq(rho[index], rho_expected[index]);
         }
     }
 }

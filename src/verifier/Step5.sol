@@ -215,7 +215,7 @@ library Step5Lib {
     function compute_powers_of_rho_primary(
         Abstractions.RelaxedR1CSSNARK storage proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
         uint256 i = 0;
         uint256[] memory evals = new uint256[](proof.eval_input_arr.length + proof.eval_output2_arr.length);
 
@@ -254,7 +254,7 @@ library Step5Lib {
     function compute_powers_of_rho_secondary(
         Abstractions.RelaxedR1CSSNARK storage proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
         uint256 i = 0;
         uint256[] memory evals = new uint256[](proof.eval_input_arr.length + proof.eval_output2_arr.length);
 
@@ -294,7 +294,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_sat
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.eval_output_arr.length,
             "[Step5::compute_u_vec_1_primary] proof.comm_output_arr.length != proof.eval_output_arr.length"
@@ -330,7 +330,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_sat
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.eval_output_arr.length,
             "[Step5::compute_u_vec_1_secondary] proof.comm_output_arr.length != proof.eval_output_arr.length"
@@ -366,7 +366,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_sat
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.claims_product_arr.length,
             "[Step5::compute_u_vec_2_primary] proof.comm_output_arr.length == proof.claims_product_arr.length"
@@ -408,7 +408,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_sat
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.claims_product_arr.length,
             "[Step5::compute_u_vec_2_secondary] proof.comm_output_arr.length == proof.claims_product_arr.length"
@@ -450,7 +450,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_prod
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.eval_output2_arr.length,
             "[Step5::compute_u_vec_3_primary] proof.comm_output_arr.length == proof.eval_output2_arr.length"
@@ -486,7 +486,7 @@ library Step5Lib {
         Abstractions.RelaxedR1CSSNARK storage proof,
         uint256[] memory powers_of_rho,
         uint256[] memory r_prod
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         require(
             proof.comm_output_arr.length == proof.eval_output2_arr.length,
             "[Step5::compute_u_vec_3_secondary] proof.comm_output_arr.length == proof.eval_output2_arr.length"
@@ -523,7 +523,7 @@ library Step5Lib {
         Abstractions.VerifierKeyS1 storage vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256[] memory r_prod
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory eval_vec = new uint256[](8);
         eval_vec[0] = proof.eval_row;
         eval_vec[1] = proof.eval_row_read_ts;
@@ -571,7 +571,7 @@ library Step5Lib {
         Abstractions.VerifierKeyS2 storage vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256[] memory r_prod
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory eval_vec = new uint256[](8);
         eval_vec[0] = proof.eval_row;
         eval_vec[1] = proof.eval_row_read_ts;
@@ -620,7 +620,11 @@ library Step5Lib {
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256[] memory r_sat,
         uint256[] memory r_prod
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance[] memory) {
+    )
+        public
+        view
+        returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance[] memory)
+    {
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_items = new PolyEvalInstanceLib.PolyEvalInstance[](4);
 
         uint256[] memory powers_of_rho;
@@ -640,7 +644,11 @@ library Step5Lib {
         KeccakTranscriptLib.KeccakTranscript memory transcript,
         uint256[] memory r_sat,
         uint256[] memory r_prod
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance[] memory) {
+    )
+        public
+        view
+        returns (KeccakTranscriptLib.KeccakTranscript memory, PolyEvalInstanceLib.PolyEvalInstance[] memory)
+    {
         PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_items = new PolyEvalInstanceLib.PolyEvalInstance[](4);
 
         uint256[] memory powers_of_rho;

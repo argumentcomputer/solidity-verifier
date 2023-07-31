@@ -5,6 +5,7 @@ import "@std/Test.sol";
 import "src/verifier/Step5.sol";
 import "src/blocks/IdentityPolynomial.sol";
 import "src/blocks/SparsePolynomial.sol";
+import "src/blocks/PolyEvalInstance.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 library Step6Lib {
@@ -153,7 +154,7 @@ library Step6Lib {
         uint256[] memory r_prod,
         uint256 modulus,
         function (uint256) returns (uint256) negateBase
-    ) internal returns (uint256) {
+    ) internal returns (uint256, uint256[] memory) {
         uint256 self_eval_W = proof.eval_W;
 
         (uint256 factor, uint256[] memory r_prod_unpad) =
@@ -171,6 +172,19 @@ library Step6Lib {
             result := addmod(result, tmp, modulus)
             result := mulmod(result, factor, modulus)
         }
-        return result;
+        return (result, r_prod_unpad);
+    }
+
+    function compute_u_vec_5(
+        Abstractions.RelaxedR1CSSNARK storage proof,
+        uint256[] memory r_prod_unpad,
+        uint256 U_x,
+        uint256 U_y
+    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+        uint256[] memory x = new uint256[](r_prod_unpad.length - 1);
+        for (uint256 index = 0; index < r_prod_unpad.length - 1; index++) {
+            x[index] = r_prod_unpad[index + 1];
+        }
+        return PolyEvalInstanceLib.PolyEvalInstance(U_x, U_y, x, proof.eval_W);
     }
 }

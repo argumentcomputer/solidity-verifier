@@ -6,6 +6,7 @@ import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/SparsePolynomial.sol";
 import "src/blocks/IdentityPolynomial.sol";
+import "src/blocks/PolyEvalInstance.sol";
 import "src/Utilities.sol";
 
 contract PpSpartanStep6Computations is Test {
@@ -331,5 +332,31 @@ contract PpSpartanStep6Computations is Test {
 
         uint256 expected = 0x0dabf3857ebe01c6e96ed15174352d9cd4a4774fe5e0d9e73464e4feee8176a5;
         assertEq(expected, actual);
+    }
+
+    function test_compute_u_vec_5() public {
+        uint256 self_eval_W = 0x17938b6eba9ed44f2cc8f93d2b529b20c957e8f6e3a043300e304930614b564e;
+        uint256 vk_s_comm_N = 131072;
+        uint256 num_vars = 16384;
+
+        uint256 U_x = 0x20b8f422ff4d669f6c21a872547e6cc1f456c814128f0cec5ae8c1041308633f;
+        uint256 U_y = 0x1c99056155380248020b612dba4012faaebe3b37d695b46d1dd77e5ed6afdbf6;
+
+        (, uint256[] memory r_prod_unpad) = compute_factor(vk_s_comm_N, num_vars);
+
+        uint256[] memory x = new uint256[](r_prod_unpad.length - 1);
+        for (uint256 index = 0; index < r_prod_unpad.length - 1; index++) {
+            x[index] = r_prod_unpad[index + 1];
+        }
+
+        PolyEvalInstanceLib.PolyEvalInstance memory u_vec_5 =
+            PolyEvalInstanceLib.PolyEvalInstance(U_x, U_y, x, self_eval_W);
+
+        assertEq(u_vec_5.c_x, 0x20b8f422ff4d669f6c21a872547e6cc1f456c814128f0cec5ae8c1041308633f);
+        assertEq(u_vec_5.c_y, 0x1c99056155380248020b612dba4012faaebe3b37d695b46d1dd77e5ed6afdbf6);
+        assertEq(u_vec_5.e, 0x17938b6eba9ed44f2cc8f93d2b529b20c957e8f6e3a043300e304930614b564e);
+        for (uint256 index = 0; index < u_vec_5.x.length; index++) {
+            assertEq(u_vec_5.x[index], r_prod_unpad[index + 1]);
+        }
     }
 }

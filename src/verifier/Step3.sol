@@ -173,13 +173,13 @@ library Step3Lib {
         return mulmod(coeffs[9], claim_inner, p_modulus);
     }
 
-    function extract_sumcheck_proof(Abstractions.RelaxedR1CSSNARK calldata proof)
-        private
+    function extract_sumcheck_proof(Abstractions.SumcheckProof calldata proof)
+        internal
         pure
         returns (SumcheckUtilities.SumcheckProof memory)
     {
         // TODO: simplify conversions between abstractions
-        Abstractions.CompressedPolys[] memory polys = proof.sc_sat.compressed_polys;
+        Abstractions.CompressedPolys[] memory polys = proof.compressed_polys;
         SumcheckUtilities.CompressedUniPoly[] memory compressed_polys =
             new SumcheckUtilities.CompressedUniPoly[](polys.length);
         uint256 index = 0;
@@ -198,7 +198,7 @@ library Step3Lib {
         uint256 p_modulus,
         bool enableLogging
     ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
-        SumcheckUtilities.SumcheckProof memory sumcheckProof = extract_sumcheck_proof(proof);
+        SumcheckUtilities.SumcheckProof memory sumcheckProof = extract_sumcheck_proof(proof.sc_sat);
 
         if (enableLogging) {
             console.log("-----------compute_claim_sat_final_r_sat_primary------------");
@@ -230,7 +230,7 @@ library Step3Lib {
         uint256 p_modulus,
         bool enableLogging
     ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
-        SumcheckUtilities.SumcheckProof memory sumcheckProof = extract_sumcheck_proof(proof);
+        SumcheckUtilities.SumcheckProof memory sumcheckProof = extract_sumcheck_proof(proof.sc_sat);
 
         if (enableLogging) {
             console.log("-----------compute_claim_sat_final_r_sat_secondary------------");

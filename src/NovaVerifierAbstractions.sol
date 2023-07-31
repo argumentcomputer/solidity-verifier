@@ -60,6 +60,9 @@ library Abstractions {
         uint256 eval_E_col_at_r_prod;
         uint256 eval_col_read_ts;
         uint256 eval_W;
+        uint256[] evals_batch_arr;
+        SumcheckProof sc_proof_batch;
+        uint256[] eval_output2_arr;
     }
 
     struct CompressedSnark {
@@ -80,6 +83,15 @@ library Abstractions {
 
     struct R1CSShapeSparkCommitment {
         uint256 N;
+        uint256 comm_val_A;
+        uint256 comm_val_B;
+        uint256 comm_val_C;
+        uint256 comm_row;
+        uint256 comm_row_read_ts;
+        uint256 comm_row_audit_ts;
+        uint256 comm_col;
+        uint256 comm_col_read_ts;
+        uint256 comm_col_audit_ts;
     }
 
     struct VerifierKeyS1 {

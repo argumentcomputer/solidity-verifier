@@ -135,4 +135,37 @@ contract PolyEvalInstanceTest is Test {
             assertEq(tau[index], actual.x[index]);
         }
     }
+
+    function testPad() public {
+        PolyEvalInstanceLib.PolyEvalInstance[] memory a = new PolyEvalInstanceLib.PolyEvalInstance[](2);
+
+        uint256[] memory x = new uint256[](10);
+        for (uint256 i = 0; i < x.length; i++) {
+            x[i] = 1;
+        }
+
+        a[0] = PolyEvalInstanceLib.PolyEvalInstance(0, 0, x, 0);
+
+        x = new uint256[](20);
+        for (uint256 i = 0; i < x.length; i++) {
+            x[i] = 1;
+        }
+
+        a[1] = PolyEvalInstanceLib.PolyEvalInstance(0, 0, x, 0);
+
+        PolyEvalInstanceLib.PolyEvalInstance[] memory a_padded = PolyEvalInstanceLib.pad(a);
+
+        // they both now have max length
+        assertEq(a_padded[0].x.length, 20);
+        assertEq(a_padded[1].x.length, 20);
+
+        // first 10 elements of a[0] are padded by zeroes
+        for (uint256 i = 0; i < 10; i++) {
+            assertEq(a_padded[0].x[i], 0);
+        }
+        // rest is the same
+        for (uint256 i = 10; i < 20; i++) {
+            assertEq(a_padded[0].x[i], 1);
+        }
+    }
 }

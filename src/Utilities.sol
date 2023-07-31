@@ -214,4 +214,16 @@ library CommonUtilities {
             y := add(y, mul(256, gt(arg, 0x8000000000000000000000000000000000000000000000000000000000000000)))
         }
     }
+
+    function powers(uint256 s, uint256 len, uint256 modulus) public pure returns (uint256[] memory) {
+        require(len >= 1);
+        uint256[] memory result = new uint256[](len);
+        result[0] = 1;
+
+        for (uint256 index = 1; index < len; index++) {
+            result[index] = mulmod(result[index - 1], s, modulus);
+        }
+
+        return result;
+    }
 }

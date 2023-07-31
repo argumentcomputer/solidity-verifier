@@ -1,22 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
+import "@std/Test.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
-
-library PolyEvalInstanceUtilities {
-    function powers(uint256 s, uint256 len, uint256 modulus) internal pure returns (uint256[] memory) {
-        require(len >= 1);
-        uint256[] memory result = new uint256[](len);
-        result[0] = 1;
-
-        for (uint256 index = 1; index < len; index++) {
-            result[index] = mulmod(result[index - 1], s, modulus);
-        }
-
-        return result;
-    }
-}
+import "src/Utilities.sol";
 
 library PolyEvalInstanceLib {
     struct PolyEvalInstance {
@@ -25,6 +13,30 @@ library PolyEvalInstanceLib {
         uint256 c_y;
         uint256[] x;
         uint256 e;
+    }
+
+    function pad(PolyEvalInstance[] memory p) public returns (PolyEvalInstance[] memory) {
+        uint256 j;
+        uint256 i;
+        uint256 x_length_max;
+        for (i = 0; i < p.length; i++) {
+            if (p[i].x.length > x_length_max) {
+                x_length_max = p[i].x.length;
+            }
+        }
+
+        uint256[] memory x = new uint256[](x_length_max);
+        for (i = 0; i < p.length; i++) {
+            if (p[i].x.length < x_length_max) {
+                x = new uint256[](x_length_max);
+                for (j = x_length_max - p[i].x.length; j < x_length_max; j++) {
+                    x[j] = p[i].x[j - (x_length_max - p[i].x.length)];
+                }
+                p[i].x = x;
+            }
+        }
+
+        return p;
     }
 
     function batchPrimary(
@@ -37,7 +49,7 @@ library PolyEvalInstanceLib {
             comm_vec.length == eval_vec.length, "[PolyEvalInstanceLib.batchPrimary]: comm_vec.length != eval_vec.length"
         );
 
-        uint256[] memory powers_of_s = PolyEvalInstanceUtilities.powers(s, comm_vec.length, Pallas.R_MOD);
+        uint256[] memory powers_of_s = CommonUtilities.powers(s, comm_vec.length, Pallas.R_MOD);
         uint256 e;
         for (uint256 index = 0; index < eval_vec.length; index++) {
             e = addmod(e, mulmod(powers_of_s[index], eval_vec[index], Pallas.R_MOD), Pallas.R_MOD);
@@ -65,7 +77,7 @@ library PolyEvalInstanceLib {
             "[PolyEvalInstanceLib.batchSecondary]: comm_vec.length != eval_vec.length"
         );
 
-        uint256[] memory powers_of_s = PolyEvalInstanceUtilities.powers(s, comm_vec.length, Vesta.R_MOD);
+        uint256[] memory powers_of_s = CommonUtilities.powers(s, comm_vec.length, Vesta.R_MOD);
 
         uint256 e;
         for (uint256 index = 0; index < eval_vec.length; index++) {

@@ -7,7 +7,7 @@ import "src/verifier/step4/SumcheckLogic.sol";
 
 library SumcheckData {
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnPrimaryOuterData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
+    function returnPrimaryOuterData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](14);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -95,11 +95,11 @@ library SumcheckData {
         poly_array[2] = 0x3001d35ebe98119d070a55ea1544bcb729493df381bf7c80ffb0203b2956d7c9;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[13] = poly;
-        return PrimarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnPrimaryInnerData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
+    function returnPrimaryInnerData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](15);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -178,11 +178,11 @@ library SumcheckData {
         poly_array[1] = 0x0144eebfcf46c4d529bd5875de0d23df56c65a2eb54d7000b68837f01eacd58e;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[14] = poly;
-        return PrimarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnPrimaryBatchData() public pure returns (PrimarySumcheck.SumcheckProof memory) {
+    function returnPrimaryBatchData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](14);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -256,11 +256,11 @@ library SumcheckData {
         poly_array[1] = 0x10c1a4c0d36de5eb0b5e3f733eeb644f9d29f4069afa840606b7e0a33214dbec;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[13] = poly;
-        return PrimarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnSecondaryOuterData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
+    function returnSecondaryOuterData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](14);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -348,11 +348,11 @@ library SumcheckData {
         poly_array[2] = 0x0e1d558f115e7184052f3a1a689989506165b26e4bfbcdde9245d38dd4b47149;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[13] = poly;
-        return SecondarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnSecondaryInnerData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
+    function returnSecondaryInnerData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](15);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -431,11 +431,11 @@ library SumcheckData {
         poly_array[1] = 0x196579d55c1006d34fe99b580bf70f1ca34cd057d73726f018de41e3004aa5e7;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[14] = poly;
-        return SecondarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns a SumcheckProof for the relevant corresponding field
-    function returnSecondaryBatchData() public pure returns (SecondarySumcheck.SumcheckProof memory) {
+    function returnSecondaryBatchData() public pure returns (PolyLib.SumcheckProof memory) {
         PolyLib.CompressedUniPoly[] memory proof_array = new PolyLib.CompressedUniPoly[](14);
         uint256[] memory poly_array;
         PolyLib.CompressedUniPoly memory poly;
@@ -509,7 +509,7 @@ library SumcheckData {
         poly_array[1] = 0x04d0d2dfc250cd724074c023f2f099ffa61313893e0e4f84b4d99964e2186c29;
         poly = PolyLib.CompressedUniPoly(poly_array);
         proof_array[13] = poly;
-        return SecondarySumcheck.SumcheckProof(proof_array);
+        return PolyLib.SumcheckProof(proof_array);
     }
 
     // This function returns R1CS structure digest as a uint8[]

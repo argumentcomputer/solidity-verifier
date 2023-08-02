@@ -8,12 +8,8 @@ import "src/verifier/step4/EqPolynomial.sol";
 import "src/Polynomial.sol";
 
 library PrimarySumcheck {
-    struct SumcheckProof {
-        PolyLib.CompressedUniPoly[] compressed_polys;
-    }
-
     function verify(
-        SumcheckProof calldata proof,
+        PolyLib.SumcheckProof calldata proof,
         uint256 claim,
         uint256 num_rounds,
         uint256 degree_bound,
@@ -60,7 +56,7 @@ library SecondarySumcheck {
     }
 
     function verify(
-        SumcheckProof calldata proof,
+        PolyLib.SumcheckProof calldata proof,
         uint256 claim,
         uint256 num_rounds,
         uint256 degree_bound,

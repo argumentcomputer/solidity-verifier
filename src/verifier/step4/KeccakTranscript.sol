@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import "src/pasta/Vesta.sol";
 import "src/pasta/Pallas.sol";
+import "src/Polynomial.sol";
 
 library ScalarFromUniformLib {
     uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;
@@ -398,7 +399,6 @@ library KeccakTranscriptLib {
         pure
         returns (KeccakTranscript memory)
     {
-        // uint256 input will always take 32 bytes
         uint8[] memory transcript = new uint8[](keccak.transcript.length + label.length + input.length);
         uint256 index = 0;
         // TODO think how to make it more efficient (without copying current transcript)
@@ -514,6 +514,14 @@ library KeccakTranscriptLib {
         }
 
         return absorb(keccak, label, input);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, PolyLib.UniPoly memory poly)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        return absorb(keccak, label, PolyLib.toTranscriptBytes(poly));
     }
 
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)

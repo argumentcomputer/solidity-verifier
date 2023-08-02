@@ -363,16 +363,16 @@ contract SumcheckTest is Test {
         uint256 e = 0;
 
         uint256[] memory raw_poly;
-        PallasPolyLib.CompressedUniPoly memory poly;
+        PolyLib.CompressedUniPoly memory poly;
 
         raw_poly = new uint256[](3);
         raw_poly[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
         raw_poly[1] = 0x3156ab3e1bea772559548817e8d23e4d60a57bc280baf032420e3c6133dd7e2f;
         raw_poly[2] = 0x1dff490409def9717737be07798dad2c3a6bc952eec88937c6076da01f9d9af0;
 
-        poly = PallasPolyLib.CompressedUniPoly(raw_poly);
+        poly = PolyLib.CompressedUniPoly(raw_poly);
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.decompress(poly, e);
+        PolyLib.UniPoly memory uni_poly = PolyLib.decompress(poly, e, Pallas.R_MOD);
 
         assertEq(uni_poly.coeffs[0], 0x0000000000000000000000000000000000000000000000000000000000000000);
         assertEq(uni_poly.coeffs[1], 0x30aa0bbdda368f692f73b9e09da01486a97bece2a3a5d85110782c40ac84e6e3);
@@ -387,9 +387,9 @@ contract SumcheckTest is Test {
         coeffs[2] = 0x12fbd521f3fdb45f92e1bc9d045197000c74f40e67292ccac43f9b65f854b955;
         coeffs[3] = 0x0bf922cb074481cf22bfe02c62561af632503238b4198aeb5e2bb5cf8dd0fac3;
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.UniPoly(coeffs);
+        PolyLib.UniPoly memory uni_poly = PolyLib.UniPoly(coeffs);
 
-        assertEq(PallasPolyLib.evalAtZero(uni_poly), 0x2a0cd6f39b97ed92a45886a8e80a5944ed373498922050a3745f29c2ec6667ae);
+        assertEq(PolyLib.evalAtZero(uni_poly), 0x2a0cd6f39b97ed92a45886a8e80a5944ed373498922050a3745f29c2ec6667ae);
     }
 
     function testPolyEvalAtOne1() public {
@@ -399,9 +399,12 @@ contract SumcheckTest is Test {
         coeffs[2] = 0x3156ab3e1bea772559548817e8d23e4d60a57bc280baf032420e3c6133dd7e2f;
         coeffs[3] = 0x1dff490409def9717737be07798dad2c3a6bc952eec88937c6076da01f9d9af0;
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.UniPoly(coeffs);
+        PolyLib.UniPoly memory uni_poly = PolyLib.UniPoly(coeffs);
 
-        assertEq(PallasPolyLib.evalAtOne(uni_poly), 0x0000000000000000000000000000000000000000000000000000000000000000);
+        assertEq(
+            PolyLib.evalAtOne(uni_poly, Pallas.R_MOD),
+            0x0000000000000000000000000000000000000000000000000000000000000000
+        );
     }
 
     function testPolyEvalAtOne2() public {
@@ -411,9 +414,12 @@ contract SumcheckTest is Test {
         coeffs[2] = 0x12fbd521f3fdb45f92e1bc9d045197000c74f40e67292ccac43f9b65f854b955;
         coeffs[3] = 0x0bf922cb074481cf22bfe02c62561af632503238b4198aeb5e2bb5cf8dd0fac3;
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.UniPoly(coeffs);
+        PolyLib.UniPoly memory uni_poly = PolyLib.UniPoly(coeffs);
 
-        assertEq(PallasPolyLib.evalAtOne(uni_poly), 0x1ed3a7699f3da343ac93395658773a5fe992d0ec2c26027ba1a4d0342d555a07);
+        assertEq(
+            PolyLib.evalAtOne(uni_poly, Pallas.R_MOD),
+            0x1ed3a7699f3da343ac93395658773a5fe992d0ec2c26027ba1a4d0342d555a07
+        );
     }
 
     function testPolyEvalAtOne3() public {
@@ -423,9 +429,12 @@ contract SumcheckTest is Test {
         coeffs[2] = 0x281222608e87d3d0d154e6621dbe68a181e5e646bbaab420859659a0e042dd4c;
         coeffs[3] = 0x2ae2df351788ef2c603da9501a93ea6ea1080a1742c923a56e0daa7e0599cd1e;
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.UniPoly(coeffs);
+        PolyLib.UniPoly memory uni_poly = PolyLib.UniPoly(coeffs);
 
-        assertEq(PallasPolyLib.evalAtOne(uni_poly), 0x2e5da7083e43a9fd5b62b5c356f420d1b97daa663fb77ab9c3815fecf111719b);
+        assertEq(
+            PolyLib.evalAtOne(uni_poly, Pallas.R_MOD),
+            0x2e5da7083e43a9fd5b62b5c356f420d1b97daa663fb77ab9c3815fecf111719b
+        );
     }
 
     function testPolyToTranscriptBytes() public {
@@ -435,9 +444,9 @@ contract SumcheckTest is Test {
         coeffs[2] = 0x1785c227874bcb2e816af7d0b1b39d6369dc3017b21cfdaccbbbdf3e9a63c9ca;
         coeffs[3] = 0x3001d35ebe98119d070a55ea1544bcb729493df381bf7c80ffb0203b2956d7c9;
 
-        PallasPolyLib.UniPoly memory uni_poly = PallasPolyLib.UniPoly(coeffs);
+        PolyLib.UniPoly memory uni_poly = PolyLib.UniPoly(coeffs);
 
-        uint8[] memory polyBytes = PallasPolyLib.toTranscriptBytes(uni_poly);
+        uint8[] memory polyBytes = PolyLib.toTranscriptBytes(uni_poly);
 
         uint8[] memory expected = new uint8[](96);
         expected[0] = 0xac;

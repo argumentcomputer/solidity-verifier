@@ -51,9 +51,7 @@ library PolyLib {
     {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
         uint256 linear_term = addmod(
-            hint,
-            negate(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], mod), mod),
-            mod
+            hint, negate(addmod(poly.coeffs_except_linear_term[0], poly.coeffs_except_linear_term[0], mod), mod), mod
         );
 
         for (uint256 i = 1; i < poly.coeffs_except_linear_term.length; i++) {

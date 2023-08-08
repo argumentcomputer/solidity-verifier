@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/verifier/step2/Step2Data.sol";
-import "src/poseidon/Sponge.sol";
+import "src/blocks/poseidon/Sponge.sol";
 
 library NIFSPallas {
     uint256 private constant MOD = Pallas.P_MOD;

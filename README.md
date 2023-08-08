@@ -21,18 +21,28 @@ To run Solidity unit-tests:
 forge test --match-path test/* -vv
 ```
 
-To deploy the contract (pasta curves) to the Hyperspace test network of Filecoin:
-```
-export PRIVATE_KEY='<YOUR PRIVATE KEY>'
-forge create --rpc-url https://api.hyperspace.node.glif.io/rpc/v1 --private-key $PRIVATE_KEY --contracts src/pasta/PastaContracts.sol PallasContract
-```
-
-This requires getting private key with some tokens (TFIL) allocated. More details [here](https://github.com/filecoin-project/fevm-foundry-kit).
-
-To interact with the deployed contract:
+To run Anvil node locally (with maximum gas-limit and code-size-limit):
 
 ```
-forge script script/PastaInteraction.s.sol:PastaInteraction --rpc-url https://api.hyperspace.node.glif.io/rpc/v1 --broadcast -g 10000
+anvil --gas-limit 18446744073709551615 --code-size-limit 18446744073709551615
+```
+
+To deploy the e2e verification contract to locally running Anvil node (`PRIVATE_KEY` can be obtained from output of running Anvil):
+
+```
+forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url http://127.0.0.1:8545 --private-key <PRIVATE_KEY> --broadcast
+```
+
+To load proof and verifier-key into the blockchain (`CONTRACT_ADDRESS` can be obtained from the output of previous step):
+
+```
+python loader.py pp-verifier-key.json pp-compressed-snark.json <CONTRACT_ADDRESS>
+```
+
+To run the verification logic:
+
+```
+cast call <CONTRACT_ADDRESS> "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key <PRIVATE_KEY>
 ```
 
 More details about Foundry tooling is [here](https://book.getfoundry.sh/).

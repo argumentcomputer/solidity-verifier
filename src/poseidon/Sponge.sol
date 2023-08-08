@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
-import "src/pasta/Pallas.sol";
+import "src/blocks/pasta/Pallas.sol";
 import "src/poseidon/PoseidonNeptuneU24pallas.sol";
 import "src/poseidon/PoseidonNeptuneU24vesta.sol";
 

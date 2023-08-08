@@ -12,8 +12,8 @@ import "src/poseidon/Sponge.sol";
 import "src/verifier/step4/SubStep2.sol";
 import "src/verifier/step4/SumcheckLogic.sol";
 import "src/verifier/step4/SumcheckData.sol";
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
+import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
 
 contract NovaVerifierContractTest is Test {
     function testVerificationStep1() public pure {

@@ -1,5 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.16;
 
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
+import "@std/Test.sol";
+import "src/NovaVerifierAbstractions.sol";
+
+contract NovaVerifierContract {
+    Abstractions.VerifierKey public vk;
+    Abstractions.CompressedSnark public proof;
+
+    function pushToProof(Abstractions.CompressedSnark calldata input) public {
+        proof = input;
+    }
+
+    function pushToVk(Abstractions.VerifierKey calldata input) public {
+        vk = input;
+    }
+
+    function verify() public pure returns (bool) {
+        return true;
+    }
+}

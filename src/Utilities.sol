@@ -25,19 +25,19 @@ library Field {
 
     function fieldpow(uint256 _base, uint256 _exp, uint256 _mod) public view returns (uint256 result) {
         assembly {
-        // Free memory pointer
+            // Free memory pointer
             let pointer := mload(0x40)
-        // Define length of base, exponent and modulus. 0x20 == 32 bytes
+            // Define length of base, exponent and modulus. 0x20 == 32 bytes
             mstore(pointer, 0x20)
             mstore(add(pointer, 0x20), 0x20)
             mstore(add(pointer, 0x40), 0x20)
-        // Define variables base, exponent and modulus
+            // Define variables base, exponent and modulus
             mstore(add(pointer, 0x60), _base)
             mstore(add(pointer, 0x80), _exp)
             mstore(add(pointer, 0xa0), _mod)
-        // Store the result
+            // Store the result
             let value := mload(0xc0)
-        // Call the precompiled contract 0x05 = bigModExp
+            // Call the precompiled contract 0x05 = bigModExp
             if iszero(staticcall(not(0), 0x05, pointer, 0xc0, value, 0x20)) { revert(0, 0) }
             result := mload(value)
         }
@@ -82,7 +82,7 @@ library Field {
                 answer := mload(result_ptr)
             }
 
-        // This calculates the the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
+            // This calculates the the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
             function is_square(base, modulus) -> isSquare {
                 let exponent := div(sub(modulus, 1), 2)
                 let exp_result := pow_mod(base, exponent, modulus)
@@ -146,19 +146,19 @@ library Field {
 
         // swap bytes
         v = ((v & 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00) >> 8)
-        | ((v & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+            | ((v & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
 
         // swap 2-byte long pairs
         v = ((v & 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000) >> 16)
-        | ((v & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+            | ((v & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
 
         // swap 4-byte long pairs
         v = ((v & 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000) >> 32)
-        | ((v & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
+            | ((v & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
 
         // swap 8-byte long pairs
         v = ((v & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) >> 64)
-        | ((v & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
+            | ((v & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
 
         // swap 16-byte long pairs
         v = (v >> 128) | (v << 128);
@@ -276,9 +276,9 @@ library PolyLib {
     }
 
     function decompress(CompressedUniPoly calldata poly, uint256 hint, uint256 mod)
-    public
-    pure
-    returns (UniPoly memory)
+        public
+        pure
+        returns (UniPoly memory)
     {
         // uint256 linear_term = hint - poly.coeffs_except_linear_term[0] - poly.coeffs_except_linear_term[0];
         uint256 linear_term = addmod(

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/verifier/step4/EqPolynomial.sol";
+import "src/blocks/EqPolynomial.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 

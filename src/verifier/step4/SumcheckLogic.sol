@@ -4,8 +4,8 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/verifier/step4/KeccakTranscript.sol";
-import "src/verifier/step4/EqPolynomial.sol";
-import "src/Polynomial.sol";
+import "src/blocks/EqPolynomial.sol";
+import "src/Utilities.sol";
 
 library PrimarySumcheck {
     function verify(

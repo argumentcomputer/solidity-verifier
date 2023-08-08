@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
-import "src/Polynomial.sol";
+import "src/Utilities.sol";
 
 library ScalarFromUniformLib {
     uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;

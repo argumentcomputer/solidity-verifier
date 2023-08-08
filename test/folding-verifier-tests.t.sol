@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@std/Test.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
-import "src/Field.sol";
+import "src/Utilities.sol";
 import "src/verifier/step3/Step3Logic.sol";
 import "src/verifier/step3/Step3Data.sol";
 

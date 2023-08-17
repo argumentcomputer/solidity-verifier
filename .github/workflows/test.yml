@@ -30,16 +30,16 @@ jobs:
 
       - name: Deploy main contract
         run: |
-          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url http://10.116.0.4:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast --non-interactive --silent | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url ${{ secrets.ANVIL_RPC_URL }} --private-key ${{ secrets.ANVIL_PRIVATE_KEY }} --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
         id: deployment
 
       - name: Load proof and public parameters
         run: |
-          python loader.py verifier-key.json compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} http://10.116.0.4:8545
+          python loader.py verifier-key.json compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} ${{ secrets.ANVIL_RPC_URL }} ${{ secrets.ANVIL_PRIVATE_KEY }}
 
       - name: Check proof verification status
         run: |
-          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://10.116.0.4:8545) == true ]] && exit 0 || exit 1
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key ${{ secrets.ANVIL_PRIVATE_KEY }} --rpc-url ${{ secrets.ANVIL_RPC_URL }}) == true ]] && exit 0 || exit 1
 
   unit-tests:
     strategy:

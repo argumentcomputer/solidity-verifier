@@ -9,8 +9,8 @@ def formatNumber(num):
     val.reverse()
     return str(int("0x" + "{0:0{1}x}".format(int(binascii.hexlify(val), 16), 64), 0))
 
-if len(sys.argv) != 5:
-    print("Correct loader's invocation should contain 4 parameters:\n1) Path to verifier key JSON\n2) Path to proof JSON\n3) Deployed contract address\n4) URL of RPC endpoint\n\nFor example:\npython loader.py verifier-key.json compressed-snark.json 0x720472c8ce72c2a2d711333e064abd3e6bbeadd3 http://127.0.0.1:8545")
+if len(sys.argv) != 6:
+    print("Correct loader's invocation should contain 4 parameters:\n1) Path to verifier key JSON\n2) Path to proof JSON\n3) Deployed contract address\n4) URL of RPC endpoint\n5) Private key\n\nFor example:\npython loader.py verifier-key.json compressed-snark.json 0x720472c8ce72c2a2d711333e064abd3e6bbeadd3 http://127.0.0.1:8545 0x0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
     os.exit(1)
 
 vk_file = sys.argv[1]
@@ -665,9 +665,9 @@ parsedVk = VerifierKey(
     vk_primary_digest,
 )
 
-PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 CONTRACT_ADDRESS = sys.argv[3]
 RPC_URL = sys.argv[4]
+PRIVATE_KEY = sys.argv[5]
 
 PUSH_TO_PROOF_FUNC_SIG = "pushToProof((" \
                          "(uint256,uint256[])," \

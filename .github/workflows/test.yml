@@ -15,7 +15,7 @@ jobs:
       fail-fast: true
 
     name: Integration Tests
-    runs-on: [self-hosted, anvil]
+    runs-on: [self-hosted, test]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -44,7 +44,7 @@ jobs:
       fail-fast: true
 
     name: Unit Tests
-    runs-on: [self-hosted, anvil]
+    runs-on: [self-hosted, test]
     steps:
       - uses: actions/checkout@v3
         with:

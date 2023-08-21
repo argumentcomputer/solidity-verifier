@@ -3,41 +3,70 @@ name: test
 on: [workflow_dispatch, push, pull_request]
 
 env:
-  FOUNDRY_PROFILE: ci
+  ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
+  ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
+
 
 jobs:
-  check:
+  integration-tests-e2e:
+    needs: [unit-tests]
     strategy:
       fail-fast: true
 
-    name: Foundry project
-    runs-on: ubuntu-latest
+    name: E2E verification
+    runs-on: [self-hosted]
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment
+
+      - name: Load proof and public parameters
+        run: |
+          python loader.py pp-verifier-key.json pp-compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+
+      - name: Check proof verification status
+        run: |
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+
+  unit-tests:
+    strategy:
+      fail-fast: true
+
+    name: Unit Tests
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
       - name: Check formatting
         run: |
           forge fmt --check
-        id: formatting
 
       - name: Regenerate Contracts
         run: |
           python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
           python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
-          python src/verifier/step2/step2-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step2/Step2Data.sol
-          python src/verifier/step3/step3-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step3/Step3Data.sol
 
       - name: Run forge fmt on re-generated contracts
         run: |
@@ -54,15 +83,12 @@ jobs:
         run: |
           forge --version
           forge build
-        id: build
 
       - name: Run Forge tests
         run: |
           forge test -vvv
-        id: test
 
       - name: Get sizes of compiled contracts
         run: |
           forge --version
           forge build --sizes || true
-        id: build-with-sizes

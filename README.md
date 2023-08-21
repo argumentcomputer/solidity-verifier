@@ -36,16 +36,18 @@ forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url http://127.
 To load proof and verifier-key into the blockchain (`CONTRACT_ADDRESS` can be obtained from the output of previous step):
 
 ```
-python loader.py pp-verifier-key.json pp-compressed-snark.json <CONTRACT_ADDRESS>
+python loader.py pp-verifier-key.json pp-compressed-snark.json <CONTRACT_ADDRESS> http://127.0.0.1:8545 <PRIVATE_KEY>
 ```
 
 To run the verification logic:
 
 ```
-cast call <CONTRACT_ADDRESS> "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key <PRIVATE_KEY>
+cast call <CONTRACT_ADDRESS> "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key <PRIVATE_KEY> --rpc-url http://127.0.0.1:8545
 ```
 
 More details about Foundry tooling is [here](https://book.getfoundry.sh/).
+
+P.S.: This E2E integration testing flow is enforced by Github Actions with our cloud-based Anvil node. See `integration-tests-e2e` job description from `.github/workflows/test.yml` for more details.
 
 # Solidity contracts generation
 

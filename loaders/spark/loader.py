@@ -102,13 +102,13 @@ def pushMatrixData(data, funcSig):
     # pass main body (multiple of 'itemsPerSingleTransaction')
     for chunk in itemsToPass[:len(itemsToPass) - 1]:
         itemsString = constructInputArgumentsString(chunk)
-        A_loading_command = 'cast send ' + CONTRACT_ADDRESS + ' \"' + funcSig + '\" \"' + itemsString + '\" --private-key ' + PRIVATE_KEY
+        A_loading_command = 'cast send ' + CONTRACT_ADDRESS + ' \"' + funcSig + '\" \"' + itemsString + '\" --private-key ' + PRIVATE_KEY + ' --rpc-url ' + RPC_URL
         os.system(A_loading_command)
 
     # pass tail
     itemsToPassTail = itemsToPass[len(itemsToPass) - 1:][0]
     itemsString = constructInputArgumentsString(itemsToPassTail)
-    A_loading_command = 'cast send ' + CONTRACT_ADDRESS + ' \"' + funcSig + '\" \"' + itemsString + '\" --private-key ' + PRIVATE_KEY
+    A_loading_command = 'cast send ' + CONTRACT_ADDRESS + ' \"' + funcSig + '\" \"' + itemsString + '\" --private-key ' + PRIVATE_KEY + ' --rpc-url ' + RPC_URL
     os.system(A_loading_command)
 
 def pushArrayOfUint256(data, funcSig):
@@ -121,6 +121,7 @@ def pushArrayOfUint256(data, funcSig):
             command = command + str(int(item, 16))
 
     command = command + ']\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
     os.system(command)
 
 # Should come from sumcheck procotols execution (sc_proof_inner; sc_proof_outer)
@@ -194,8 +195,9 @@ r_y_secondary = [
     "0x3e69c1910a9263ddee4a0cec382a858a67e33f74de3d76058fd6248cd8257cc8"
 ]
 
-PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-CONTRACT_ADDRESS = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
+PRIVATE_KEY = sys.argv[2]
+CONTRACT_ADDRESS = sys.argv[3]
+RPC_URL = sys.argv[4]
 
 PUSH_TO_A_PRIMARY_FUNC_SIG = "pushToAprimary((uint32,uint32,uint256)[])"
 PUSH_TO_B_PRIMARY_FUNC_SIG = "pushToBprimary((uint32,uint32,uint256)[])"

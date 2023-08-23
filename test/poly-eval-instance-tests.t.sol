@@ -49,7 +49,7 @@ contract PolyEvalInstanceTest is Test {
         );
 
         PolyEvalInstanceLib.PolyEvalInstance memory actual =
-        PolyEvalInstanceLib.batchPrimary(comm_vec, tau, eval_vec, c);
+            PolyEvalInstanceLib.batchPrimary(comm_vec, tau, eval_vec, c);
 
         uint256 e_expected = 0x2b005e5de5ae62075c66de1c5343c86a235ffc0184fd317079c6687f53596bd4;
         Vesta.VestaAffinePoint memory c_expected = Vesta.VestaAffinePoint(
@@ -119,7 +119,7 @@ contract PolyEvalInstanceTest is Test {
         );
 
         PolyEvalInstanceLib.PolyEvalInstance memory actual =
-        PolyEvalInstanceLib.batchSecondary(comm_vec, tau, eval_vec, c);
+            PolyEvalInstanceLib.batchSecondary(comm_vec, tau, eval_vec, c);
 
         uint256 e_expected = 0x2144bc0d13b5cfc99beab8db542dd270bd2a8af3911e754ca0ca0818a5b9a5ba;
         Vesta.VestaAffinePoint memory c_expected = Vesta.VestaAffinePoint(

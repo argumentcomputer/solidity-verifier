@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
+import "src/NovaVerifierAbstractions.sol";
 import "src/Utilities.sol";
 
 library ScalarFromUniformLib {
@@ -470,6 +471,37 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Pallas.PallasAffinePoint[] memory points)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[]((32 * 2 + 1) * points.length);
+        uint256 index = 0;
+        for (uint256 j = 0; j < points.length; j++) {
+            // write x coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].x)[31 - i]));
+                index++;
+            }
+            // write y coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].y)[31 - i]));
+                index++;
+            }
+
+            // write byte indicating whether point is at infinity
+            if (Pallas.isInfinity(points[j])) {
+                output[index] = 0x00;
+            } else {
+                output[index] = 0x01;
+            }
+            index++;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Vesta.VestaAffinePoint memory point)
         public
         pure
@@ -498,6 +530,37 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Vesta.VestaAffinePoint[] memory points)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[]((32 * 2 + 1) * points.length);
+        uint256 index = 0;
+        for (uint256 j = 0; j < points.length; j++) {
+            // write x coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].x)[31 - i]));
+                index++;
+            }
+            // write y coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].y)[31 - i]));
+                index++;
+            }
+
+            // write byte indicating whether point is at infinity
+            if (Vesta.isInfinity(points[j])) {
+                output[index] = 0x00;
+            } else {
+                output[index] = 0x01;
+            }
+            index++;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256[] memory inputs)
         public
         pure
@@ -522,6 +585,177 @@ library KeccakTranscriptLib {
         returns (KeccakTranscript memory)
     {
         return absorb(keccak, label, PolyLib.toTranscriptBytes(poly));
+    }
+
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        Vesta.VestaAffinePoint memory comm_W,
+        Vesta.VestaAffinePoint memory comm_E,
+        uint256[] memory X,
+        uint256 u
+    ) public pure returns (KeccakTranscript memory) {
+        // comm_W: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_W is point at infinity)
+        // comm_E: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_E is point at infinity)
+        // u: 32
+        // X: 32 * len(X)
+        uint8[] memory output = new uint8[](32 * 2 + 1 + 32 * 2 + 1 + 32 * X.length + 32);
+
+        uint256 i = 0;
+        uint256 index = 0;
+        uint256 val;
+
+        // write comm_W.x
+        val = comm_W.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_W.y
+        val = comm_W.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write byte indicating whether comm_W is point at infinity
+        if (Vesta.isInfinity(comm_W)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write comm_E.x
+        val = comm_E.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_E.y
+        val = comm_E.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether comm_E is point at infinity
+        if (Vesta.isInfinity(comm_E)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write u
+        val = u;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write X
+        for (i = 0; i < X.length; i++) {
+            val = X[i];
+            for (uint256 j = 0; j < 32; j++) {
+                output[index] = uint8(bytes1(bytes32(val)[31 - j]));
+                index++;
+            }
+        }
+
+        require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Vesta)] unexpected length");
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        Pallas.PallasAffinePoint memory comm_W,
+        Pallas.PallasAffinePoint memory comm_E,
+        uint256[] memory X,
+        uint256 u
+    ) public pure returns (KeccakTranscript memory) {
+        // comm_W: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_W is point at infinity)
+        // comm_E: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_E is point at infinity)
+        // u: 32
+        // X: 32 * len(X)
+        uint8[] memory output = new uint8[](32 * 2 + 1 + 32 * 2 + 1 + 32 * X.length + 32);
+
+        uint256 i = 0;
+        uint256 index = 0;
+        uint256 val;
+
+        // write comm_W.x
+        val = comm_W.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_W.y
+        val = comm_W.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write byte indicating whether comm_W is point at infinity
+        if (Pallas.isInfinity(comm_W)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write comm_E.x
+        val = comm_E.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_E.y
+        val = comm_E.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether comm_E is point at infinity
+        if (Pallas.isInfinity(comm_E)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write u
+        val = u;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write X
+        for (i = 0; i < X.length; i++) {
+            val = X[i];
+            for (uint256 j = 0; j < 32; j++) {
+                output[index] = uint8(bytes1(bytes32(val)[31 - j]));
+                index++;
+            }
+        }
+
+        require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Pallas)] unexpected length");
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Abstractions.RelaxedR1CSInstance memory U)
+        public
+        view
+        returns (KeccakTranscript memory)
+    {
+        Pallas.PallasAffinePoint memory comm_W = Pallas.decompress(U.comm_W);
+        Pallas.PallasAffinePoint memory comm_E = Pallas.decompress(U.comm_E);
+
+        return absorb(keccak, label, comm_W, comm_E, U.X, U.u);
     }
 
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
-import "src/verifier/step4/KeccakTranscript.sol";
+import "src/blocks/KeccakTranscript.sol";
 import "src/blocks/EqPolynomial.sol";
 import "src/Utilities.sol";
 

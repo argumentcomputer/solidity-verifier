@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/poseidon/PoseidonNeptuneU24pallas.sol";
-import "src/poseidon/PoseidonNeptuneU24vesta.sol";
+import "src/blocks/poseidon/PoseidonNeptuneU24pallas.sol";
+import "src/blocks/poseidon/PoseidonNeptuneU24vesta.sol";
 
 contract PoseidonContractTest is Test {
     function testPoseidonNeptuneU24PallasCompatibility() public {

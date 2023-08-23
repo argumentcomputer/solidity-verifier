@@ -782,7 +782,7 @@ library Step3Lib {
         uint256[] memory x2 = u2.X;
         Vesta.VestaAffinePoint memory comm_W_2 = Vesta.decompress(u2.comm_W);
 
-        require(U1.X.length == x2.length, "[Step3.foldInstance]: Witness vectors do not match length");
+        require(U1.X.length == x2.length, "[Step3.foldInstanceSecondary]: Witness vectors do not match length");
 
         uint256[] memory X = new uint256[](U1.X.length);
 

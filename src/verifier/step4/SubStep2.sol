@@ -62,8 +62,6 @@ library SpartanVerificationSubStep2Lib {
 
         uint256 claim_outer_final_computed;
 
-
-
         uint256 tmp1;
         assembly {
             tmp1 := mulmod(claim_Az, claim_Bz, modulusPallas) // Pallas

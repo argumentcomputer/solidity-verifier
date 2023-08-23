@@ -30,17 +30,17 @@ library EqPolinomialLib {
             minus_rx = negateBase(rx_inner);
             minus_r = negateBase(r_inner);
             assembly {
-            // rx[i] * r[i]
+                // rx[i] * r[i]
                 tmp1 := mulmod(rx_inner, r_inner, modulus)
-            // 1 - rx[i]
+                // 1 - rx[i]
                 tmp2 := addmod(1, minus_rx, modulus)
-            // 1 - r[i]
+                // 1 - r[i]
                 tmp3 := addmod(1, minus_r, modulus)
 
-            // tmp1 + tmp2 * tmp3
+                // tmp1 + tmp2 * tmp3
                 tmp4 := addmod(tmp1, mulmod(tmp2, tmp3, modulus), modulus)
 
-            // accumulate result
+                // accumulate result
                 resultIter := mulmod(tmp4, result, modulus)
 
                 result := resultIter

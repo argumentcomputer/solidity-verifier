@@ -40,7 +40,7 @@ library PrimarySumcheck {
             uint256 r_i;
             label[0] = 99; // c_label[0] = 99;
             (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-
+            r_i = Field.reverse256(r_i);
             r[i] = r_i;
 
             e = PolyLib.evaluate(poly, r_i, Pallas.R_MOD);
@@ -87,7 +87,7 @@ library SecondarySumcheck {
             uint256 r_i;
             label[0] = 99; // c_label[0] = 99;
             (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-
+            r_i = Field.reverse256(r_i);
             r[i] = r_i;
 
             e = PolyLib.evaluate(poly, r_i, Vesta.R_MOD);

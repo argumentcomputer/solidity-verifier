@@ -313,20 +313,20 @@ contract SumcheckTest is Test {
             tau[index] = keccakOutput;
         }
 
-        assertEq(tau[0], 0x327f4af4db96711d3192cee19b1946d5b9d3c61e78d6f352261e11af7cbed55a);
-        assertEq(tau[1], 0x2640290b59a25f849e020cb1b0063861e35a95a8c42a9cdd63928a4ea856adbf);
-        assertEq(tau[2], 0x11b72e2a69592c5545a794428674fd998d4e3fbd52f156eca4a66d54f09f775e);
-        assertEq(tau[3], 0x09b0dcdd3ebe153fea39180a0f6bf9546778ffd7e288088489529aa95097fcea);
-        assertEq(tau[4], 0x3757c49e53ce7f58203159e411db2fe38854df4fc7a93833f28e63960576202e);
-        assertEq(tau[5], 0x362681bac77a734c4b893a2a2ff2f3cfbff469319b1a1e851c139349f1f62232);
-        assertEq(tau[6], 0x3036e71d56b2ed7027b5e305dddbc94d3bae6c6afdfaec8bdcd7d05cd89fc4ef);
-        assertEq(tau[7], 0x33ebf2408bbe683a2516b6e3904d95f6a99da08c27843d425bb3e781b407f812);
-        assertEq(tau[8], 0x03b2369449d816527fe9f0ec97e4971a65a35f89762ae71610f06096337ea9f2);
-        assertEq(tau[9], 0x38ca25021f2193df59c755dcebe90a5efb52e97c0440597915d022e9a59357bd);
-        assertEq(tau[10], 0x240032a20ecb27257f7334b3f538d836f40783e9709b879bd5523f789aad0a63);
-        assertEq(tau[11], 0x364f7a4b101385305529e5d5237cb71e69950f2b4ed7b4f0b160b1aa3ac71c9a);
-        assertEq(tau[12], 0x3ffacadcc0e723b1fa45c1ad1b30612dc31924e6027171f0a5da6d8963671c5a);
-        assertEq(tau[13], 0x25ad865935043775d676da736cc400404b1060585df1386dd4f560de4c4680bc);
+        assertEq(tau[0], 0xec15c1b59e4d0132159f6f523d6ea12c8cbdbd2c0f02ec9f47cab551a3eba530);
+        assertEq(tau[1], 0x6dc76eb849302b3eb0dacf4f0954fac6c62825621a49a5aa3189d8266711dd0c);
+        assertEq(tau[2], 0xf14fd95e50e62c669756afb51ae048ad61a67146f535a1180239104f71d10310);
+        assertEq(tau[3], 0xe1435c8ac491329906db14b063647f4829819636933e1eba745970e65bcd6408);
+        assertEq(tau[4], 0xe7f81e72eb554cc2d7586759ea3eeaf0c6adb12f8ed7412e8942716006b41625);
+        assertEq(tau[5], 0x352704eceb46a3b8d90d8898d1ed7867e606f791ce5566df6d3954a15fff1e0a);
+        assertEq(tau[6], 0xcfec1aa7ed04102c30cde1449bf855e062782e24e0c3d17d633840f0b5c27224);
+        assertEq(tau[7], 0xdd73e72d775abf5812f25bcd4fe88e7c9960c9486a8e0d0a7c5a1702af406c3e);
+        assertEq(tau[8], 0x1f21b52aae284e7cbe4f10adc93f6da159567295f7009cc0a970f5ebf62c893a);
+        assertEq(tau[9], 0x62c359fb38367fea51324c44f9bf747736ef1f57be5147d2cb2a4e0845309415);
+        assertEq(tau[10], 0xe7610dfab97ee9bf7bbe8c54048e6d33d344e4552f462780943c704c8ef5163b);
+        assertEq(tau[11], 0xa80224715966a0dbd9ef37fc32447c9522988208aec37435f14e2de9c1f82e06);
+        assertEq(tau[12], 0x2232489c8dacb3de64ddf91fa640a6dcffcf8e70c39fde06f374993226190529);
+        assertEq(tau[13], 0x60a7c22598a889a01f92683f05715b048b204a42a0af90a4e2c4ddfb68a66814);
     }
 
     function testPolyUncompress() public {

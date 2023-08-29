@@ -125,11 +125,11 @@ library Grumpkin {
         return GrumpkinAffinePoint(a.x, P_MOD - (a.y % P_MOD));
     }
 
-    function negateBase(uint256 scalar) public pure returns (uint256) {
+    function negateBase(uint256 scalar) internal pure returns (uint256) {
         return P_MOD - (scalar % P_MOD);
     }
 
-    function negateScalar(uint256 scalar) public pure returns (uint256) {
+    function negateScalar(uint256 scalar) internal pure returns (uint256) {
         return R_MOD - (scalar % R_MOD);
     }
 

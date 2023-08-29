@@ -11,7 +11,7 @@ library EqPolinomialLib {
         uint256 modulus,
         function (uint256) returns (uint256) negateBase
     ) internal returns (uint256) {
-        require(r.length == rx.length, "[EqPolinomialLib.evaluatePallas] wrong input data length");
+        require(r.length == rx.length, "[EqPolinomialLib.evaluate] wrong input data length");
 
         uint256 resultIter = 0;
         uint256 rx_inner = 0;

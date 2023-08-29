@@ -13,12 +13,13 @@ library Grumpkin {
         uint256 y;
     }
 
-    function Identity() public returns (GrumpkinAffinePoint memory) {
+    function Identity() public pure returns (GrumpkinAffinePoint memory) {
         return GrumpkinAffinePoint(0, 0);
     }
 
     function add(GrumpkinAffinePoint memory p1, GrumpkinAffinePoint memory p2)
         public
+        view
         returns (GrumpkinAffinePoint memory)
     {
         uint256 self_x = p1.x;
@@ -91,7 +92,7 @@ library Grumpkin {
         return GrumpkinAffinePoint(t[0], t[1]);
     }
 
-    function is_identity(GrumpkinAffinePoint memory p1) private returns (bool) {
+    function is_identity(GrumpkinAffinePoint memory p1) private pure returns (bool) {
         if (p1.x != 0) {
             return false;
         }
@@ -101,7 +102,7 @@ library Grumpkin {
         return true;
     }
 
-    function to_affine(uint256 x_input, uint256 y_input, uint256 z_input) private returns (uint256, uint256) {
+    function to_affine(uint256 x_input, uint256 y_input, uint256 z_input) private view returns (uint256, uint256) {
         require(z_input != 0, "[Grumpkin::to_affine] can't invert zero");
 
         uint256 zinv = Field.invert(z_input, R_MOD);
@@ -110,7 +111,7 @@ library Grumpkin {
         return (x, y);
     }
 
-    function mul_by_3b(uint256 t) private returns (uint256) {
+    function mul_by_3b(uint256 t) private pure returns (uint256) {
         // In Rust:
         //        static ref CONST_3B: $base = $constant_b + $constant_b + $constant_b;
         // In Solidity:
@@ -132,13 +133,13 @@ library Grumpkin {
         return R_MOD - (scalar % R_MOD);
     }
 
-    function double(GrumpkinAffinePoint memory point) public returns (GrumpkinAffinePoint memory) {
+    function double(GrumpkinAffinePoint memory point) public view returns (GrumpkinAffinePoint memory) {
         if (is_identity(point)) {
             return point;
         }
         uint256 x = point.x;
         uint256 y = point.y;
-        uint256 z = 1;
+        //uint256 z = 1;
 
         uint256 t0 = mulmod(x, x, R_MOD);
         uint256 t1 = mulmod(y, y, R_MOD);
@@ -177,7 +178,11 @@ library Grumpkin {
         return GrumpkinAffinePoint(x, y);
     }
 
-    function scalarMul(GrumpkinAffinePoint memory point, uint256 scalar) public returns (GrumpkinAffinePoint memory) {
+    function scalarMul(GrumpkinAffinePoint memory point, uint256 scalar)
+        public
+        view
+        returns (GrumpkinAffinePoint memory)
+    {
         GrumpkinAffinePoint memory acc = Identity();
 
         bytes32 scalar_bytes = bytes32(scalar);
@@ -193,7 +198,7 @@ library Grumpkin {
         return acc;
     }
 
-    function decompress(uint256 compressed) public returns (GrumpkinAffinePoint memory) {
+    function decompress(uint256 compressed) public view returns (GrumpkinAffinePoint memory) {
         uint8 is_inf = uint8(bytes32(compressed)[0]) >> 7;
         uint8 y_sign = uint8(bytes32(compressed)[0]) >> 6;
         y_sign &= 1;

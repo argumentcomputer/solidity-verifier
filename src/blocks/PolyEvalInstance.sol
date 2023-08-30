@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@std/Test.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
 import "src/Utilities.sol";
 
 library PolyEvalInstanceLib {
@@ -90,6 +92,65 @@ library PolyEvalInstanceLib {
             temp = Vesta.scalarMul(comm_vec[index], powers_of_s[index]);
 
             c_out = Vesta.add(temp, c_out);
+        }
+
+        // x is just a copy of input
+        return PolyEvalInstance(c_out.x, c_out.y, x, e);
+    }
+
+    function batchBn256(
+        Bn256.Bn256AffinePoint[] memory comm_vec,
+        uint256[] memory x,
+        uint256[] memory eval_vec,
+        uint256 s
+    ) public returns (PolyEvalInstance memory) {
+        require(
+            comm_vec.length == eval_vec.length, "[PolyEvalInstanceLib.batchBn256]: comm_vec.length != eval_vec.length"
+        );
+
+        uint256[] memory powers_of_s = CommonUtilities.powers(s, comm_vec.length, Bn256.R_MOD);
+
+        uint256 e;
+        for (uint256 index = 0; index < eval_vec.length; index++) {
+            e = addmod(e, mulmod(powers_of_s[index], eval_vec[index], Bn256.R_MOD), Bn256.R_MOD);
+        }
+
+        Bn256.Bn256AffinePoint memory c_out = Bn256.Bn256AffinePoint(0, 0);
+        Bn256.Bn256AffinePoint memory temp = Bn256.Bn256AffinePoint(0, 0);
+        for (uint256 index = 0; index < comm_vec.length; index++) {
+            temp = Bn256.scalarMul(comm_vec[index], powers_of_s[index]);
+
+            c_out = Bn256.add(temp, c_out);
+        }
+
+        // x is just a copy of input
+        return PolyEvalInstance(c_out.x, c_out.y, x, e);
+    }
+
+    function batchGrumpkin(
+        Grumpkin.GrumpkinAffinePoint[] memory comm_vec,
+        uint256[] memory x,
+        uint256[] memory eval_vec,
+        uint256 s
+    ) public returns (PolyEvalInstance memory) {
+        require(
+            comm_vec.length == eval_vec.length,
+            "[PolyEvalInstanceLib.batchGrumpkin]: comm_vec.length != eval_vec.length"
+        );
+
+        uint256[] memory powers_of_s = CommonUtilities.powers(s, comm_vec.length, Grumpkin.P_MOD);
+
+        uint256 e;
+        for (uint256 index = 0; index < eval_vec.length; index++) {
+            e = addmod(e, mulmod(powers_of_s[index], eval_vec[index], Grumpkin.P_MOD), Grumpkin.P_MOD);
+        }
+
+        Grumpkin.GrumpkinAffinePoint memory c_out = Grumpkin.GrumpkinAffinePoint(0, 0);
+        Grumpkin.GrumpkinAffinePoint memory temp = Grumpkin.GrumpkinAffinePoint(0, 0);
+        for (uint256 index = 0; index < comm_vec.length; index++) {
+            temp = Grumpkin.scalarMul(comm_vec[index], powers_of_s[index]);
+
+            c_out = Grumpkin.add(temp, c_out);
         }
 
         // x is just a copy of input

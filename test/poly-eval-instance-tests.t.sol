@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@std/Test.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
 import "src/blocks/PolyEvalInstance.sol";
 
 contract PolyEvalInstanceTest is Test {
@@ -133,6 +135,200 @@ contract PolyEvalInstanceTest is Test {
         assertEq(tau.length, actual.x.length);
         for (uint256 index = 0; index < tau.length; index++) {
             assertEq(tau[index], actual.x[index]);
+        }
+    }
+
+    function testPolyEvalInstanceBatchBn256() public {
+        uint256 c = 0x1acafdcb84c47d71973e472fff62b7c5c9ab8ef5c4a6198c582d7d99427cef9b;
+
+        uint256[] memory r_sat = new uint256[](17);
+        r_sat[0] = 0x144454412fd8764e4aaf2cec1546f1a9f1f154e7de160d033a632ecdfdd5964d;
+        r_sat[1] = 0x05837413e5049a37ef21bc91fd21fcce3f89e80202ec70aa01872cc9221d95cd;
+        r_sat[2] = 0x17430b827b82e51b14fcdf9511b6a8061d1392d4589b8221dafbae759dd6e070;
+        r_sat[3] = 0x0256f4d5674a529ec39e0afba3738d0263cb1d385a563ce608edad719f47d5fd;
+        r_sat[4] = 0x00f87554a6caed435bb9e714a355fa73cfd359d5dd8b31fc172ada8cecd7ee30;
+        r_sat[5] = 0x29b4dbb7be87a4961e21fe447b03125469077ba2bad896ac2c374aa55be358ab;
+        r_sat[6] = 0x1493591a52ded39471fbcd9937537aae9023e77080708f790798671aaa268fc9;
+        r_sat[7] = 0x046d5e95bee7ea383f29e0ffa2a6e2816d5b82a75283265e2bc17e63d6ecaeee;
+        r_sat[8] = 0x0ea46d83cda8cac4084d937137ab451e89d3fef4b6e25ec00e80fcb8bf8a5308;
+        r_sat[9] = 0x26d16ee1e12b5e781327f54a2b89bb7f397e500ec503066b4e37c5e59c372aa1;
+        r_sat[10] = 0x2826c37882e6cec0184d476e6e14ac3cb48aee6e233a1ee085c174d53cf1f419;
+        r_sat[11] = 0x1b054f124db95f87ec662a5b8ddf47f2b0264e97ef866a05e2a3e0335bce3b16;
+        r_sat[12] = 0x0fd296132bf7fc749c44059331d68c735b05f8f746c26e0bf25c3e0a0e6b17b1;
+        r_sat[13] = 0x2aede350fab3723fb2ed55ed281f40e4a718f43237901e99264cb09a586661ef;
+        r_sat[14] = 0x1a99798029810bbe8a2a5e0d738e8a7c54c010acf84892178463c3222d08b351;
+        r_sat[15] = 0x01611bd374a32895d454f4fbe32f051f82e1fef13242ee7951dc6df7848cef97;
+        r_sat[16] = 0x019b91a9d375fe46af22a415a0cba65d78d7a605eecf99b3eff27cd508e6282c;
+
+        uint256[] memory eval_vec = new uint256[](9);
+        eval_vec[0] = 0x1869c92844ee39c772ada2ff95041cfd30d520c02c2b6fd36957769338dc642e;
+        eval_vec[1] = 0x06294f00889dbe513fa56b4333b61b9929bae58203ebdf5022c5f50a5214d419;
+        eval_vec[2] = 0x2e853d4cce3097a6cc3ce6308a033f635b83706b762d0bb8b5f372daa90019db;
+        eval_vec[3] = 0x011bde0bb1a59fc9630ffabef3a13fe6a5d5e8c424ce36ecb66e3f73f222c844;
+        eval_vec[4] = 0x00ecd149fca8636f1ab0dec1093267aadc8048a235599a4e58511351de79bfb4;
+        eval_vec[5] = 0x07141dd079428a72a7f9ea25742d9f533d7c72909d37840673dcd9c2d0a6ceb0;
+        eval_vec[6] = 0x0f00fa9ce009193f1639936a4f2ada76bb13239a4e9f492a49643e3984928c04;
+        eval_vec[7] = 0x1ffe417d0bb8f7a36ec208ea1bcfc085f746cbcc64bd61756247be41d9986251;
+        eval_vec[8] = 0x2af914dc2e54d9dc1294d8517951f5438a3fe7a8b6eca78479652d42b20c9b34;
+
+        Bn256.Bn256AffinePoint[] memory comm_vec = new Bn256.Bn256AffinePoint[](9);
+        comm_vec[0] = Bn256.Bn256AffinePoint(
+            0x07529bc5cb82ba96db4998574b56d9bbbf012645235b57ae7e04379e028f09df,
+            0x0be031e78adfd8cb47edf75ee3fd98d9375f390b43b0dc1fae311990ea5900a0
+        );
+
+        comm_vec[1] = Bn256.Bn256AffinePoint(
+            0x2bd6ad0e89f1380640a2ab467a5e98c61c56837bc91290503dd6d56ba980a38f,
+            0x21009a78324cb30435f455a3b5fbaacf8703657c51a828a3ac4827f1590a260f
+        );
+
+        comm_vec[2] = Bn256.Bn256AffinePoint(
+            0x1d1f026b9179be7883bd431d47b58f589e1e250464dc4411b84857b9e6931da4,
+            0x02aaa7285e6d0d106a9c84098748940ffeb3b139bbd247b6da2fff2fad3be8d6
+        );
+
+        comm_vec[3] = Bn256.Bn256AffinePoint(
+            0x0dc7ac106c12a5f7a8b2fdc5a066bc3b31e263b1b0b0578e46700a2ad7836257,
+            0x21b2f712c2fc970c0a6802243982f8efa9041bd4ca2d53134a1664703c554c3b
+        );
+
+        comm_vec[4] = Bn256.Bn256AffinePoint(
+            0x22cb779a2f0c48d16a3bb9ea9d606dd7cd319fd9cc2b23975fb618d4cf8c5ff0,
+            0x100d402ff4c9e471facc9607a9ce804f945bb9471d329321efb031c316ebe201
+        );
+
+        comm_vec[5] = Bn256.Bn256AffinePoint(
+            0x14e8dabf9cf5e772190c40ea32665978b81988aa19ae6af9ad13e254229d7ee4,
+            0x2dcd8f7ec6354d5c378d04c8c712285bffc81b2b5a50d967ae3443d4f061c513
+        );
+
+        comm_vec[6] = Bn256.Bn256AffinePoint(
+            0x102e79e22c5552b770774eee21d0b8c059a7451bdb680861cb67f0190888f67b,
+            0x2dbfb0ca92f9bcacbcfa85915c7832989579395849508972732c75b5a9d38f54
+        );
+
+        comm_vec[7] = Bn256.Bn256AffinePoint(
+            0x0c699972babb4c1f0a941e4b41a816208dce53cc4335a2999bfcd6182964d45b,
+            0x2e946fd65a8c045a8661ceb72f1290a36ca59b37b6e12061fddf41d3f386c25c
+        );
+
+        comm_vec[8] = Bn256.Bn256AffinePoint(
+            0x2550d516660f14e32b4df1b879e362382ddb115779da5152fc59c7d9bef11ff5,
+            0x2a0099d439d2573a8eba9b5bc393917375fa2abbd3da2e5af15cc0e0cae608ce
+        );
+
+        PolyEvalInstanceLib.PolyEvalInstance memory actual =
+            PolyEvalInstanceLib.batchBn256(comm_vec, r_sat, eval_vec, c);
+
+        uint256 e_expected = 0x101e200bd035b257fe90e8d2d1c0df37860d3f49effed18058414ff5ec3d465c;
+        Bn256.Bn256AffinePoint memory c_expected = Bn256.Bn256AffinePoint(
+            0x2829fe3f56f139c48a22a3ae7c35a777425e3f578cc81038c7cb0ec519839f6e,
+            0x27a0a9319530016b2f890c1cb0d8e956e715477366e11cef729c4aff9a969cfc
+        );
+
+        assertEq(actual.e, e_expected);
+        assertEq(actual.c_x, c_expected.x);
+        assertEq(actual.c_y, c_expected.y);
+        assertEq(r_sat.length, actual.x.length);
+        for (uint256 index = 0; index < r_sat.length; index++) {
+            assertEq(r_sat[index], actual.x[index]);
+        }
+    }
+
+    function testPolyEvalInstanceBatchGrumpkin() public {
+        uint256 c = 0x2e8f8a893be2cb407f2ab721fb17adce6170f3c4b5f9817b5afff03046c1afce;
+
+        uint256[] memory r_sat = new uint256[](17);
+        r_sat[0] = 0x25172cbbd1289dde3d5a3ec6806b7408475968df10e71565ca1ba3579b950bab;
+        r_sat[1] = 0x1725a070098a94cf768334d9b0c3ac4a261682687b39c8e6db7ad3c2901d5e24;
+        r_sat[2] = 0x26b72d7895ccf170139a9a71e7da7431d81afd3cd5223969d4794ca8b1366241;
+        r_sat[3] = 0x2c9493e9d5b214b3cad4bb621544e6001cb1dc10421ede559fb937d89568cd01;
+        r_sat[4] = 0x1334cd36b6c002cd14bd1ac0e19bfca3b7fe600634fa22ac5d6fc6b271c50ea1;
+        r_sat[5] = 0x24e56409afcdd7500f2608d82db8f7a607cb1c5246aaa03cb30fdab50e6b0131;
+        r_sat[6] = 0x27ee3e707f58a066bd5c0c4078fc690de3d108a7f759884c0d890dcf9c71d0ae;
+        r_sat[7] = 0x12060dfdd8c1fceaba38ac16288cd391e1bd33e08476edde5dafa859d2bc20c3;
+        r_sat[8] = 0x1715421e99f5091ab24230608160f638748e685707ded14d8df5e502eff1c726;
+        r_sat[9] = 0x21225c719bfbac3279313676bb52f31d166432319612381d19e29680a23a9e54;
+        r_sat[10] = 0x1f5f277e7a112badb02d8cd4794afac553a48acec6eb4895fd4ac287309e0766;
+        r_sat[11] = 0x01c6ef7072eae3366e9bac92954116f78dba97d93b34943cdbca7473e03c303c;
+        r_sat[12] = 0x2d724a66a4244a6a493bbf6f10e9a1aefce0702e21bc3d1995f4741e0d20e0b6;
+        r_sat[13] = 0x287e29cb6788fd94d01ef493dbff1e658619a05ce4fdd1541726bff3cbe8b33b;
+        r_sat[14] = 0x106e96134b2e80dc2b4691a8c3ecfc2ea1ef0ab294c5f708cd6774bfeb403009;
+        r_sat[15] = 0x2fe84884f541263540ef28f6f103eeccb2413af5378e27d63469466568f56e84;
+        r_sat[16] = 0x19a2ee861704322444687829379a8303142709c02feb0f0d56de44c5ab0540e2;
+
+        uint256[] memory eval_vec = new uint256[](9);
+        eval_vec[0] = 0x061152dfca99a38e7c0f33e7bf37232e30775a541c5c695799d111e8e815d70d;
+        eval_vec[1] = 0x11a2669b59ea53e92bcd84311ac04a2f06ea2df2cc6c0c26f170b24e2b27b2f9;
+        eval_vec[2] = 0x0d3a3e3e7c117e3c5d081099a5dbe33450eac5b779fda5454a8d871bb1efb705;
+        eval_vec[3] = 0x2ad024657205bb9046e2b5c9e8d7f645449df1497cf08e44adbe64f3baf100dd;
+        eval_vec[4] = 0x13eb9b4d9cd546509f9bbd6776e869b25e825220b13d8a8f058e059691f557dd;
+        eval_vec[5] = 0x0836f29dba76b5306d17d9e86ea76824a342c8aa124d8c49645128167066a71c;
+        eval_vec[6] = 0x0cf93bd2d1465cadb1e7577a09166857378c2422f34f24df0ecabfc6141f5721;
+        eval_vec[7] = 0x1b25d17955a5dbbfa7584d1eabe26b37b072d154e0c950a17034475f7155d83c;
+        eval_vec[8] = 0x10753e7c91f0aba812b52e835b3a427de7824b4716c054345ec419832be3a8dd;
+
+        Grumpkin.GrumpkinAffinePoint[] memory comm_vec = new Grumpkin.GrumpkinAffinePoint[](9);
+        comm_vec[0] = Grumpkin.GrumpkinAffinePoint(
+            0x0e725c0a599707e2a957110ce2f96014033005bc88b4dcde75ef06a27169a1dc,
+            0x0e366bebddc76eceb1a9e5fbf676fae1bb287f2ff096bbdbf48f6bcf9fd3ecae
+        );
+
+        comm_vec[1] = Grumpkin.GrumpkinAffinePoint(
+            0x1d37023876a4b66664246686233001ff0fd49d56a930a4de1f789c3971e71f85,
+            0x1eae632c5b849657395d625b0c2b02d197d0de037ea142771f97efa159e3ccea
+        );
+
+        comm_vec[2] = Grumpkin.GrumpkinAffinePoint(
+            0x14b61a3165f2459d0091c5e37fbbea69efea75208f70e8385b034e4e1ce7d30d,
+            0x093d34cc4f743944a8e7ed74198022dd74e5354ac768979ebe241679ae57c2db
+        );
+
+        comm_vec[3] = Grumpkin.GrumpkinAffinePoint(
+            0x1a36a923eb54c2958c1d8f71a8c0a5cbf23fd14b97171736c92de181a2c2271a,
+            0x2c00e3ae72c8f5121351cbc7059eeb7e8f98e93c74812429cdcac2397b51843d
+        );
+
+        comm_vec[4] = Grumpkin.GrumpkinAffinePoint(
+            0x25f77b35698f4f73110525ffb55fe20175a6de4dc83b0555cf47f4d2eaf419de,
+            0x07a6415c75c0dae6aea253325102f7ef9d1da89909002ffd599940cd6ccd3c49
+        );
+
+        comm_vec[5] = Grumpkin.GrumpkinAffinePoint(
+            0x23f069c968669773747617297de032794a2e743869527192c8bbc4a12116d4de,
+            0x19ce86221677a23807d6999deea6f5ef203e52f02551779c3f9a992dbf7d21d3
+        );
+
+        comm_vec[6] = Grumpkin.GrumpkinAffinePoint(
+            0x2157aa228599da44bdd4ecc64f375b736b671d602bc9cb1721d9bcab66839744,
+            0x248f38cf3759c4a9884d6db388003a2e4e5bf6e7494ae67ccc3743e657faa25a
+        );
+
+        comm_vec[7] = Grumpkin.GrumpkinAffinePoint(
+            0x2808d74472a6a4bbc90f8aef38b1a1e6bba9de1cfc9ad567f8d7944919a15839,
+            0x1a90ce337756989cc13295ec9e03195418d07447c70b65e7466214bdde5521b1
+        );
+
+        comm_vec[8] = Grumpkin.GrumpkinAffinePoint(
+            0x19c263edbdff59571f6c1dd8da0d69b5e50cac68c92c689d27e73a0f5c013f82,
+            0x1e7ea7240c683088a2b611e1e6c61d935f3788ac65e075a7ccac0079d34dcd46
+        );
+
+        PolyEvalInstanceLib.PolyEvalInstance memory actual =
+            PolyEvalInstanceLib.batchGrumpkin(comm_vec, r_sat, eval_vec, c);
+
+        uint256 e_expected = 0x0088669e792dcb64cc9598dbed28620719bebd0129650d26e886bc06dc43d852;
+        Grumpkin.GrumpkinAffinePoint memory c_expected = Grumpkin.GrumpkinAffinePoint(
+            0x27f88af1eec0500e566c3e25d6147661e7456b52b2f023f91f421270873d2f92,
+            0x03de91147588dfc46735f07ff26fbb05e680de5ee4aa35cd9af42d75e8eee4f7
+        );
+
+        assertEq(actual.e, e_expected);
+        assertEq(actual.c_x, c_expected.x);
+        assertEq(actual.c_y, c_expected.y);
+        assertEq(r_sat.length, actual.x.length);
+        for (uint256 index = 0; index < r_sat.length; index++) {
+            assertEq(r_sat[index], actual.x[index]);
         }
     }
 

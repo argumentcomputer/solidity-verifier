@@ -81,11 +81,11 @@ contract SparseEvaluationTest is Test {
 
     function testSparseEvaluateBn256() public {
         SparsePolynomialLib.Z memory z0 =
-        SparsePolynomialLib.Z(0, 0x000000000000000000000000000000010a3cb5af114bc6094024d5e8b5817038);
+            SparsePolynomialLib.Z(0, 0x000000000000000000000000000000010a3cb5af114bc6094024d5e8b5817038);
         SparsePolynomialLib.Z memory z1 =
-        SparsePolynomialLib.Z(1, 0x08f230d21087f2e0ea33703b5a0de3b92ff58b09b8bdbcee2016f70d7699cbd9);
+            SparsePolynomialLib.Z(1, 0x08f230d21087f2e0ea33703b5a0de3b92ff58b09b8bdbcee2016f70d7699cbd9);
         SparsePolynomialLib.Z memory z2 =
-        SparsePolynomialLib.Z(2, 0x1e7d17e953a2bee716b7139675a0fc9c1a3d34f00c1c071eac84e21f33841927);
+            SparsePolynomialLib.Z(2, 0x1e7d17e953a2bee716b7139675a0fc9c1a3d34f00c1c071eac84e21f33841927);
 
         SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
 
@@ -108,18 +108,18 @@ contract SparseEvaluationTest is Test {
 
         uint256 eval_X_expected = 0x150bdf49815f761a709a60620133c9173e54c66514cb3b2bd3ff9dabfa24870d;
 
-
-        uint256 eval_X = SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Bn256.R_MOD, Bn256.negateScalar);
+        uint256 eval_X =
+            SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Bn256.R_MOD, Bn256.negateScalar);
         assertEq(eval_X, eval_X_expected);
     }
 
     function testSparseEvaluateGrumpkin() public {
         SparsePolynomialLib.Z memory z0 =
-        SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001d523e9da28bbf206fe50868f52ca6334);
+            SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001d523e9da28bbf206fe50868f52ca6334);
         SparsePolynomialLib.Z memory z1 =
-        SparsePolynomialLib.Z(1, 0x03b173e20dfa9ec307f5eb55a0f8da20620d9e184dc69395a7d92cc30551728d);
+            SparsePolynomialLib.Z(1, 0x03b173e20dfa9ec307f5eb55a0f8da20620d9e184dc69395a7d92cc30551728d);
         SparsePolynomialLib.Z memory z2 =
-        SparsePolynomialLib.Z(2, 0x25049ad98282284f65ff8435aec45c47f9a39123eb6a33e8499ae079c504507a);
+            SparsePolynomialLib.Z(2, 0x25049ad98282284f65ff8435aec45c47f9a39123eb6a33e8499ae079c504507a);
 
         SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
 
@@ -142,7 +142,8 @@ contract SparseEvaluationTest is Test {
 
         uint256 eval_X_expected = 0x090edee35dda0b8a23da057d53201d4bd171b00405f04a4562777f60898718bd;
 
-        uint256 eval_X = SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Grumpkin.P_MOD, Grumpkin.negateBase);
+        uint256 eval_X =
+            SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Grumpkin.P_MOD, Grumpkin.negateBase);
         assertEq(eval_X, eval_X_expected);
     }
 }

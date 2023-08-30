@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 
-// Port of Nova' SparsePolynomial (https://github.com/microsoft/Nova/blob/main/src/spartan/polynomial.rs#L121)
+// Port of Nova' IdentityPolynomial (https://github.com/microsoft/Nova/blob/bd56514f3a5364553a31979aa1c1c480aa9e20cd/src/spartan/ppsnark.rs#L39)
 library IdentityPolynomialLib {
     function evaluate(uint256[] memory r, uint256 modulus) public pure returns (uint256) {
         uint256 result;

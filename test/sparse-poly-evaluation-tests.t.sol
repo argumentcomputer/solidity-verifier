@@ -5,6 +5,8 @@ import "@std/Test.sol";
 import "src/blocks/SparsePolynomial.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
 
 contract SparseEvaluationTest is Test {
     function testSparseEvaluationPrimary() public {
@@ -74,6 +76,73 @@ contract SparseEvaluationTest is Test {
 
         uint256 eval_X_expected = 0x1f7d55bb4d7ae09307a68da12fe43fef3acf3dcb0c88929bfdcb6b52c3a8e454;
         uint256 eval_X = SparsePolynomialLib.evaluate(num_vars, poly_X, r_y, Pallas.P_MOD, Pallas.negateBase);
+        assertEq(eval_X, eval_X_expected);
+    }
+
+    function testSparseEvaluateBn256() public {
+        SparsePolynomialLib.Z memory z0 =
+        SparsePolynomialLib.Z(0, 0x000000000000000000000000000000010a3cb5af114bc6094024d5e8b5817038);
+        SparsePolynomialLib.Z memory z1 =
+        SparsePolynomialLib.Z(1, 0x08f230d21087f2e0ea33703b5a0de3b92ff58b09b8bdbcee2016f70d7699cbd9);
+        SparsePolynomialLib.Z memory z2 =
+        SparsePolynomialLib.Z(2, 0x1e7d17e953a2bee716b7139675a0fc9c1a3d34f00c1c071eac84e21f33841927);
+
+        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+
+        uint256[] memory r_prod_unpad = new uint256[](14);
+        // 0x0256f4d5674a529ec39e0afba3738d0263cb1d385a563ce608edad719f47d5fd;
+        r_prod_unpad[0] = 0x00f87554a6caed435bb9e714a355fa73cfd359d5dd8b31fc172ada8cecd7ee30;
+        r_prod_unpad[1] = 0x29b4dbb7be87a4961e21fe447b03125469077ba2bad896ac2c374aa55be358ab;
+        r_prod_unpad[2] = 0x1493591a52ded39471fbcd9937537aae9023e77080708f790798671aaa268fc9;
+        r_prod_unpad[3] = 0x046d5e95bee7ea383f29e0ffa2a6e2816d5b82a75283265e2bc17e63d6ecaeee;
+        r_prod_unpad[4] = 0x0ea46d83cda8cac4084d937137ab451e89d3fef4b6e25ec00e80fcb8bf8a5308;
+        r_prod_unpad[5] = 0x26d16ee1e12b5e781327f54a2b89bb7f397e500ec503066b4e37c5e59c372aa1;
+        r_prod_unpad[6] = 0x2826c37882e6cec0184d476e6e14ac3cb48aee6e233a1ee085c174d53cf1f419;
+        r_prod_unpad[7] = 0x1b054f124db95f87ec662a5b8ddf47f2b0264e97ef866a05e2a3e0335bce3b16;
+        r_prod_unpad[8] = 0x0fd296132bf7fc749c44059331d68c735b05f8f746c26e0bf25c3e0a0e6b17b1;
+        r_prod_unpad[9] = 0x2aede350fab3723fb2ed55ed281f40e4a718f43237901e99264cb09a586661ef;
+        r_prod_unpad[10] = 0x1a99798029810bbe8a2a5e0d738e8a7c54c010acf84892178463c3222d08b351;
+        r_prod_unpad[11] = 0x01611bd374a32895d454f4fbe32f051f82e1fef13242ee7951dc6df7848cef97;
+        r_prod_unpad[12] = 0x019b91a9d375fe46af22a415a0cba65d78d7a605eecf99b3eff27cd508e6282c;
+        r_prod_unpad[13] = 0x0780ddd1b7bae1a8aff7cf5a352412e2956c573041e9ec3557bca02d7a2e78a1;
+
+        uint256 eval_X_expected = 0x150bdf49815f761a709a60620133c9173e54c66514cb3b2bd3ff9dabfa24870d;
+
+
+        uint256 eval_X = SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Bn256.R_MOD, Bn256.negateScalar);
+        assertEq(eval_X, eval_X_expected);
+    }
+
+    function testSparseEvaluateGrumpkin() public {
+        SparsePolynomialLib.Z memory z0 =
+        SparsePolynomialLib.Z(0, 0x00000000000000000000000000000001d523e9da28bbf206fe50868f52ca6334);
+        SparsePolynomialLib.Z memory z1 =
+        SparsePolynomialLib.Z(1, 0x03b173e20dfa9ec307f5eb55a0f8da20620d9e184dc69395a7d92cc30551728d);
+        SparsePolynomialLib.Z memory z2 =
+        SparsePolynomialLib.Z(2, 0x25049ad98282284f65ff8435aec45c47f9a39123eb6a33e8499ae079c504507a);
+
+        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+
+        uint256[] memory r_prod_unpad = new uint256[](14);
+        // 0x2c9493e9d5b214b3cad4bb621544e6001cb1dc10421ede559fb937d89568cd01;
+        r_prod_unpad[0] = 0x1334cd36b6c002cd14bd1ac0e19bfca3b7fe600634fa22ac5d6fc6b271c50ea1;
+        r_prod_unpad[1] = 0x24e56409afcdd7500f2608d82db8f7a607cb1c5246aaa03cb30fdab50e6b0131;
+        r_prod_unpad[2] = 0x27ee3e707f58a066bd5c0c4078fc690de3d108a7f759884c0d890dcf9c71d0ae;
+        r_prod_unpad[3] = 0x12060dfdd8c1fceaba38ac16288cd391e1bd33e08476edde5dafa859d2bc20c3;
+        r_prod_unpad[4] = 0x1715421e99f5091ab24230608160f638748e685707ded14d8df5e502eff1c726;
+        r_prod_unpad[5] = 0x21225c719bfbac3279313676bb52f31d166432319612381d19e29680a23a9e54;
+        r_prod_unpad[6] = 0x1f5f277e7a112badb02d8cd4794afac553a48acec6eb4895fd4ac287309e0766;
+        r_prod_unpad[7] = 0x01c6ef7072eae3366e9bac92954116f78dba97d93b34943cdbca7473e03c303c;
+        r_prod_unpad[8] = 0x2d724a66a4244a6a493bbf6f10e9a1aefce0702e21bc3d1995f4741e0d20e0b6;
+        r_prod_unpad[9] = 0x287e29cb6788fd94d01ef493dbff1e658619a05ce4fdd1541726bff3cbe8b33b;
+        r_prod_unpad[10] = 0x106e96134b2e80dc2b4691a8c3ecfc2ea1ef0ab294c5f708cd6774bfeb403009;
+        r_prod_unpad[11] = 0x2fe84884f541263540ef28f6f103eeccb2413af5378e27d63469466568f56e84;
+        r_prod_unpad[12] = 0x19a2ee861704322444687829379a8303142709c02feb0f0d56de44c5ab0540e2;
+        r_prod_unpad[13] = 0x053328f9153fa2d3455c13a25004acd66102e6596877a4952854ee2401233022;
+
+        uint256 eval_X_expected = 0x090edee35dda0b8a23da057d53201d4bd171b00405f04a4562777f60898718bd;
+
+        uint256 eval_X = SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Grumpkin.P_MOD, Grumpkin.negateBase);
         assertEq(eval_X, eval_X_expected);
     }
 }

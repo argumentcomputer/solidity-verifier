@@ -227,3 +227,119 @@ library SecondarySumcheck {
         return (e, r, transcript);
     }
 }
+
+library SumcheckBn256 {
+    function verify(
+        SumcheckUtilities.SumcheckProof calldata proof,
+        uint256 claim,
+        uint256 num_rounds,
+        uint256 degree_bound,
+        KeccakTranscriptLib.KeccakTranscript memory transcript
+    ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
+        uint256 e = claim;
+        uint256[] memory r = new uint256[](proof.compressed_polys.length);
+
+        if (proof.compressed_polys.length != num_rounds) {
+            console.log("[NovaError::InvalidSumcheckProof | Bn256], proof.compressed_polys.length != num_rounds");
+            revert();
+        }
+
+        SumcheckUtilities.UniPoly memory uni_poly;
+        uint8[] memory transcriptBytes;
+        uint8[] memory label = new uint8[](1);
+
+        for (uint256 index = 0; index < proof.compressed_polys.length; index++) {
+            uni_poly = SumcheckUtilities.decompress(proof.compressed_polys[index], e, Bn256.R_MOD, Bn256.negateScalar); // Bn256
+
+            if (SumcheckUtilities.degree(uni_poly) != degree_bound) {
+                console.log(
+                    "[NovaError::InvalidSumcheckProof | Bn256], SumcheckUtilities.degree(uni_poly) != degreeBound"
+                );
+                revert();
+            }
+
+            // Rust:
+            // debug_assert_eq!(poly.eval_at_zero() + poly.eval_at_one(), e);
+            require(
+                addmod(
+                    SumcheckUtilities.evalAtZero(uni_poly),
+                    SumcheckUtilities.evalAtOne(uni_poly, Bn256.R_MOD), // Bn256
+                    Bn256.R_MOD // Vesta
+                ) == e,
+                "[Sumcheck | Bn256] evalAtZero + evalAtOne != e"
+            );
+
+            transcriptBytes = SumcheckUtilities.toTranscriptBytes(uni_poly);
+
+            label[0] = 0x70; // b"p" in Rust
+            transcript = KeccakTranscriptLib.absorb(transcript, label, transcriptBytes);
+
+            label[0] = 0x63; // b"c" in Rust
+            (transcript, r[index]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveBn256(), label); // Bn256
+            r[index] = Field.reverse256(r[index]);
+
+            e = SumcheckUtilities.evaluate(uni_poly, r[index], Bn256.R_MOD); // Bn256
+        }
+
+        return (e, r, transcript);
+    }
+}
+
+library SumcheckGrumpkin {
+    function verify(
+        SumcheckUtilities.SumcheckProof calldata proof,
+        uint256 claim,
+        uint256 num_rounds,
+        uint256 degree_bound,
+        KeccakTranscriptLib.KeccakTranscript memory transcript
+    ) public returns (uint256, uint256[] memory, KeccakTranscriptLib.KeccakTranscript memory) {
+        uint256 e = claim;
+        uint256[] memory r = new uint256[](proof.compressed_polys.length);
+
+        if (proof.compressed_polys.length != num_rounds) {
+            console.log("[NovaError::InvalidSumcheckProof | Grumpkin], proof.compressed_polys.length != num_rounds");
+            revert();
+        }
+
+        SumcheckUtilities.UniPoly memory uni_poly;
+        uint8[] memory transcriptBytes;
+        uint8[] memory label = new uint8[](1);
+
+        for (uint256 index = 0; index < proof.compressed_polys.length; index++) {
+            uni_poly =
+                SumcheckUtilities.decompress(proof.compressed_polys[index], e, Grumpkin.P_MOD, Grumpkin.negateBase); // Grumpkin
+
+            if (SumcheckUtilities.degree(uni_poly) != degree_bound) {
+                console.log(
+                    "[NovaError::InvalidSumcheckProof | Grumpkin], SumcheckUtilities.degree(uni_poly) != degreeBound"
+                );
+                revert();
+            }
+
+            // Rust:
+            // debug_assert_eq!(poly.eval_at_zero() + poly.eval_at_one(), e);
+            require(
+                addmod(
+                    SumcheckUtilities.evalAtZero(uni_poly),
+                    SumcheckUtilities.evalAtOne(uni_poly, Grumpkin.P_MOD), // Grumpkin
+                    Grumpkin.P_MOD // Grumpkin
+                ) == e,
+                "[Sumcheck | Grumpkin] evalAtZero + evalAtOne != e"
+            );
+
+            transcriptBytes = SumcheckUtilities.toTranscriptBytes(uni_poly);
+
+            label[0] = 0x70; // b"p" in Rust
+            transcript = KeccakTranscriptLib.absorb(transcript, label, transcriptBytes);
+
+            label[0] = 0x63; // b"c" in Rust
+            (transcript, r[index]) =
+                KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveGrumpkin(), label); // Grumpkin
+            r[index] = Field.reverse256(r[index]);
+
+            e = SumcheckUtilities.evaluate(uni_poly, r[index], Grumpkin.P_MOD); // Grumpkin
+        }
+
+        return (e, r, transcript);
+    }
+}

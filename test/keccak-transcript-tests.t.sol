@@ -79,6 +79,14 @@ contract KeccakTranscriptContractTest is Test {
         uint256 scalarVesta = ScalarFromUniformLib.scalarFromUniform(uniform, ScalarFromUniformLib.curveVesta());
         uint256 expectedVesta = 0x0c34755d6b4566f930b8371afd2e4818ae49878a10527fd4443dbec811582d43;
         assertEq(scalarVesta, expectedVesta);
+
+        uint256 scalarBn256 = ScalarFromUniformLib.scalarFromUniform(uniform, ScalarFromUniformLib.curveBn256());
+        uint256 expectedBn256 = 0x02c64acce6367d59e231e9333e02a497b617fe0fffe49e395b8601550d16f993;
+        assertEq(scalarBn256, expectedBn256);
+
+        uint256 scalarGrumpkin = ScalarFromUniformLib.scalarFromUniform(uniform, ScalarFromUniformLib.curveGrumpkin());
+        uint256 expectedGrumpkin = 0x04876bd2613243de5a5e8cce6f8e3d1e3adbb695c1b596ed476b96711bec2313;
+        assertEq(scalarGrumpkin, expectedGrumpkin);
     }
 
     // Following test has been ported: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/provider/keccak.rs#L138
@@ -178,6 +186,104 @@ contract KeccakTranscriptContractTest is Test {
         (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
         expected = 0xe3585da385704879ec03ef201dbf228e7b227a5af709f83f3ed5f92a5037d633;
+        assertEq(output, expected);
+    }
+
+    function testKeccakTranscriptBn256() public {
+        uint8[] memory input = new uint8[](4); // b"test" in Rust
+        input[0] = 0x74;
+        input[1] = 0x65;
+        input[2] = 0x73;
+        input[3] = 0x74;
+
+        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
+
+        uint256 input1 = 2;
+        uint8[] memory label1 = new uint8[](2); // b"s1" in Rust
+        label1[0] = 0x73;
+        label1[1] = 0x31;
+
+        uint256 input2 = 5;
+        uint8[] memory label2 = new uint8[](2); // b"s2" in Rust
+        label2[0] = 0x73;
+        label2[1] = 0x32;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
+        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
+
+        uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x31;
+
+        ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curveBn256();
+        uint256 output;
+        (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        uint256 expected = 0x9fb71e3b74bfd0b60d97349849b895595779a240b92a6fae86bd2812692b6b0e;
+        assertEq(output, expected);
+
+        uint256 s3 = 128;
+        uint8[] memory label3 = new uint8[](2); // b"s3" in Rust
+        label3[0] = 0x73;
+        label3[1] = 0x33;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label3, s3);
+
+        // b"c2" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x32;
+        (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        expected = 0xbfd4c50b7d6317e9267d5d65c985eb455a3561129c0b3beef79bfc8461a84f18;
+        assertEq(output, expected);
+    }
+
+    function testKeccakTranscriptGrumpkin() public {
+        uint8[] memory input = new uint8[](4); // b"test" in Rust
+        input[0] = 0x74;
+        input[1] = 0x65;
+        input[2] = 0x73;
+        input[3] = 0x74;
+
+        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
+
+        uint256 input1 = 2;
+        uint8[] memory label1 = new uint8[](2); // b"s1" in Rust
+        label1[0] = 0x73;
+        label1[1] = 0x31;
+
+        uint256 input2 = 5;
+        uint8[] memory label2 = new uint8[](2); // b"s2" in Rust
+        label2[0] = 0x73;
+        label2[1] = 0x32;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
+        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
+
+        uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x31;
+
+        ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curveGrumpkin();
+        uint256 output;
+        (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        uint256 expected = 0xd12b7cd39aa2fc3af9bfd4f1dfd8ffa6498f57e35021675f4227d448b5540922;
+        assertEq(output, expected);
+
+        uint256 s3 = 128;
+        uint8[] memory label3 = new uint8[](2); // b"s3" in Rust
+        label3[0] = 0x73;
+        label3[1] = 0x33;
+
+        transcript = KeccakTranscriptLib.absorb(transcript, label3, s3);
+
+        // b"c2" in Rust
+        squeezeLabel[0] = 0x63;
+        squeezeLabel[1] = 0x32;
+        (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+
+        expected = 0xfb894998c48dd652b32a109d3d2e579a0878f7f5cacfb572dc21666b9cfe221a;
         assertEq(output, expected);
     }
 }

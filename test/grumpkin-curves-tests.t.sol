@@ -271,4 +271,14 @@ contract GrumpkinCurvesContractTests is Test {
         assertEq(point.x, 0x0eb7400597f60115135a47416a82e673ada930a84d61fdcff6238b7432f5cc4a);
         assertEq(point.y, 0x1b6b2a54c04eb0830097f90e5792465b5c131599e1cd9646539ef175d9eac362);
     }
+
+    function testGrumpkinDecompression1() public {
+        uint256 compressedGrumpkinPoint =
+            Field.reverse256(0x88bed3689a94506fe46065e5600749882804d3bf4793864638f641b3b2325157);
+
+        Grumpkin.GrumpkinAffinePoint memory point = Grumpkin.decompress(compressedGrumpkinPoint);
+
+        assertEq(point.x, 0x175132b2b341f63846869347bfd3042888490760e56560e46f50949a68d3be88);
+        assertEq(point.y, 0x2f7039df869b2f301490e03faedf85d7b6079ee4e389fb09e87425446ec2133d);
+    }
 }

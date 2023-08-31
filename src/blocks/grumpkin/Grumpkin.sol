@@ -223,7 +223,7 @@ library Grumpkin {
         uint8 sign = ((uint8(y & 0xff)) & 1);
 
         if ((y_sign ^ sign) == 1) {
-            y = negateBase(y);
+            y = negateScalar(y);
         }
 
         return GrumpkinAffinePoint(x, y);

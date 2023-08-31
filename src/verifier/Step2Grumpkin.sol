@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import "@std/Test.sol";
 import "src/NovaVerifierAbstractions.sol";
 import "src/blocks/poseidon/Sponge.sol";
-import "src/blocks/pasta/Pallas.sol";
-import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
 
-library Step2Lib {
+library Step2GrumpkinLib {
     uint256 private constant NUM_FE_WITHOUT_IO_FOR_CRHF = 17;
     uint32 private constant DOMAIN_SEPARATOR = 0;
     uint32 private constant SQUEEZE_NUM = 1;
@@ -15,16 +15,18 @@ library Step2Lib {
     function verify(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
+        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsPrimary,
+        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
         uint32 numSteps,
         uint256[] calldata z0_primary,
         uint256[] calldata z0_secondary
-    ) public view returns (bool) {
-        if (!verifyPrimaryStep2(proof, vk, numSteps, z0_primary)) {
+    ) public returns (bool) {
+        if (!verifyPrimaryStep2(proof, vk, constantsSecondary, numSteps, z0_primary)) {
             console.log("[Step2 primary] false");
             return false;
         }
 
-        if (!verifySecondaryStep2(proof, vk, numSteps, z0_secondary)) {
+        if (!verifySecondaryStep2(proof, vk, constantsPrimary, numSteps, z0_secondary)) {
             console.log("[Step2 secondary] false");
             return false;
         }
@@ -34,19 +36,10 @@ library Step2Lib {
     function verifyPrimaryStep2(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
+        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
         uint32 numSteps,
         uint256[] calldata z0_primary
-    ) public view returns (bool) {
-        // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        if (
-            !NovaSpongeVestaLib.constantsAreEqual(
-                vk.ro_consts_secondary.mixConstants, vk.ro_consts_secondary.addRoundConstants
-            )
-        ) {
-            console.log("[verifyPrimary] WrongVestaPoseidonConstantsError");
-            return false;
-        }
-
+    ) public returns (bool) {
         uint256 counter = 0;
         uint256 i = 0;
 
@@ -67,10 +60,10 @@ library Step2Lib {
             counter++;
         }
 
-        Vesta.VestaAffinePoint memory point;
+        Grumpkin.GrumpkinAffinePoint memory point;
 
         // decompress commW
-        point = Vesta.decompress(proof.r_U_secondary.comm_W);
+        point = Grumpkin.decompress(Field.reverse256(proof.r_U_secondary.comm_W)); // Grumpkin
 
         elementsToHash[counter] = point.x;
         counter++;
@@ -82,8 +75,7 @@ library Step2Lib {
         counter++;
 
         // decompress commE
-        point = Vesta.decompress(proof.r_U_secondary.comm_E);
-
+        point = Grumpkin.decompress(Field.reverse256(proof.r_U_secondary.comm_E)); // Grumpkin
         elementsToHash[counter] = point.x;
         counter++;
 
@@ -111,24 +103,15 @@ library Step2Lib {
             counter++;
         }
 
-        // Step2 execution (compare Vesta-based Poseidon hashes)
-        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
-        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, SQUEEZE_NUM);
-        SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
-        pattern[0] = absorb;
-        pattern[1] = squeeze;
+        require(
+            counter == elementsToHash.length, "[Poseidon:Optimized verifyPrimaryStep2] counter != elementsToHash.length"
+        );
 
-        NovaSpongeVestaLib.SpongeU24Vesta memory sponge =
-            NovaSpongeVestaLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
-        sponge = NovaSpongeVestaLib.absorb(sponge, elementsToHash);
-        (, uint256[] memory output) = NovaSpongeVestaLib.squeeze(sponge, SQUEEZE_NUM);
-        sponge = NovaSpongeVestaLib.finishNoFinalIOCounterCheck(sponge);
+        uint256 output = hash(elementsToHash.length, elementsToHash, constantsSecondary, Bn256.R_MOD); // Bn256.R_MOD
 
         // in Nova only 250 bits of output hash are significant
-        if (
-            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[0]
-        ) {
-            console.log("[Vesta Poseidon hash mismatch (verifyPrimary)] ProofVerifyError");
+        if ((output & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[0]) {
+            console.log("[Poseidon hash mismatch (verifyPrimary)] ProofVerifyError");
             return false;
         }
         return true;
@@ -137,19 +120,10 @@ library Step2Lib {
     function verifySecondaryStep2(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
+        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
         uint32 numSteps,
         uint256[] calldata z0_secondary
-    ) public view returns (bool) {
-        // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
-        if (
-            !NovaSpongePallasLib.constantsAreEqual(
-                vk.ro_consts_primary.mixConstants, vk.ro_consts_primary.addRoundConstants
-            )
-        ) {
-            console.log("[verifySecondary] WrongPallasPoseidonConstantsError");
-            return false;
-        }
-
+    ) public returns (bool) {
         uint256 counter = 0;
         uint256 i = 0;
 
@@ -170,9 +144,9 @@ library Step2Lib {
             counter++;
         }
 
-        Pallas.PallasAffinePoint memory point;
+        Bn256.Bn256AffinePoint memory point;
         // decompress commW
-        point = Pallas.decompress(proof.r_U_primary.comm_W);
+        point = Bn256.decompress(Field.reverse256(proof.r_U_primary.comm_W));
 
         elementsToHash[counter] = point.x;
         counter++;
@@ -184,7 +158,7 @@ library Step2Lib {
         counter++;
 
         // decompress commE
-        point = Pallas.decompress(proof.r_U_primary.comm_E);
+        point = Bn256.decompress(Field.reverse256(proof.r_U_primary.comm_E));
 
         elementsToHash[counter] = point.x;
         counter++;
@@ -213,28 +187,40 @@ library Step2Lib {
             counter++;
         }
 
-        // Step2 execution (compare Pallas-based Poseidon hashes)
-        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(counter));
+        require(
+            counter == elementsToHash.length,
+            "[Poseidon:Optimized verifySecondaryStep2] counter != elementsToHash.length"
+        );
+
+        uint256 output = hash(elementsToHash.length, elementsToHash, constantsSecondary, Grumpkin.P_MOD); // Grumpkin.P_MOD
+
+        // in Nova only 250 bits of output hash are significant
+        if ((output & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[1]) {
+            console.log("[Poseidon hash mismatch (verifySecondary)] ProofVerifyError");
+            return false;
+        }
+        return true;
+    }
+
+    function hash(
+        uint256 absorbLen,
+        uint256[] memory elementsToHash,
+        PoseidonU24Optimized.PoseidonConstantsU24 calldata constants,
+        uint256 modulus
+    ) private returns (uint256) {
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(absorbLen));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, SQUEEZE_NUM);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
         pattern[0] = absorb;
         pattern[1] = squeeze;
 
-        NovaSpongePallasLib.SpongeU24Pallas memory sponge =
-            NovaSpongePallasLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR);
+        NovaSpongeLib.SpongeU24 memory sponge =
+            NovaSpongeLib.start(IOPatternLib.IOPattern(pattern), DOMAIN_SEPARATOR, constants);
+        sponge = NovaSpongeLib.absorb(sponge, elementsToHash, modulus);
 
-        sponge = NovaSpongePallasLib.absorb(sponge, elementsToHash);
+        uint256[] memory output;
+        (sponge, output) = NovaSpongeLib.squeeze(sponge, SQUEEZE_NUM, modulus);
 
-        (, uint256[] memory output) = NovaSpongePallasLib.squeeze(sponge, SQUEEZE_NUM);
-        sponge = NovaSpongePallasLib.finishNoFinalIOCounterCheck(sponge);
-
-        // in Nova only 250 bits of output hash are significant
-        if (
-            (output[0] & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[1]
-        ) {
-            console.log("[Pallas Poseidon hash mismatch (verifySecondary)] ProofVerifyError");
-            return false;
-        }
-        return true;
+        return output[0];
     }
 }

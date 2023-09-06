@@ -92,7 +92,7 @@ library Grumpkin {
         return GrumpkinAffinePoint(t[0], t[1]);
     }
 
-    function is_identity(GrumpkinAffinePoint memory p1) private pure returns (bool) {
+    function is_identity(GrumpkinAffinePoint memory p1) public pure returns (bool) {
         if (p1.x != 0) {
             return false;
         }

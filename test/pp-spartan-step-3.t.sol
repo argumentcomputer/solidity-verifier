@@ -9,6 +9,7 @@ import "src/blocks/KeccakTranscript.sol";
 import "src/blocks/PolyEvalInstance.sol";
 import "src/blocks/Sumcheck.sol";
 import "src/NovaVerifierAbstractions.sol";
+import "test/utils.t.sol";
 
 contract PpSpartanStep3Computations is Test {
     function check_claim_inner_final_expected(
@@ -311,29 +312,6 @@ contract PpSpartanStep3Computations is Test {
         return (vk_digest, U, comm_Az_decompressed, comm_Bz_decompressed, comm_Cz_decompressed);
     }
 
-    function loadTranscript() private pure returns (KeccakTranscriptLib.KeccakTranscript memory) {
-        uint8[] memory init_input = new uint8[](16); // Rust's b"RelaxedR1CSSNARK"
-        init_input[0] = 0x52;
-        init_input[1] = 0x65;
-        init_input[2] = 0x6c;
-        init_input[3] = 0x61;
-        init_input[4] = 0x78;
-        init_input[5] = 0x65;
-        init_input[6] = 0x64;
-        init_input[7] = 0x52;
-        init_input[8] = 0x31;
-        init_input[9] = 0x43;
-        init_input[10] = 0x53;
-        init_input[11] = 0x53;
-        init_input[12] = 0x4e;
-        init_input[13] = 0x41;
-        init_input[14] = 0x52;
-        init_input[15] = 0x4b;
-
-        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(init_input);
-        return transcript;
-    }
-
     function loadInputForU()
         private
         view
@@ -543,7 +521,7 @@ contract PpSpartanStep3Computations is Test {
             Vesta.VestaAffinePoint memory comm_Cz
         ) = loadInputForTau();
 
-        KeccakTranscriptLib.KeccakTranscript memory transcript = loadTranscript();
+        KeccakTranscriptLib.KeccakTranscript memory transcript = TestUtilities.loadTranscript();
 
         uint8[] memory label = new uint8[](2); // Rust's b"vk"
         label[0] = 0x76;

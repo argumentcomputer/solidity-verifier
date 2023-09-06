@@ -730,6 +730,253 @@ library KeccakTranscriptLib {
         return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
 
+    function scalarToBytes(uint256 input) private pure returns (uint8[] memory) {
+        uint8[] memory input_bytes = new uint8[](32);
+
+        for (uint256 i = 0; i < 32; i++) {
+            input_bytes[i] = uint8(bytes1(bytes32(input)[31 - i]));
+        }
+
+        return input_bytes;
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256[] memory inputs)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory input = new uint8[](32 * inputs.length);
+        for (uint256 i = 0; i < inputs.length; i++) {
+            uint8[] memory input_bytes = scalarToBytes(inputs[i]);
+            for (uint256 j = 0; j < 32; j++) {
+                input[32 * i + j] = input_bytes[j];
+            }
+        }
+        return absorb(keccak, label, input);
+    }
+
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        Bn256.Bn256AffinePoint memory comm_W,
+        Bn256.Bn256AffinePoint memory comm_E,
+        uint256[] memory X,
+        uint256 u
+    ) public pure returns (KeccakTranscript memory) {
+        // comm_W: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_W is point at infinity)
+        // comm_E: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_E is point at infinity)
+        // u: 32
+        // X: 32 * len(X)
+        uint8[] memory output = new uint8[](32 * 2 + 1 + 32 * 2 + 1 + 32 * X.length + 32);
+
+        uint256 i = 0;
+        uint256 index = 0;
+        uint256 val;
+
+        // write comm_W.x
+        val = comm_W.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_W.y
+        val = comm_W.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write byte indicating whether comm_W is point at infinity
+        if (Bn256.is_identity(comm_W)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write comm_E.x
+        val = comm_E.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_E.y
+        val = comm_E.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether comm_E is point at infinity
+        if (Bn256.is_identity(comm_E)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write u
+        val = u;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write X
+        for (i = 0; i < X.length; i++) {
+            val = X[i];
+            for (uint256 j = 0; j < 32; j++) {
+                output[index] = uint8(bytes1(bytes32(val)[31 - j]));
+                index++;
+            }
+        }
+
+        require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Bn256)] unexpected length");
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        Grumpkin.GrumpkinAffinePoint memory comm_W,
+        Grumpkin.GrumpkinAffinePoint memory comm_E,
+        uint256[] memory X,
+        uint256 u
+    ) public pure returns (KeccakTranscript memory) {
+        // comm_W: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_W is point at infinity)
+        // comm_E: 32 (X) + 32 (Y) + 1 (1 byte indicating whether comm_E is point at infinity)
+        // u: 32
+        // X: 32 * len(X)
+        uint8[] memory output = new uint8[](32 * 2 + 1 + 32 * 2 + 1 + 32 * X.length + 32);
+
+        uint256 i = 0;
+        uint256 index = 0;
+        uint256 val;
+
+        // write comm_W.x
+        val = comm_W.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_W.y
+        val = comm_W.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write byte indicating whether comm_W is point at infinity
+        if (Grumpkin.is_identity(comm_W)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write comm_E.x
+        val = comm_E.x;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+        // write comm_E.y
+        val = comm_E.y;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether comm_E is point at infinity
+        if (Grumpkin.is_identity(comm_E)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        // write u
+        val = u;
+        for (i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(val)[31 - i]));
+            index++;
+        }
+
+        // write X
+        for (i = 0; i < X.length; i++) {
+            val = X[i];
+            for (uint256 j = 0; j < 32; j++) {
+                output[index] = uint8(bytes1(bytes32(val)[31 - j]));
+                index++;
+            }
+        }
+
+        require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Grumpkin)] unexpected length");
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Grumpkin.GrumpkinAffinePoint[] memory points)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[]((32 * 2 + 1) * points.length);
+        uint256 index = 0;
+        for (uint256 j = 0; j < points.length; j++) {
+            // write x coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].x)[31 - i]));
+                index++;
+            }
+            // write y coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].y)[31 - i]));
+                index++;
+            }
+
+            // write byte indicating whether point is at infinity
+            if (Grumpkin.is_identity(points[j])) {
+                output[index] = 0x00;
+            } else {
+                output[index] = 0x01;
+            }
+            index++;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint[] memory points)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[]((32 * 2 + 1) * points.length);
+        uint256 index = 0;
+        for (uint256 j = 0; j < points.length; j++) {
+            // write x coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].x)[31 - i]));
+                index++;
+            }
+            // write y coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].y)[31 - i]));
+                index++;
+            }
+
+            // write byte indicating whether point is at infinity
+            if (Bn256.is_identity(points[j])) {
+                output[index] = 0x00;
+            } else {
+                output[index] = 0x01;
+            }
+            index++;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)
         public
         pure

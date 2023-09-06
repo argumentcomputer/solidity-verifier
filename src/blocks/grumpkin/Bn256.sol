@@ -59,6 +59,16 @@ library Bn256 {
         return R_MOD - (scalar % R_MOD);
     }
 
+    function is_identity(Bn256AffinePoint memory p1) public pure returns (bool) {
+        if (p1.x != 0) {
+            return false;
+        }
+        if (p1.y != 0) {
+            return false;
+        }
+        return true;
+    }
+
     function decompress(uint256 compressed) public view returns (Bn256AffinePoint memory) {
         uint8 is_inf = uint8(bytes32(compressed)[0]) >> 7;
         uint8 y_sign = uint8(bytes32(compressed)[0]) >> 6;

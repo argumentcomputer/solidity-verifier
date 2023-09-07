@@ -10,473 +10,6 @@ import "src/verifier/Step3Grumpkin.sol";
 import "test/utils.t.sol";
 
 contract PpSpartanStep3Computations is Test {
-    function loadScSatSecondary() private returns (Abstractions.CompressedPolys[] memory) {
-        Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
-        uint256[] memory raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1a92153cd8f297b34a72db4d128b1159add5031194cf982141cc54182391d4d5;
-        raw_poly[1] = 0x2416d0adb8fae80048f2c91e65a3f6ed839667b61d51109724ce0f93d1dbcbb3;
-        raw_poly[2] = 0x1147a5d1ee0aae83b63d2c3520581454d4d50b2efb56350cc74d99a14bb83926;
-        polys[0] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x284a32b6aba84bfde8527f6b491372677bd019850283894e5fe9548cd799a896;
-        raw_poly[1] = 0x116510db69dc4fc80b9144953bd935805e6e4e25401d42c00d3e51f411e9adcb;
-        raw_poly[2] = 0x169086ce61545550f14b997a53696fe090bdf377cec850f01c08f2bc3caeb0fd;
-        polys[1] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x178cdad7d83b1ff3e70cc3592d1be7f924c1f05b81830b0301621eb73c101699;
-        raw_poly[1] = 0x128a976e640fac8125aed40630fda1b0c922bc9b1f68533e88fac8b7e1590041;
-        raw_poly[2] = 0x054234f4d3df01c9fc776d10cc10e7664ed90ebd4561bdc0884b3745deff4314;
-        polys[2] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x0a455249512e8c5e8336a8182ccba7f6ac74d7480bc3c481e141cd52e52b0794;
-        raw_poly[1] = 0x244e38efafb27d0813071980e6eb67398241b354dca2d38387837ebc02b5c705;
-        raw_poly[2] = 0x2c72266d79eda8b1eb8da9e102eb3ac2e149ef0c7732d35093987524ec9bad50;
-        polys[3] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x03555160a10d45114210b4eab4f7d17a5dc3b16b64ee48e10f4d35ca4e5ee6f8;
-        raw_poly[1] = 0x0fa9fd1b94f1dbe9a44338c8a4e2876f24cb06c08ff025bd2689414ec01f2fd1;
-        raw_poly[2] = 0x1a765015315a9636e6e7f266b3d03ffa69dba3a65a9735f5558cefdf5b6f3946;
-        polys[4] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x27e2c7440967c20b9accd2718151e990d02997ee85a1be97b5dcccce21be1c44;
-        raw_poly[1] = 0x2e32f4d3561966823c6993628bf6f2053edb083a432986ff7ef38858d66daf89;
-        raw_poly[2] = 0x16f51a641ea532002223aa58b6b9662296c01aa76a80142ddb5a155e2c5011f5;
-        polys[5] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x21437d787c532c41b8226abc56d1ad41e8b171270ea24b0846a6955a82606013;
-        raw_poly[1] = 0x19ffcd70c5c8f090e99b9c299ad4de7d4398ec52eac6fff29f8dbd3f05f054a4;
-        raw_poly[2] = 0x179f6041820970bf9e18fcfbcf8ef7c5db3c59f7be67e2c33465ce6e0e9aef3a;
-        polys[6] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x099786913b502dc1805b6e0d05f726e30a9ee0bce6af2a60b20e5829da17c2ec;
-        raw_poly[1] = 0x104c508ea3c9a9eb07de02594004c8cc7d6c3bbc1308c7492ba2847756bda507;
-        raw_poly[2] = 0x29564071ec86c3bb8aa7f79798712456edc0f62fd2d1e8135de0deff03079999;
-        polys[7] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x143c517fe4506d3c000170566037e38dbeb5b0c325021857e9aa6cfe4cb1294f;
-        raw_poly[1] = 0x1ac117fd678d3dac7a4d2f1a863bbec04bcfd3f6ec9f52322e654f32f48ff0af;
-        raw_poly[2] = 0x12034986615915a9016150fe42ea5e9c32bc92095f713bcffc419d01e6f8d2b2;
-        polys[8] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x22c88e34fa5358bec9a767c993433943a49535d0f7540ca1cf862382b77c3ce8;
-        raw_poly[1] = 0x104c60e9e5f9af2966cb602f0ed9468dd0e32cc07b1cef2ca7fb57736a179208;
-        raw_poly[2] = 0x1f222f6efd3b3c4ad3cc19105d374736bd11309a4def5fc0f2cef34075690e7c;
-        polys[9] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1f425850504aeae2c486d788aeca63e6f747eadea34abb5d8cb985611c9528c6;
-        raw_poly[1] = 0x0ba59c4e5c829816fc4d653c55cfcb742d6fef927048da1253a1ea317039facd;
-        raw_poly[2] = 0x0ad8de4d690ce18039785296022a9325f2d1ed3e48b29676ae2c57727e459626;
-        polys[10] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1b052334b5c290018760bd3aee193827f9381c54883a16d7d5c90ee2ee4db0a2;
-        raw_poly[1] = 0x0a183874a63fbe73ace4bb1e4e306162903166eef4773d81e710a4a8c3db0b53;
-        raw_poly[2] = 0x22f1cc8a9f3ee25a899f88c48337b0f9f1ea970215f8c0e35dd23ff04ba96751;
-        polys[11] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x11d1e298414c4237e50c90f8dd649c2a8081fd153480ac672ad6c218679c799f;
-        raw_poly[1] = 0x21084d370f3ad6d76f5c8cc7177516055a52df8ff7772d54c13c140e8a918b67;
-        raw_poly[2] = 0x247925afcb0c8f4e6815ccd3eaf355aa35b24551a51941d413ad759eab06d862;
-        polys[12] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x21c70d5fc387bb88c271d16ac2c2108d274d7dead0b16362e4158c400352cd3c;
-        raw_poly[1] = 0x1922a3d05002ca9a61c76f7a9cd9687ef1ca8150c3187deb51103f37ed393947;
-        raw_poly[2] = 0x02bd34d0089f196771a95c798bc076d19cd358ade572314a0f6f6ddbfd3cb691;
-        polys[13] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1e34b6316ff24ae3b8f3564422c0a21971fa575cb9ca287d1bf27a1d1ee043f2;
-        raw_poly[1] = 0x089700fd9af2772effc1483c8697e9265e612b10c73da79168aa05928f230c2c;
-        raw_poly[2] = 0x08d2db108f23a7031e04360f7fd7b39c92c89f7df3388de21580ed09487166ec;
-        polys[14] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x2b7a418cdeedf13cfb5b466487ca6aaa096c0e8717973e6dc272d25ff2cbe42f;
-        raw_poly[1] = 0x16df58a46d3a88a7f89c4c61c515ac60561f509f08049f7492c5d3107504aecc;
-        raw_poly[2] = 0x288ce510c9c9134613d1a5b17d84843dd7a240beb015130ccee7dde78832ebf4;
-        polys[15] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x2bc6eb266ca0e251634b6e8a0aafe08b93fa02b40847c020cf326eb7ae9011e8;
-        raw_poly[1] = 0x2183c791c9f3e698ce0ba6d44ed7236873932c2bce37cc7f9e85f877f3d2449c;
-        raw_poly[2] = 0x0d2e7c533a4974068ff229ae5cb952bea221109b69634bc717a66e1364a0b3c8;
-        polys[16] = Abstractions.CompressedPolys(raw_poly);
-
-        return polys;
-    }
-
-    function loadScSatPrimary() private returns (Abstractions.CompressedPolys[] memory) {
-        Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
-        uint256[] memory raw_poly = new uint256[](3);
-        raw_poly[0] = 0x04307958956afc72bb453365f15a82322f0f7cd90849dbcb1e12938461edd382;
-        raw_poly[1] = 0x17cdb1e00a7a6405d31f227482f66662117a325d2d5b6341051084b91127cec2;
-        raw_poly[2] = 0x2a4adf108d69284dc79c3c12a7967a9a4257d722606104d535dfc69fc626e0f7;
-        polys[0] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1aa1069ddd0a332245670850350326b02a0b6fb5938f07d5959dc765c7d29b22;
-        raw_poly[1] = 0x0f158d4ef268c5dfe92380c9ef0d229670ea04148dfbeaaa4102751e3e8dc589;
-        raw_poly[2] = 0x0440f5dfc284463fe7e2e805d875cacffdd0f1baf884cbc794b1ed51c9f4887a;
-        polys[1] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x00a5957f0395f79a4394f38ff664907deeeb08cb00669e8dfe99861d8b314949;
-        raw_poly[1] = 0x0108e8858068f21f28d6902e4874cc9fb37fa6dcd10c93749cef61c27bb8b4b9;
-        raw_poly[2] = 0x1f7e366996de9b0fb20f4e966c7150a5f16ebd1f8717ccbe5b649a9bd18c1dac;
-        polys[2] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1419f8a9ab83b8eb59b1f1f72dc8c98de6f09fa140958b8c8ddb803cb82af264;
-        raw_poly[1] = 0x2681974b0904e3706aae16bfb8c942c6d827a9da042e7f65a30cd92cdcd46018;
-        raw_poly[2] = 0x032a6f8abed1b8c3df509f62e570cec40674f27e817f79434fc4eb6815e32035;
-        polys[3] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x105f93302b96b1532100b8aa6f2e03c71ab000d1e43748dbf3366864382ed91b;
-        raw_poly[1] = 0x1ddfd9d946e26f23ae2d158c4f6deb609e2ec1a81c75b91ccb1d42d6990814b6;
-        raw_poly[2] = 0x03e5c41479c0ef26c88beb723534e71af61ff62c8a43ccedf2eb8173ec7a2bae;
-        polys[4] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x27a32fe9339ae7ccd6df1a690f36fd6a101cfa0e4e6384dcb756639f6aca64b1;
-        raw_poly[1] = 0x1435036832f8eb0c93c89db5fac69b8712d17baa190637dd19e8832e41c1a14b;
-        raw_poly[2] = 0x2226c8117dea29019439be63ee4feab6ee9b2dd1ddf3134f1e11b51a5d86cb72;
-        polys[5] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x2b9e178fbc15b776eb3a98ba5278c71b4bf3e7d8bbbf39f2aa566c0f3ca373db;
-        raw_poly[1] = 0x1eba37dbd4219c4eb8e8016c5bfd553029fcf26a7a5503fb25f5935d155b2677;
-        raw_poly[2] = 0x203bccda5d3e9e162d8f586e0032f50ebc4042e5810a6a445b9003a88686b5e6;
-        polys[6] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x070d06ceebc2c30f786533c5c889d37a265dae572d01008d5986ba7417063cd0;
-        raw_poly[1] = 0x1d2455519fe8dbf55e8c147c5522ec4230a304404c013f052e7bc6ca23d187a5;
-        raw_poly[2] = 0x1e9d39750bdf8c30af499f1bace88fb1fdeb35347118b7b7ac4f417be03c54a2;
-        polys[7] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x0a6afb289757c1a82f2c00ddb16f3cff12059c1a813ee86713e937e5513e1b7a;
-        raw_poly[1] = 0x2481748ac59cede267a591c2c23aad85d77fb8fccc274ed6d80f995a2052a421;
-        raw_poly[2] = 0x12753b28dc1fefeb12a34002581b7686ee13c68e82f5be77ce017e423706b2fc;
-        polys[8] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x197d5a1a67529a05024648d97add5c68d4c58f4ba3372cc2786056057a917a85;
-        raw_poly[1] = 0x2c56bde4dda09632e10edf38a09c567b7b63c689f631c7852926bca24de69872;
-        raw_poly[2] = 0x06a2b0d09931ff4ece0a71f5efedfb6fbf8f82ae42d3301457c7de66d4d614a4;
-        polys[9] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x04d6eb7ce38b2d9d6b0b453bb6382b936417ba87cd2e8aa40f90ecb15ba8af6b;
-        raw_poly[1] = 0x26d5d377faa1f9659b21f55062fceaef750c568c5aca9b5d0632c75bda8bf6ce;
-        raw_poly[2] = 0x2ad16d9fbf4e6d7828c765fb4e44a5f9690a15ca252d6b7a5fda9be0485a59e2;
-        polys[10] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x2a4b75396e57eff44b2484c55c64fe80f99aadde25a6047c760c5a649187b506;
-        raw_poly[1] = 0x1ee206befdd62021e311a16904b8ffb8236a7c1adb129bace94e55c3bf20330a;
-        raw_poly[2] = 0x03a459c09dd330aa43c4e4df0d2776143c60a0470db7f2cfbb564e8a41866665;
-        polys[11] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x0b52dc9c5a018c166d74c3b4b7404fd1538b44706531ed7e4d87b25f698cc873;
-        raw_poly[1] = 0x0232ad15e6648179c4374958e70b68eee4b40baa5742c7ab8f98218821583bd2;
-        raw_poly[2] = 0x007f6edadcdb930a3bd4d533f343d7621f23036c4508e747cc43abe735eaf74a;
-        polys[12] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x2956ffc94b243c1a10f8143bdf140b13a000b92f0bd85e40fce6fc02cc1c2f38;
-        raw_poly[1] = 0x2ed41e9ecc003b5edbab96f31d6589570a8e32048f488fe2df09fbc82c470911;
-        raw_poly[2] = 0x1b6a95c9905965ebe17dd892806d41d46a7dddf7a395467a9d945bf4c82bc951;
-        polys[13] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x07ffa1abba9fde23ed3371afef2ccdb348ea456d75a6ff5b721aa293656829ea;
-        raw_poly[1] = 0x1c73702c8cac73c0a09b10cee534d168bb5fd66201d9113849451c147e8f76ef;
-        raw_poly[2] = 0x033ace5995e6f77016619846889b9ea6ebe4ffbf88a519cf0b1255edc4c0f2c3;
-        polys[14] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x185b84987e940ab0c3d29e9904b1eae645bf54da78ad14b93b6914d2c5742245;
-        raw_poly[1] = 0x04d91349e02f45a0918fbbff73cb87fae20ccd51db42440ad15a501695bfed66;
-        raw_poly[2] = 0x0205b6957fe051a9616fd8636c6193e8854edc6f2b6482c8c42461c1c8aa109a;
-        polys[15] = Abstractions.CompressedPolys(raw_poly);
-
-        raw_poly = new uint256[](3);
-        raw_poly[0] = 0x1b04d58f255ef73a43e1877f72634f0a2e81e3048747b89928f9f79b3ee05753;
-        raw_poly[1] = 0x177b8012744569f1f13f1619c7ac116e86d29d41a5440abf113a139b221770c4;
-        raw_poly[2] = 0x02e939722530244b02e8c51d173e454ad81ee3a59ab11d3dc5180245f74af9a8;
-        polys[16] = Abstractions.CompressedPolys(raw_poly);
-
-        return polys;
-    }
-
-    function loadProof() private returns (Abstractions.CompressedSnark memory) {
-        Abstractions.CompressedSnark memory proof;
-
-        uint256[] memory l_u_secondary_X = new uint256[](2);
-        l_u_secondary_X[0] = 0x023361c80ce57f1f312081a10254e699c0f148a7ece8d685656549c78bea18ef;
-        l_u_secondary_X[1] = 0x00730e25342e24057fcd53fc978b7d6e60159e67cdeec13a53c5abea8b261540;
-
-        uint256[] memory r_u_primary_X = new uint256[](2);
-        r_u_primary_X[0] = 0x08f230d21087f2e0ea33703b5a0de3b92ff58b09b8bdbcee2016f70d7699cbd9;
-        r_u_primary_X[1] = 0x1e7d17e953a2bee716b7139675a0fc9c1a3d34f00c1c071eac84e21f33841927;
-
-        uint256[] memory r_u_secondary_X = new uint256[](2);
-        r_u_secondary_X[0] = 0x061a2f5f4992d13d51a5c0de405bc5757db93f1017a028dad7733e3a76c5ebd4;
-        r_u_secondary_X[1] = 0x22d8987b56519e9839c8896b472ffe00e93af2df4e3b9e808a8a6a280b5c968a;
-
-        proof.l_u_secondary = Abstractions.R1CSInstance(
-            Field.reverse256(0x9a139e5911fa3cbb24e8dd66a7e6ad54057e5895adaa43be5b2cc8c1f7d8081e), l_u_secondary_X
-        );
-        proof.r_U_primary = Abstractions.RelaxedR1CSInstance(
-            Field.reverse256(0x2515118a9651a9fbbb31e98929e94cf118f973f8227e4f5e3e19e8f86306fa07),
-            Field.reverse256(0x576283d72a0a70468e57b0b0b163e2313bbc66a0c5fdb2a8f7a5126c10acc74d),
-            r_u_primary_X,
-            0x000000000000000000000000000000010a3cb5af114bc6094024d5e8b5817038
-        );
-        proof.r_U_secondary = Abstractions.RelaxedR1CSInstance(
-            Field.reverse256(0x88bed3689a94506fe46065e5600749882804d3bf4793864638f641b3b2325157),
-            Field.reverse256(0x924c225b250e5c8ad64bf84be692ab94a868f40c730086344eea3e979979d727),
-            r_u_secondary_X,
-            0x0000000000000000000000000000000178199520d5ba0196f34b2ac2a3e306f4
-        );
-
-        proof.zn_primary = new uint256[](1);
-        proof.zn_primary[0] = 0x0000000000000000000000000000000000000000000000000000000000000001;
-
-        proof.zn_secondary = new uint256[](1);
-        proof.zn_secondary[0] = 0x0000000000000000000000000000000000000000000000000000000000258b63;
-
-        proof.f_W_snark_secondary.sc_sat = Abstractions.SumcheckProof(loadScSatSecondary());
-
-        proof.r_W_snark_primary.sc_sat = Abstractions.SumcheckProof(loadScSatPrimary());
-        proof.r_W_snark_primary.eval_left_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_left_arr[0] = 0x0ef000b81276352b38cb3d3e7234a7179804d62adb638d83f562edee497f2b6d;
-        proof.r_W_snark_primary.eval_left_arr[1] = 0x117a66530f9bb91dfa70919d19dbaf358cc2a58b1330ad23f63db9441280a6c7;
-        proof.r_W_snark_primary.eval_left_arr[2] = 0x18ea545d4586fed67f14b4d98be725eeaeda5236df68a6eaa0382a56d2943e20;
-        proof.r_W_snark_primary.eval_left_arr[3] = 0x1bce95154441a8e07740d865c0b317fd2882248164c7baaec275d47da86eff09;
-        proof.r_W_snark_primary.eval_left_arr[4] = 0x04abcf280503bc9a66657b8886ea7215df74575c6467a6b0b64c1b37fe5936c2;
-        proof.r_W_snark_primary.eval_left_arr[5] = 0x0087ec02b6336c0370531e21c0a7ffd180244662785f144aa7b240b88a32e79b;
-        proof.r_W_snark_primary.eval_left_arr[6] = 0x140a36ae7bc87a389af2915b9693d7d314169a3a2529465770a47d6b6103aab9;
-        proof.r_W_snark_primary.eval_left_arr[7] = 0x182a8cb8bf58591bca0529935782760e035a7580f2e12b4eae7928f9e630ff71;
-
-        proof.r_W_snark_primary.eval_right_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_right_arr[0] = 0x0a0b46614dc65b9505af442bf6039df262d64ac0344705cc52a2ca7ffb6113b8;
-        proof.r_W_snark_primary.eval_right_arr[1] = 0x1b9a3962d192653a9de75aafd715bfa0c988d7d84bbed2c3964f71bf93a39e51;
-        proof.r_W_snark_primary.eval_right_arr[2] = 0x000d6f42a497dd23037e15b60796f9f25ad37d35cd3d25f8560ff7b446643700;
-        proof.r_W_snark_primary.eval_right_arr[3] = 0x051f7d4269a87c6ec64be5625955e5ad240ca8de2012dbba328777a61c8161d4;
-        proof.r_W_snark_primary.eval_right_arr[4] = 0x14e10eac716c6b83dd38974ff0a9ee5805749fe943e86183737c4e5bd9e9e44f;
-        proof.r_W_snark_primary.eval_right_arr[5] = 0x2270610eeb59acc74d07f9d3340c04770824533394b3d4a458cda1fb75d6a851;
-        proof.r_W_snark_primary.eval_right_arr[6] = 0x19aabebed2857fc58a19b02bfa8d8a7780caabde3e1ef04763abafecee116b1e;
-        proof.r_W_snark_primary.eval_right_arr[7] = 0x163d41d8d013c2603624cedb7264ec815e58432dd96883069b46eafc89221dce;
-
-        proof.r_W_snark_primary.eval_output_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_output_arr[0] = 0x292663aafdc07100f088ec727fcd91e2895a8127b3d12bf54fc2ee98257abe91;
-        proof.r_W_snark_primary.eval_output_arr[1] = 0x27f660a81d1453c38ae7dfab253a33434895222c121260ace32cfd12aec7b72c;
-        proof.r_W_snark_primary.eval_output_arr[2] = 0x21677752a590d4a3920f561e474727383cc980973d00a4bcf5427add2d082e31;
-        proof.r_W_snark_primary.eval_output_arr[3] = 0x22d860aefe3df0a262e7f1c06ed735b7b9bb3dfd574cfc3f342db845c6989991;
-        proof.r_W_snark_primary.eval_output_arr[4] = 0x29a38d8a408b082340864809bb3bf3b984cf7f989ee93b70ebe21abd669f34be;
-        proof.r_W_snark_primary.eval_output_arr[5] = 0x17bdfd62c6f3b6a3654bc9b62735edd8e0aa4a299a79915cdccfbc6c87f82cd4;
-        proof.r_W_snark_primary.eval_output_arr[6] = 0x178d3f27b58cc3c478a05da31d79e7d6ce5fe94d96fe1ac9efd61739ccad18cd;
-        proof.r_W_snark_primary.eval_output_arr[7] = 0x10cb56f93a46073caf9adec2d740a38339609feba8f640f5fa8e495645656019;
-
-        proof.r_W_snark_primary.eval_Az = 0x1869c92844ee39c772ada2ff95041cfd30d520c02c2b6fd36957769338dc642e;
-        proof.r_W_snark_primary.eval_Bz = 0x06294f00889dbe513fa56b4333b61b9929bae58203ebdf5022c5f50a5214d419;
-        proof.r_W_snark_primary.eval_Cz = 0x2e853d4cce3097a6cc3ce6308a033f635b83706b762d0bb8b5f372daa90019db;
-        proof.r_W_snark_primary.eval_E = 0x011bde0bb1a59fc9630ffabef3a13fe6a5d5e8c424ce36ecb66e3f73f222c844;
-
-        proof.r_W_snark_primary.eval_E_row = 0x00ecd149fca8636f1ab0dec1093267aadc8048a235599a4e58511351de79bfb4;
-        proof.r_W_snark_primary.eval_E_col = 0x07141dd079428a72a7f9ea25742d9f533d7c72909d37840673dcd9c2d0a6ceb0;
-        proof.r_W_snark_primary.eval_val_A = 0x0f00fa9ce009193f1639936a4f2ada76bb13239a4e9f492a49643e3984928c04;
-        proof.r_W_snark_primary.eval_val_B = 0x1ffe417d0bb8f7a36ec208ea1bcfc085f746cbcc64bd61756247be41d9986251;
-        proof.r_W_snark_primary.eval_val_C = 0x2af914dc2e54d9dc1294d8517951f5438a3fe7a8b6eca78479652d42b20c9b34;
-
-        proof.r_W_snark_primary.comm_Az =
-            Field.reverse256(0xdf098f029e37047eae575b23452601bfbbd9564b579849db96ba82cbc59b5207);
-        proof.r_W_snark_primary.comm_Bz =
-            Field.reverse256(0x8fa380a96bd5d63d509012c97b83561cc6985e7a46aba2400638f1890eadd66b);
-        proof.r_W_snark_primary.comm_Cz =
-            Field.reverse256(0xa41d93e6b95748b81144dc6404251e9e588fb5471d43bd8378be79916b021f1d);
-
-        proof.r_W_snark_primary.eval_Az_at_tau = 0x097d2f0f04da76f89507aee14f81cd17ef5336ccfd0671e28d800ddf2699e901;
-        proof.r_W_snark_primary.eval_Bz_at_tau = 0x1a6e57b7624d8faea799b2cdb6bc38c9605cca7de025ee4e1e0fa72fec4bc62f;
-        proof.r_W_snark_primary.eval_Cz_at_tau = 0x2bb867ad76aa20d64b96d05b9aae0b1be19f929d97a1a7d3dd785359866d39d7;
-        proof.r_W_snark_primary.comm_E_row =
-            Field.reverse256(0xf05f8ccfd418b65f97232bccd99f31cdd76d609deab93b6ad1480c2f9a77cb62);
-        proof.r_W_snark_primary.comm_E_col =
-            Field.reverse256(0xe47e9d2254e213adf96aae19aa8819b878596632ea400c1972e7f59cbfdae854);
-
-        proof.r_W_snark_primary.claims_product_arr = new uint256[](8);
-        proof.r_W_snark_primary.claims_product_arr[0] =
-            0x0201a09a626851d4ef8791321138a1f3d7a14a845a9bdc96e20fbdda16e6ba7a;
-        proof.r_W_snark_primary.claims_product_arr[1] =
-            0x06d2db7d9f90f279981e63001babeadb5746ff5deb312636868975b22e2d7c21;
-        proof.r_W_snark_primary.claims_product_arr[2] =
-            0x1cc9b4253e2625e9ad6553072cfca4122a3c7b889503f98c0cb7f78a1299f03f;
-        proof.r_W_snark_primary.claims_product_arr[3] =
-            0x1286e6986c75f9a2945d7304b875f081a8a38b9199f0d102feb865d9e7e17ac8;
-        proof.r_W_snark_primary.claims_product_arr[4] =
-            0x28d26db13ee0eb81591e6a6d4a2269c6252335e18fd67499bed16f6babb9958a;
-        proof.r_W_snark_primary.claims_product_arr[5] =
-            0x23346e21193152b7add1886c932cccf64eef83c9adba3ff5d576cc234b8fde2e;
-        proof.r_W_snark_primary.claims_product_arr[6] =
-            0x005116fdc67e4e6654515a1d5895d73ac3aee1467f05cd43a14922fa5cdc0551;
-        proof.r_W_snark_primary.claims_product_arr[7] =
-            0x019c1f78dd1dc2096ba9e3b1b8842cc828982b50dfad09084580f1c9ce72ec03;
-
-        proof.r_W_snark_primary.comm_output_arr = new uint256[](8);
-        proof.r_W_snark_primary.comm_output_arr[0] =
-            Field.reverse256(0x8207afd3c22f6e32a10f4a9a3654fbb4396f3dc1037c9936bad0187d5e55cc44);
-        proof.r_W_snark_primary.comm_output_arr[1] =
-            Field.reverse256(0xe3531f7702b6e544c6979161371e005e237f08b8f6299479ec4029fde453f32b);
-        proof.r_W_snark_primary.comm_output_arr[2] =
-            Field.reverse256(0x945184b555c7abf0eaedba972f986d5acdf5eb5b5efadc9b5ae5557c0f2f8213);
-        proof.r_W_snark_primary.comm_output_arr[3] =
-            Field.reverse256(0x4b06555fb822fa402194341239e4a449c5a305857aab196cd1f5389e525b7700);
-        proof.r_W_snark_primary.comm_output_arr[4] =
-            Field.reverse256(0x8a98c7f5274dbad12c87d2dedb2a4da6b1607c264d77b88a97fc42c9a49f160e);
-        proof.r_W_snark_primary.comm_output_arr[5] =
-            Field.reverse256(0xdac8f007925d3151d6f40b6af2f73c0f08d27d521f1f15b1fd63657d6b9c5d05);
-        proof.r_W_snark_primary.comm_output_arr[6] =
-            Field.reverse256(0xda938f3ec9f68493e05698ec5dbe2bcea97f2c8bd901bf9230c65c6510c31664);
-        proof.r_W_snark_primary.comm_output_arr[7] =
-            Field.reverse256(0x6442326799bae8fd718752de74057b6d7a74ccc9373e9607b19ea8f2524e6b2a);
-
-        proof.f_W_snark_secondary.eval_left_arr = new uint256[](8);
-        proof.f_W_snark_secondary.eval_left_arr[0] = 0x25fb4b748551171f8c709173c983be713bc4728243d8a81ae83f3b038953ef3d;
-        proof.f_W_snark_secondary.eval_left_arr[1] = 0x16415fde97fa76eaa7f4f37a7a9af3e2b1406c0492e88aed6dd2f4f5f3f9e6d3;
-        proof.f_W_snark_secondary.eval_left_arr[2] = 0x1caf6407dfa56818d2b4a466a49458183e64b673aa1c1f7b514b9606ad7e761c;
-        proof.f_W_snark_secondary.eval_left_arr[3] = 0x09b716a7bdc1872989f25728ab3be170d9d42d27f4c4995f6fb3eb2e21262a13;
-        proof.f_W_snark_secondary.eval_left_arr[4] = 0x09dbaaba3efdfce1ba21d954fd8d2c770b7e926de103dd022a93d1fbef34ed4e;
-        proof.f_W_snark_secondary.eval_left_arr[5] = 0x257e5abab02753594b43642244d943e0b62c6f69ecdb9edd50de4570e1d56cbf;
-        proof.f_W_snark_secondary.eval_left_arr[6] = 0x17da0d5ee21a31637594d3158d5761da772410b1cc155236a8c4b473d5e207a3;
-        proof.f_W_snark_secondary.eval_left_arr[7] = 0x06f159eb0698a62cdc3de8654feaeb91a8ebcd6f4ae080a9a28af8365523d71a;
-
-        proof.f_W_snark_secondary.eval_right_arr = new uint256[](8);
-        proof.f_W_snark_secondary.eval_right_arr[0] = 0x17f014db8c797ae3df688e23fcfead1babfe9d162a4cd748f11f7e718ba0f06c;
-        proof.f_W_snark_secondary.eval_right_arr[1] = 0x200b4c0cbb3a21eb84b6cee946f3d99625ffaf321f890bdb1c0f2c69d136ea65;
-        proof.f_W_snark_secondary.eval_right_arr[2] = 0x2dfaa34eddab6c619093e6d0dc1f769c8ea95a445779371a0d4a60f9edac94e0;
-        proof.f_W_snark_secondary.eval_right_arr[3] = 0x1d5b4d6bb5fbcd39bc4624512539f2e2b080bbe9de588754166e5d18994eb5dd;
-        proof.f_W_snark_secondary.eval_right_arr[4] = 0x2720bbdfc2f7c19617741fe4e2189686c8bf8a4849a5f51e7857bf9a86eee150;
-        proof.f_W_snark_secondary.eval_right_arr[5] = 0x220c22230d6121df08aa7915503b05b3735db61f6c7089fd2af8e41bb6953fb6;
-        proof.f_W_snark_secondary.eval_right_arr[6] = 0x218ffb6f1b2d239b30c7243a8bbcad6bd45ebd7e47f2ffbf4c3e4979ffb1e1dc;
-        proof.f_W_snark_secondary.eval_right_arr[7] = 0x0bc89e5f4820dc4e43ea5d3fa2ced37f8fc849506d09a4cc6e626a3aa200d70f;
-
-        proof.f_W_snark_secondary.eval_output_arr = new uint256[](8);
-        proof.f_W_snark_secondary.eval_output_arr[0] =
-            0x22f60a9ca0c0bb086bb59cfc8c26a1952c14dfbd41a9fb812a6f5b163a0043fa;
-        proof.f_W_snark_secondary.eval_output_arr[1] =
-            0x16ab81080a358cc335fa13524b1a4f1088597106fa42375e2884aefcf76dd3c5;
-        proof.f_W_snark_secondary.eval_output_arr[2] =
-            0x088f3d784385edf07cdfd6b4d8d4d6ffd9103cdf5297d3d519fdf784149bc3c0;
-        proof.f_W_snark_secondary.eval_output_arr[3] =
-            0x1af37f26f584dae6d8407e00e60c0422d93e0291a4d7b2469d0bfa487cf56564;
-        proof.f_W_snark_secondary.eval_output_arr[4] =
-            0x0863619c2addf1fe325f35e082a246a25515b6fc2685555249b62b9777e03ab5;
-        proof.f_W_snark_secondary.eval_output_arr[5] =
-            0x0f9fd1704a83c3be74e2cf1cf17931f8e02cde13d7799a18c6777afca975fa1e;
-        proof.f_W_snark_secondary.eval_output_arr[6] =
-            0x09ff85fd2291d902b7450a8b1c8384ac4b6215bf7c785951cc1a7e75de7142fd;
-        proof.f_W_snark_secondary.eval_output_arr[7] =
-            0x01cba7922145bd0a470c62236a7c85913c48c9f0fe4b3d3e007ee56af773c9fe;
-
-        proof.f_W_snark_secondary.eval_Az = 0x061152dfca99a38e7c0f33e7bf37232e30775a541c5c695799d111e8e815d70d;
-        proof.f_W_snark_secondary.eval_Bz = 0x11a2669b59ea53e92bcd84311ac04a2f06ea2df2cc6c0c26f170b24e2b27b2f9;
-        proof.f_W_snark_secondary.eval_Cz = 0x0d3a3e3e7c117e3c5d081099a5dbe33450eac5b779fda5454a8d871bb1efb705;
-        proof.f_W_snark_secondary.eval_E = 0x2ad024657205bb9046e2b5c9e8d7f645449df1497cf08e44adbe64f3baf100dd;
-
-        proof.f_W_snark_secondary.eval_E_row = 0x13eb9b4d9cd546509f9bbd6776e869b25e825220b13d8a8f058e059691f557dd;
-        proof.f_W_snark_secondary.eval_E_col = 0x0836f29dba76b5306d17d9e86ea76824a342c8aa124d8c49645128167066a71c;
-        proof.f_W_snark_secondary.eval_val_A = 0x0cf93bd2d1465cadb1e7577a09166857378c2422f34f24df0ecabfc6141f5721;
-        proof.f_W_snark_secondary.eval_val_B = 0x1b25d17955a5dbbfa7584d1eabe26b37b072d154e0c950a17034475f7155d83c;
-        proof.f_W_snark_secondary.eval_val_C = 0x10753e7c91f0aba812b52e835b3a427de7824b4716c054345ec419832be3a8dd;
-
-        proof.nifs_compressed_comm_T =
-            Field.reverse256(0xc0b26879c0a5912d9d85cd81be8ebe3398fb6ee3a9af76d7f4146f8bc81f9768);
-
-        proof.f_W_snark_secondary.comm_Az =
-            Field.reverse256(0xdca16971a206ef75dedcb488bc0530031460f9e20c1157a9e20797590a5c720e);
-        proof.f_W_snark_secondary.comm_Bz =
-            Field.reverse256(0x851fe771399c781fdea430a9569dd40fff0130238666246466b6a4763802371d);
-        proof.f_W_snark_secondary.comm_Cz =
-            Field.reverse256(0x0dd3e71c4e4e035b38e8708f2075eaef69eabb7fe3c591009d45f265311ab654);
-
-        proof.f_W_snark_secondary.eval_Az_at_tau = 0x24bc61f0b6913ec61647989e9eb39a168a2a2b6d05f2e099bb07242f1127e63f;
-        proof.f_W_snark_secondary.eval_Bz_at_tau = 0x13f6efaa3fde0c6ff835f00448b307b9403ac20ba47b7915fca6e02c3018c395;
-        proof.f_W_snark_secondary.eval_Cz_at_tau = 0x0f23073b528563adab10909f2a2b207ff1e1a40d8205df05acb8924e80c9156c;
-        proof.f_W_snark_secondary.comm_E_row =
-            Field.reverse256(0xde19f4ead2f447cf55053bc84ddea67501e25fb5ff250511734f8f69357bf765);
-        proof.f_W_snark_secondary.comm_E_col =
-            Field.reverse256(0xded41621a1c4bbc89271526938742e4a7932e07d2917767473976668c969f063);
-
-        proof.f_W_snark_secondary.claims_product_arr = new uint256[](8);
-        proof.f_W_snark_secondary.claims_product_arr[0] =
-            0x23beefb3ce026f18b3972eeada581ac2f7415c52810d85f54b2d80dac1f4636e;
-        proof.f_W_snark_secondary.claims_product_arr[1] =
-            0x2347884fb000f6654566e2c52f544bb17d01e1c72bf01049f4bfd797d244ac59;
-        proof.f_W_snark_secondary.claims_product_arr[2] =
-            0x2cc9ceb9aa0a0a7519c311d4cf9bd49cf4e2e61d4eca324a4d02f2803d4c7318;
-        proof.f_W_snark_secondary.claims_product_arr[3] =
-            0x1472e71646360c655f1010e9b52dc7773ab8a24e750308281f608bfd0b63b7d4;
-        proof.f_W_snark_secondary.claims_product_arr[4] =
-            0x16ec59f754f13dd9e84d00c67ec8b0002d755fb5c062e73842d0b7c7e4acb037;
-        proof.f_W_snark_secondary.claims_product_arr[5] =
-            0x0eb4780e996313051e35c09178dc85f387f507a7f116868f7be302c942a201b6;
-        proof.f_W_snark_secondary.claims_product_arr[6] =
-            0x1c8e1f79e27395ef092ee76fea91e3f284ad79cabe56914c786eb824d39b9c29;
-        proof.f_W_snark_secondary.claims_product_arr[7] =
-            0x2bbe0401fc98e5ec9251dab3e11eeb7fb3ac22284f3a97dce2c12cedd91d76f0;
-
-        proof.f_W_snark_secondary.comm_output_arr = new uint256[](8);
-        proof.f_W_snark_secondary.comm_output_arr[0] =
-            Field.reverse256(0xd5c9dbeffc61e4250c921b000997ce6af68f02aaa20a07ce5f66a1723fc90e1d);
-        proof.f_W_snark_secondary.comm_output_arr[1] =
-            Field.reverse256(0xe71504e3e4666cabe33fd97064a6d37f4540bba66b516d3a05687ce0455f056f);
-        proof.f_W_snark_secondary.comm_output_arr[2] =
-            Field.reverse256(0xc4588ecac01048d575eb8014cd53d64f3b0d3fc7cb4fdf4a7d79f0da1fbaf222);
-        proof.f_W_snark_secondary.comm_output_arr[3] =
-            Field.reverse256(0xafddf998213180de1968e305f2eca877041821414cf325d2ac6886e240212a61);
-        proof.f_W_snark_secondary.comm_output_arr[4] =
-            Field.reverse256(0xd7527c4a14dcd56e042c8713ce125e348a553173eec3777a51288ec830f18b15);
-        proof.f_W_snark_secondary.comm_output_arr[5] =
-            Field.reverse256(0x5718aa0cd2185b108c01f3bde8736fe30acf1497581b69cf763255b55dcf0442);
-        proof.f_W_snark_secondary.comm_output_arr[6] =
-            Field.reverse256(0x03cfecdb80f69725d116984a46b6bc128496d7913c048122f540b26f752bf00b);
-        proof.f_W_snark_secondary.comm_output_arr[7] =
-            Field.reverse256(0x1317160bd8930efe857d8c38d2ce2ac4da31cbcf6503f6cfe44cd4e91fcfca07);
-
-        return proof;
-    }
-
-    function loadPublicParameters() private returns (Abstractions.VerifierKey memory) {
-        Abstractions.VerifierKey memory vk;
-
-        vk.f_arity_primary = 1;
-        vk.digest = 0x03e0cc9d0a2e880508793f5f2b0e202504238d16bede6fba0c963b3842ec2d78;
-        vk.f_arity_secondary = 1;
-
-        vk.vk_secondary.S_comm.N = 131072;
-        vk.vk_secondary.digest = 0x0128d4daf76a6843c8e5f0b3107402752bfcb1df7544eda6ff310aae6dc70461;
-        vk.vk_primary.S_comm.N = 131072;
-        vk.vk_primary.digest = 0x007d6ee1d4f8d6837799de0fd3918e08a9ed40d6c0dd19683a70db98655d84be;
-
-        return vk;
-    }
-
     function load_transcript_claim_sat_final_r_sat_secondary()
         private
         returns (KeccakTranscriptLib.KeccakTranscript memory)
@@ -630,8 +163,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_sat_final_r_sat_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_claim_sat_final_r_sat_secondary();
 
         uint256[] memory coeffs = new uint256[](10);
@@ -682,8 +215,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_sat_final_r_sat_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_claim_sat_final_r_sat_primary();
 
         uint256[] memory coeffs = new uint256[](10);
@@ -728,7 +261,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_mem_final_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         uint256[] memory coeffs = new uint256[](10);
         coeffs[0] = 0x0e19eb06be084639c9a38e2a2b7af3cab93019ddfe9ad10246aeeb4e3adfdae2;
@@ -750,7 +283,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_mem_final_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         uint256[] memory coeffs = new uint256[](10);
         coeffs[0] = 0x06b9fdfdd087e70a4406bda6c64e0f963ce7c3a9bf0138bb1e0e927f79c93fc6;
@@ -772,7 +305,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_outer_final_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
         uint256 r_U_primary_u = 0x000000000000000000000000000000010a3cb5af114bc6094024d5e8b5817038;
         uint256 taus_bound_r_sat = 0x0d3df376a736ac4d9ebfa86607dbdba7fdcc91cc5da7e1c4e61534f825d84fa4;
         uint256[] memory coeffs = new uint256[](10);
@@ -794,7 +327,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_outer_final_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
         uint256 f_U_secondary_u = 0x00000000000000000000000000000001d523e9da28bbf206fe50868f52ca6334;
         uint256 taus_bound_r_sat = 0x12cfbfe7452ad6c7ce007bf542b0f869bc3924ef822732e8a727f87517af7463;
         uint256[] memory coeffs = new uint256[](10);
@@ -816,7 +349,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_inner_final_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         uint256 c_inner = 0x2f605dd314f54ceca331da1c09337e0a1e92df731c8e641ad7b7dd4d19f5a0c0;
 
@@ -837,7 +370,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_claim_inner_final_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         uint256 c_inner = 0x0f704aab173727749094c0ca0df2e5a783c6a0b21cbde7783daa8e77a71b393d;
 
@@ -923,8 +456,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_prepare_elements_to_r_computing() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
 
         uint256[] memory expected_elements;
         Grumpkin.GrumpkinAffinePoint memory commT;
@@ -959,7 +492,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_folding_instance_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         uint256 r = 0x000000000000000000000000000000005d0a54b95301f0700b055bccaee75c40;
         Grumpkin.GrumpkinAffinePoint memory commT = Grumpkin.GrumpkinAffinePoint(
@@ -984,8 +517,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_f_U_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
         (
             Grumpkin.GrumpkinAffinePoint memory expected1,
             Grumpkin.GrumpkinAffinePoint memory expected2,
@@ -1004,8 +537,8 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_tau_secondary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = TestUtilities.loadTranscript();
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
 
         (
             Grumpkin.GrumpkinAffinePoint memory commW,
@@ -1039,8 +572,8 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_tau_primary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = TestUtilities.loadTranscript();
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
 
         uint256[] memory expected;
         (, expected) = Step3GrumpkinLib.compute_tau_primary(proof, public_parameters.vk_primary, transcript, false);
@@ -1138,7 +671,7 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_c_secondary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_c_secondary();
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         (, uint256 c) = Step3GrumpkinLib.compute_c_secondary(proof, transcript);
         assertEq(c, 0x0f704aab173727749094c0ca0df2e5a783c6a0b21cbde7783daa8e77a71b393d);
@@ -1219,14 +752,14 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_c_primary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_c_primary();
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
 
         (, uint256 c) = Step3GrumpkinLib.compute_c_primary(proof, transcript);
         assertEq(c, 0x2f605dd314f54ceca331da1c09337e0a1e92df731c8e641ad7b7dd4d19f5a0c0);
     }
 
     function test_compute_u_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
         uint256[] memory tau = new uint256[](17);
         tau[0] = 0x1267f50e1d36c3869b23a88ba2e3e6b8046ecaf4c97466284b1acea3d12e40ae;
         tau[1] = 0x20eeca082ad550aceb4ea48aff07fca4b18f2c9b07f8abb6dcfa18a7a68b2177;
@@ -1255,7 +788,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_u_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
         uint256[] memory tau = new uint256[](17);
         tau[0] = 0x1695fc0c0698b7e920d417e58174c018754f581f9044cd68c11cc2363005e185;
         tau[1] = 0x0a6ccda86e557ab8b5e59b7a8c7846f5f0566f3400abec27642881fda5081265;
@@ -1584,8 +1117,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_rand_eq_secondary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
         uint16 rounds = 20;
         uint8[] memory state = new uint8[](64);
         state[0] = 0x01;
@@ -1677,8 +1210,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_rand_eq_primary() public {
-        Abstractions.CompressedSnark memory proof = loadProof();
-        Abstractions.VerifierKey memory public_parameters = loadPublicParameters();
+        Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
+        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
         uint16 rounds = 20;
         uint8[] memory state = new uint8[](64);
         state[0] = 0x21;

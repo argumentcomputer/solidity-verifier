@@ -7,10 +7,14 @@ import "src/blocks/pasta/Vesta.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 library Step4Lib {
-    function verify(Abstractions.CompressedSnark calldata proof) public pure returns (bool) {
-        if (!verifyInner(proof.r_W_snark_primary, Vesta.P_MOD)) {
+    function verify(Abstractions.CompressedSnark calldata proof, uint256 modulusPrimary, uint256 modulusSecondary)
+        public
+        pure
+        returns (bool)
+    {
+        if (!verifyInner(proof.r_W_snark_primary, modulusPrimary)) {
             return false;
-        } else if (!verifyInner(proof.f_W_snark_secondary, Pallas.P_MOD)) {
+        } else if (!verifyInner(proof.f_W_snark_secondary, modulusSecondary)) {
             return false;
         }
         return true;

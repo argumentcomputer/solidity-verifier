@@ -155,7 +155,7 @@ contract NovaVerifierContract {
         }
 
         // check the required multiset relationship
-        if (!Step4Lib.verify(proof)) {
+        if (!Step4Lib.verify(proof, Vesta.P_MOD, Pallas.P_MOD)) {
             console.log("[Step4] false");
             return false;
         }

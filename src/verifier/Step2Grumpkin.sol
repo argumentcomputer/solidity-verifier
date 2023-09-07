@@ -63,7 +63,7 @@ library Step2GrumpkinLib {
         Grumpkin.GrumpkinAffinePoint memory point;
 
         // decompress commW
-        point = Grumpkin.decompress(Field.reverse256(proof.r_U_secondary.comm_W)); // Grumpkin
+        point = Grumpkin.decompress(proof.r_U_secondary.comm_W); // Grumpkin
 
         elementsToHash[counter] = point.x;
         counter++;
@@ -75,7 +75,7 @@ library Step2GrumpkinLib {
         counter++;
 
         // decompress commE
-        point = Grumpkin.decompress(Field.reverse256(proof.r_U_secondary.comm_E)); // Grumpkin
+        point = Grumpkin.decompress(proof.r_U_secondary.comm_E); // Grumpkin
         elementsToHash[counter] = point.x;
         counter++;
 
@@ -146,7 +146,7 @@ library Step2GrumpkinLib {
 
         Bn256.Bn256AffinePoint memory point;
         // decompress commW
-        point = Bn256.decompress(Field.reverse256(proof.r_U_primary.comm_W));
+        point = Bn256.decompress(proof.r_U_primary.comm_W);
 
         elementsToHash[counter] = point.x;
         counter++;
@@ -158,7 +158,7 @@ library Step2GrumpkinLib {
         counter++;
 
         // decompress commE
-        point = Bn256.decompress(Field.reverse256(proof.r_U_primary.comm_E));
+        point = Bn256.decompress(proof.r_U_primary.comm_E);
 
         elementsToHash[counter] = point.x;
         counter++;

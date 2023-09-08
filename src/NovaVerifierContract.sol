@@ -309,8 +309,8 @@ contract NovaVerifierContract {
             proof.f_W_snark_secondary,
             secondary.step3.U_X,
             secondary.step3.U_u,
-            vk.vk_primary.S_comm.N,
-            vk.vk_primary.num_vars,
+            vk.vk_secondary.S_comm.N,
+            vk.vk_secondary.num_vars,
             secondary.step5.r_prod,
             Pallas.P_MOD,
             Pallas.negateBase

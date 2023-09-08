@@ -581,6 +581,9 @@ library TestUtilities {
         vk.digest = 0x03e0cc9d0a2e880508793f5f2b0e202504238d16bede6fba0c963b3842ec2d78;
         vk.f_arity_secondary = 1;
 
+        vk.vk_primary.num_vars = 16384;
+        vk.vk_secondary.num_vars = 16384;
+
         vk.vk_secondary.S_comm.N = 131072;
         vk.vk_secondary.digest = 0x0128d4daf76a6843c8e5f0b3107402752bfcb1df7544eda6ff310aae6dc70461;
         vk.vk_primary.S_comm.N = 131072;

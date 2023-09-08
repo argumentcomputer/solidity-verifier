@@ -101,7 +101,10 @@ library Abstractions {
         uint256 digest;
     }
 
+    // TODO include num_cons and num_vars into loader
     struct VerifierKeyS2 {
+        uint256 num_cons;
+        uint256 num_vars;
         R1CSShapeSparkCommitment S_comm;
         uint256 digest;
     }

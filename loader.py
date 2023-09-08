@@ -804,6 +804,7 @@ def pushToProof(data):
     os.system(command)
 
 # TODO currently it pushes only constants for a single round of Poseidon just for comparison with hardcoded ones in Poseidon Solidity contract
+# TODO include num_vars and num_cons to secondary vk
 def pushToVk(data):
     command = 'cast send' + ' '
     command = command + CONTRACT_ADDRESS + ' \"'

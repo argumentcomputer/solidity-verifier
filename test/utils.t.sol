@@ -260,35 +260,6 @@ library TestUtilities {
         proof.f_W_snark_secondary.sc_sat = Abstractions.SumcheckProof(loadScSatSecondary());
 
         proof.r_W_snark_primary.sc_sat = Abstractions.SumcheckProof(loadScSatPrimary());
-        proof.r_W_snark_primary.eval_left_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_left_arr[0] = 0x0ef000b81276352b38cb3d3e7234a7179804d62adb638d83f562edee497f2b6d;
-        proof.r_W_snark_primary.eval_left_arr[1] = 0x117a66530f9bb91dfa70919d19dbaf358cc2a58b1330ad23f63db9441280a6c7;
-        proof.r_W_snark_primary.eval_left_arr[2] = 0x18ea545d4586fed67f14b4d98be725eeaeda5236df68a6eaa0382a56d2943e20;
-        proof.r_W_snark_primary.eval_left_arr[3] = 0x1bce95154441a8e07740d865c0b317fd2882248164c7baaec275d47da86eff09;
-        proof.r_W_snark_primary.eval_left_arr[4] = 0x04abcf280503bc9a66657b8886ea7215df74575c6467a6b0b64c1b37fe5936c2;
-        proof.r_W_snark_primary.eval_left_arr[5] = 0x0087ec02b6336c0370531e21c0a7ffd180244662785f144aa7b240b88a32e79b;
-        proof.r_W_snark_primary.eval_left_arr[6] = 0x140a36ae7bc87a389af2915b9693d7d314169a3a2529465770a47d6b6103aab9;
-        proof.r_W_snark_primary.eval_left_arr[7] = 0x182a8cb8bf58591bca0529935782760e035a7580f2e12b4eae7928f9e630ff71;
-
-        proof.r_W_snark_primary.eval_right_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_right_arr[0] = 0x0a0b46614dc65b9505af442bf6039df262d64ac0344705cc52a2ca7ffb6113b8;
-        proof.r_W_snark_primary.eval_right_arr[1] = 0x1b9a3962d192653a9de75aafd715bfa0c988d7d84bbed2c3964f71bf93a39e51;
-        proof.r_W_snark_primary.eval_right_arr[2] = 0x000d6f42a497dd23037e15b60796f9f25ad37d35cd3d25f8560ff7b446643700;
-        proof.r_W_snark_primary.eval_right_arr[3] = 0x051f7d4269a87c6ec64be5625955e5ad240ca8de2012dbba328777a61c8161d4;
-        proof.r_W_snark_primary.eval_right_arr[4] = 0x14e10eac716c6b83dd38974ff0a9ee5805749fe943e86183737c4e5bd9e9e44f;
-        proof.r_W_snark_primary.eval_right_arr[5] = 0x2270610eeb59acc74d07f9d3340c04770824533394b3d4a458cda1fb75d6a851;
-        proof.r_W_snark_primary.eval_right_arr[6] = 0x19aabebed2857fc58a19b02bfa8d8a7780caabde3e1ef04763abafecee116b1e;
-        proof.r_W_snark_primary.eval_right_arr[7] = 0x163d41d8d013c2603624cedb7264ec815e58432dd96883069b46eafc89221dce;
-
-        proof.r_W_snark_primary.eval_output_arr = new uint256[](8);
-        proof.r_W_snark_primary.eval_output_arr[0] = 0x292663aafdc07100f088ec727fcd91e2895a8127b3d12bf54fc2ee98257abe91;
-        proof.r_W_snark_primary.eval_output_arr[1] = 0x27f660a81d1453c38ae7dfab253a33434895222c121260ace32cfd12aec7b72c;
-        proof.r_W_snark_primary.eval_output_arr[2] = 0x21677752a590d4a3920f561e474727383cc980973d00a4bcf5427add2d082e31;
-        proof.r_W_snark_primary.eval_output_arr[3] = 0x22d860aefe3df0a262e7f1c06ed735b7b9bb3dfd574cfc3f342db845c6989991;
-        proof.r_W_snark_primary.eval_output_arr[4] = 0x29a38d8a408b082340864809bb3bf3b984cf7f989ee93b70ebe21abd669f34be;
-        proof.r_W_snark_primary.eval_output_arr[5] = 0x17bdfd62c6f3b6a3654bc9b62735edd8e0aa4a299a79915cdccfbc6c87f82cd4;
-        proof.r_W_snark_primary.eval_output_arr[6] = 0x178d3f27b58cc3c478a05da31d79e7d6ce5fe94d96fe1ac9efd61739ccad18cd;
-        proof.r_W_snark_primary.eval_output_arr[7] = 0x10cb56f93a46073caf9adec2d740a38339609feba8f640f5fa8e495645656019;
 
         proof.r_W_snark_primary.eval_Az = 0x1869c92844ee39c772ada2ff95041cfd30d520c02c2b6fd36957769338dc642e;
         proof.r_W_snark_primary.eval_Bz = 0x06294f00889dbe513fa56b4333b61b9929bae58203ebdf5022c5f50a5214d419;
@@ -351,6 +322,71 @@ library TestUtilities {
             Field.reverse256(0xda938f3ec9f68493e05698ec5dbe2bcea97f2c8bd901bf9230c65c6510c31664);
         proof.r_W_snark_primary.comm_output_arr[7] =
             Field.reverse256(0x6442326799bae8fd718752de74057b6d7a74ccc9373e9607b19ea8f2524e6b2a);
+
+        proof.r_W_snark_primary.eval_left_arr = new uint256[](8);
+        proof.r_W_snark_primary.eval_left_arr[0] = 0x0ef000b81276352b38cb3d3e7234a7179804d62adb638d83f562edee497f2b6d;
+        proof.r_W_snark_primary.eval_left_arr[1] = 0x117a66530f9bb91dfa70919d19dbaf358cc2a58b1330ad23f63db9441280a6c7;
+        proof.r_W_snark_primary.eval_left_arr[2] = 0x18ea545d4586fed67f14b4d98be725eeaeda5236df68a6eaa0382a56d2943e20;
+        proof.r_W_snark_primary.eval_left_arr[3] = 0x1bce95154441a8e07740d865c0b317fd2882248164c7baaec275d47da86eff09;
+        proof.r_W_snark_primary.eval_left_arr[4] = 0x04abcf280503bc9a66657b8886ea7215df74575c6467a6b0b64c1b37fe5936c2;
+        proof.r_W_snark_primary.eval_left_arr[5] = 0x0087ec02b6336c0370531e21c0a7ffd180244662785f144aa7b240b88a32e79b;
+        proof.r_W_snark_primary.eval_left_arr[6] = 0x140a36ae7bc87a389af2915b9693d7d314169a3a2529465770a47d6b6103aab9;
+        proof.r_W_snark_primary.eval_left_arr[7] = 0x182a8cb8bf58591bca0529935782760e035a7580f2e12b4eae7928f9e630ff71;
+
+        proof.r_W_snark_primary.eval_right_arr = new uint256[](8);
+        proof.r_W_snark_primary.eval_right_arr[0] = 0x0a0b46614dc65b9505af442bf6039df262d64ac0344705cc52a2ca7ffb6113b8;
+        proof.r_W_snark_primary.eval_right_arr[1] = 0x1b9a3962d192653a9de75aafd715bfa0c988d7d84bbed2c3964f71bf93a39e51;
+        proof.r_W_snark_primary.eval_right_arr[2] = 0x000d6f42a497dd23037e15b60796f9f25ad37d35cd3d25f8560ff7b446643700;
+        proof.r_W_snark_primary.eval_right_arr[3] = 0x051f7d4269a87c6ec64be5625955e5ad240ca8de2012dbba328777a61c8161d4;
+        proof.r_W_snark_primary.eval_right_arr[4] = 0x14e10eac716c6b83dd38974ff0a9ee5805749fe943e86183737c4e5bd9e9e44f;
+        proof.r_W_snark_primary.eval_right_arr[5] = 0x2270610eeb59acc74d07f9d3340c04770824533394b3d4a458cda1fb75d6a851;
+        proof.r_W_snark_primary.eval_right_arr[6] = 0x19aabebed2857fc58a19b02bfa8d8a7780caabde3e1ef04763abafecee116b1e;
+        proof.r_W_snark_primary.eval_right_arr[7] = 0x163d41d8d013c2603624cedb7264ec815e58432dd96883069b46eafc89221dce;
+
+        proof.r_W_snark_primary.eval_output_arr = new uint256[](8);
+        proof.r_W_snark_primary.eval_output_arr[0] = 0x292663aafdc07100f088ec727fcd91e2895a8127b3d12bf54fc2ee98257abe91;
+        proof.r_W_snark_primary.eval_output_arr[1] = 0x27f660a81d1453c38ae7dfab253a33434895222c121260ace32cfd12aec7b72c;
+        proof.r_W_snark_primary.eval_output_arr[2] = 0x21677752a590d4a3920f561e474727383cc980973d00a4bcf5427add2d082e31;
+        proof.r_W_snark_primary.eval_output_arr[3] = 0x22d860aefe3df0a262e7f1c06ed735b7b9bb3dfd574cfc3f342db845c6989991;
+        proof.r_W_snark_primary.eval_output_arr[4] = 0x29a38d8a408b082340864809bb3bf3b984cf7f989ee93b70ebe21abd669f34be;
+        proof.r_W_snark_primary.eval_output_arr[5] = 0x17bdfd62c6f3b6a3654bc9b62735edd8e0aa4a299a79915cdccfbc6c87f82cd4;
+        proof.r_W_snark_primary.eval_output_arr[6] = 0x178d3f27b58cc3c478a05da31d79e7d6ce5fe94d96fe1ac9efd61739ccad18cd;
+        proof.r_W_snark_primary.eval_output_arr[7] = 0x10cb56f93a46073caf9adec2d740a38339609feba8f640f5fa8e495645656019;
+
+        proof.r_W_snark_primary.eval_row_audit_ts = 0x05647d7ed0e4dd3407ae49633dd0d6a4dac92c73ae27ef687c21d7bdd658c6b0;
+
+        proof.r_W_snark_primary.eval_row = 0x2395fb433257118f4dd263ee9e51e61143ae3efa7c5d75708edae05f0ae0f80b;
+        proof.r_W_snark_primary.eval_E_row_at_r_prod =
+            0x07847af159205b90aa2d7fb1e8b846b191a15e03b7bd66027e7711be5e6ea007;
+        proof.r_W_snark_primary.eval_row_read_ts = 0x263195b8443e8b0a7fd8468c8b324c092a2511a35815a01cee997d97bfb1e964;
+
+        proof.r_W_snark_primary.eval_output2_arr = new uint256[](8);
+        proof.r_W_snark_primary.eval_output2_arr[0] = 0x209cfd4f61b54e54a304102f84bb27367f8a898a452b30f4e0b628fbb3a027c1;
+        proof.r_W_snark_primary.eval_output2_arr[1] = 0x16f0b0280ce62217843df0dd859dadc5d1a57af205cfa6d5813480ce71444d54;
+        proof.r_W_snark_primary.eval_output2_arr[2] = 0x1d13957fc75a36053b02942874e8d58ce3bfbb45021baf952bce6b75c87fa4e5;
+        proof.r_W_snark_primary.eval_output2_arr[3] = 0x01635092127508eec8083a58fad129817e969ceb1c6d56a8617c8f0e3fce0215;
+        proof.r_W_snark_primary.eval_output2_arr[4] = 0x22fb81e75ad7af197770afec9af3f4bbff22a82482fee3e03b1bd57f12c2b6ca;
+        proof.r_W_snark_primary.eval_output2_arr[5] = 0x138aabe0a1a13d2fcd83a91166dc37372d575e93aaa70b6dec8657660e088f16;
+        proof.r_W_snark_primary.eval_output2_arr[6] = 0x0b705eb85c608336b9d16c261270d05215619d2bf4703dc74798a509b9db6841;
+        proof.r_W_snark_primary.eval_output2_arr[7] = 0x2a66780a735402e4c67383610df8d99c5305c1fe9ec827513025de4f5552f563;
+
+        proof.r_W_snark_primary.eval_input_arr = new uint256[](8);
+        proof.r_W_snark_primary.eval_input_arr[0] = 0x19c2f01a63cb542f8d5d5aa14a6b76ec0ea16fe2829246f35b484f92787a859c;
+        proof.r_W_snark_primary.eval_input_arr[1] = 0x0f4e4c4378589a21c2e9ee6f122fee33ca4402ab91cb971b3def236a0557b88a;
+        proof.r_W_snark_primary.eval_input_arr[2] = 0x1186d85d6411ee608d84323fd36949f6a20de7469e055147588d05e6412ad69e;
+        proof.r_W_snark_primary.eval_input_arr[3] = 0x2e1cacaf0887f41128120963484ce4bdc618c822db17c929a055218fa56a516d;
+        proof.r_W_snark_primary.eval_input_arr[4] = 0x2a5dff3dc7c8c78e109f9533518d82f7a636bc7a533f85bff051d02b76da0c69;
+        proof.r_W_snark_primary.eval_input_arr[5] = 0x0e88cbd2e50ea3fbafbff374f146efcc0c5debb61140fee245f31906d20ed335;
+        proof.r_W_snark_primary.eval_input_arr[6] = 0x10c157ecd0c7f83a7a5a3745b2804b8ee427d0511d7ab90e6090fb830de1f149;
+        proof.r_W_snark_primary.eval_input_arr[7] = 0x035a940099f3735249d008c98dcfd66a38cfd22d2165127a3d4cc6e0a6eb9add;
+
+        proof.r_W_snark_primary.eval_col_audit_ts = 0x2e4ec692238ffea51a381e20fdfd475417695aef9fbe57d930fd1c93f34c021f;
+
+        proof.r_W_snark_primary.eval_col = 0x2c2d8331d5d7192131a49e2558b702e2c7aae3a131b54995782455e7b5f4fbf4;
+        proof.r_W_snark_primary.eval_E_col_at_r_prod =
+            0x13134a0672335328e0878dbca65909b37b784dc32cc302813598117d0f1b9ffa;
+        proof.r_W_snark_primary.eval_col_read_ts = 0x0da1489631de72389c923e31cd496820f98a28749a050a83fa1d9aa7e4a8c50f;
+        proof.r_W_snark_primary.eval_W = 0x07ce63dd203a606986287f23b89f5b68b30d11f0055e12d1f67152d6bf0f6019;
 
         proof.f_W_snark_secondary.eval_left_arr = new uint256[](8);
         proof.f_W_snark_secondary.eval_left_arr[0] = 0x25fb4b748551171f8c709173c983be713bc4728243d8a81ae83f3b038953ef3d;
@@ -455,6 +491,86 @@ library TestUtilities {
         proof.f_W_snark_secondary.comm_output_arr[7] =
             Field.reverse256(0x1317160bd8930efe857d8c38d2ce2ac4da31cbcf6503f6cfe44cd4e91fcfca07);
 
+        proof.f_W_snark_secondary.eval_left_arr = new uint256[](8);
+        proof.f_W_snark_secondary.eval_left_arr[0] = 0x25fb4b748551171f8c709173c983be713bc4728243d8a81ae83f3b038953ef3d;
+        proof.f_W_snark_secondary.eval_left_arr[1] = 0x16415fde97fa76eaa7f4f37a7a9af3e2b1406c0492e88aed6dd2f4f5f3f9e6d3;
+        proof.f_W_snark_secondary.eval_left_arr[2] = 0x1caf6407dfa56818d2b4a466a49458183e64b673aa1c1f7b514b9606ad7e761c;
+        proof.f_W_snark_secondary.eval_left_arr[3] = 0x09b716a7bdc1872989f25728ab3be170d9d42d27f4c4995f6fb3eb2e21262a13;
+        proof.f_W_snark_secondary.eval_left_arr[4] = 0x09dbaaba3efdfce1ba21d954fd8d2c770b7e926de103dd022a93d1fbef34ed4e;
+        proof.f_W_snark_secondary.eval_left_arr[5] = 0x257e5abab02753594b43642244d943e0b62c6f69ecdb9edd50de4570e1d56cbf;
+        proof.f_W_snark_secondary.eval_left_arr[6] = 0x17da0d5ee21a31637594d3158d5761da772410b1cc155236a8c4b473d5e207a3;
+        proof.f_W_snark_secondary.eval_left_arr[7] = 0x06f159eb0698a62cdc3de8654feaeb91a8ebcd6f4ae080a9a28af8365523d71a;
+
+        proof.f_W_snark_secondary.eval_right_arr = new uint256[](8);
+        proof.f_W_snark_secondary.eval_right_arr[0] = 0x17f014db8c797ae3df688e23fcfead1babfe9d162a4cd748f11f7e718ba0f06c;
+        proof.f_W_snark_secondary.eval_right_arr[1] = 0x200b4c0cbb3a21eb84b6cee946f3d99625ffaf321f890bdb1c0f2c69d136ea65;
+        proof.f_W_snark_secondary.eval_right_arr[2] = 0x2dfaa34eddab6c619093e6d0dc1f769c8ea95a445779371a0d4a60f9edac94e0;
+        proof.f_W_snark_secondary.eval_right_arr[3] = 0x1d5b4d6bb5fbcd39bc4624512539f2e2b080bbe9de588754166e5d18994eb5dd;
+        proof.f_W_snark_secondary.eval_right_arr[4] = 0x2720bbdfc2f7c19617741fe4e2189686c8bf8a4849a5f51e7857bf9a86eee150;
+        proof.f_W_snark_secondary.eval_right_arr[5] = 0x220c22230d6121df08aa7915503b05b3735db61f6c7089fd2af8e41bb6953fb6;
+        proof.f_W_snark_secondary.eval_right_arr[6] = 0x218ffb6f1b2d239b30c7243a8bbcad6bd45ebd7e47f2ffbf4c3e4979ffb1e1dc;
+        proof.f_W_snark_secondary.eval_right_arr[7] = 0x0bc89e5f4820dc4e43ea5d3fa2ced37f8fc849506d09a4cc6e626a3aa200d70f;
+
+        proof.f_W_snark_secondary.eval_output_arr = new uint256[](8);
+        proof.f_W_snark_secondary.eval_output_arr[0] =
+            0x22f60a9ca0c0bb086bb59cfc8c26a1952c14dfbd41a9fb812a6f5b163a0043fa;
+        proof.f_W_snark_secondary.eval_output_arr[1] =
+            0x16ab81080a358cc335fa13524b1a4f1088597106fa42375e2884aefcf76dd3c5;
+        proof.f_W_snark_secondary.eval_output_arr[2] =
+            0x088f3d784385edf07cdfd6b4d8d4d6ffd9103cdf5297d3d519fdf784149bc3c0;
+        proof.f_W_snark_secondary.eval_output_arr[3] =
+            0x1af37f26f584dae6d8407e00e60c0422d93e0291a4d7b2469d0bfa487cf56564;
+        proof.f_W_snark_secondary.eval_output_arr[4] =
+            0x0863619c2addf1fe325f35e082a246a25515b6fc2685555249b62b9777e03ab5;
+        proof.f_W_snark_secondary.eval_output_arr[5] =
+            0x0f9fd1704a83c3be74e2cf1cf17931f8e02cde13d7799a18c6777afca975fa1e;
+        proof.f_W_snark_secondary.eval_output_arr[6] =
+            0x09ff85fd2291d902b7450a8b1c8384ac4b6215bf7c785951cc1a7e75de7142fd;
+        proof.f_W_snark_secondary.eval_output_arr[7] =
+            0x01cba7922145bd0a470c62236a7c85913c48c9f0fe4b3d3e007ee56af773c9fe;
+
+        proof.f_W_snark_secondary.eval_row_audit_ts = 0x0c5fe67202cc8fabe3781271356c7f190fcbb2700f42e62489c0883ef4a1c65c;
+
+        proof.f_W_snark_secondary.eval_row = 0x21e0ee1695132e6a11b67c439354884ad62e9ff471633947c182df6fde50362d;
+        proof.f_W_snark_secondary.eval_E_row_at_r_prod =
+            0x0d5ed057f150d771eaa8de2840649f17d0ff1449635d2107b1321c177ff49d2c;
+        proof.f_W_snark_secondary.eval_row_read_ts = 0x0f6f8c0f0053cd553bace641dc750ee4d3339c23a70ee31097735988da2ce07c;
+
+        proof.f_W_snark_secondary.eval_output2_arr = new uint256[](8);
+        proof.f_W_snark_secondary.eval_output2_arr[0] =
+            0x1a9d715e3a7d405504106f1605308c71b4ae2bf6dd9efe6b2c743993530b01f0;
+        proof.f_W_snark_secondary.eval_output2_arr[1] =
+            0x2e4cc09bd912f2e9a026cf026918fad84470bc696c90bd020149e7d024c32794;
+        proof.f_W_snark_secondary.eval_output2_arr[2] =
+            0x0c54289d98865ef526fd1b37e1208131b602a7e44c675fc58ab3af5748cb78e8;
+        proof.f_W_snark_secondary.eval_output2_arr[3] =
+            0x2c4e466d1abb81aebf7d794b4567dd01f52ca681c1c323aba4840f5c8f4a0241;
+        proof.f_W_snark_secondary.eval_output2_arr[4] =
+            0x297d07389aabcf491e18b3b7186d210de53640d8f7d11339c24cb505389a6fae;
+        proof.f_W_snark_secondary.eval_output2_arr[5] =
+            0x1c2f38b1e788de8cff6c2ae7e78e760d4932edab351803f3244e90a6725d8555;
+        proof.f_W_snark_secondary.eval_output2_arr[6] =
+            0x15a50589418e55baf9b6772116a17406dc07ebfcaccd30946ef30ad8c144f15f;
+        proof.f_W_snark_secondary.eval_output2_arr[7] =
+            0x231ab53617919160d49f90c835e3362b90f5544458a97cf9491cb59e0c565897;
+
+        proof.f_W_snark_secondary.eval_input_arr = new uint256[](8);
+        proof.f_W_snark_secondary.eval_input_arr[0] = 0x1e7009e7b41c1625e52ac027343774098d66be46008ca88136d6c9631863baff;
+        proof.f_W_snark_secondary.eval_input_arr[1] = 0x0e49070ab4ba2873cf3a15431f2c619ebc041689f9e58350451f190485afdd32;
+        proof.f_W_snark_secondary.eval_input_arr[2] = 0x0b56db251c4ce9ae4218311b1dd4dbea2e3bdd2ebb5f5e826148a8babac970af;
+        proof.f_W_snark_secondary.eval_input_arr[3] = 0x0cb434af546a90d27937ec66b5953f110919165d2efad3b4fbd013a11f0f34d9;
+        proof.f_W_snark_secondary.eval_input_arr[4] = 0x02d6491094023bee34d55a516b6595c78401647257df00bc91b82c1e7d0d8407;
+        proof.f_W_snark_secondary.eval_input_arr[5] = 0x00b94096b775bd4d200ebe116295e74d78814a1e53019667e1e10db44b1399b2;
+        proof.f_W_snark_secondary.eval_input_arr[6] = 0x2e2b6324003a1eb14b3d1f9fe2bfb9f6823a7b547ced3c273a2b298158aa2a76;
+        proof.f_W_snark_secondary.eval_input_arr[7] = 0x2dc367b8dc2caea97125104c11baac4a2ebc325a975000a670b4720f7ce8f967;
+
+        proof.f_W_snark_secondary.eval_col_audit_ts = 0x0bdd5d696866e2d5809fdfc257c328f58ec088e6172a6b020df2ba2d30122e75;
+        proof.f_W_snark_secondary.eval_col = 0x0972c31461b7b918b073426c223df0fbcf94bd973d0f634a20ccfc5b9b6c6fe8;
+        proof.f_W_snark_secondary.eval_E_col_at_r_prod =
+            0x0598b15d0788a0c4fef5bac08967868d01beb091359885beab00310e72abdc88;
+        proof.f_W_snark_secondary.eval_col_read_ts = 0x16096385dd61becd9b639742d204cc4d63a565e548730f544f539eddd48a5079;
+        proof.f_W_snark_secondary.eval_W = 0x08d04ce171cf7c61087f116638d0f64e32c8c60d0f084bcc06365d87ed89e142;
+
         return proof;
     }
 
@@ -469,6 +585,32 @@ library TestUtilities {
         vk.vk_secondary.digest = 0x0128d4daf76a6843c8e5f0b3107402752bfcb1df7544eda6ff310aae6dc70461;
         vk.vk_primary.S_comm.N = 131072;
         vk.vk_primary.digest = 0x007d6ee1d4f8d6837799de0fd3918e08a9ed40d6c0dd19683a70db98655d84be;
+
+        vk.vk_primary.S_comm.comm_row =
+            Field.reverse256(0x45e797daf035bbd37ebd5ce31997c6380d0380b8d070c58798ca4ef75bdee86f);
+        vk.vk_primary.S_comm.comm_row_read_ts =
+            Field.reverse256(0x73e574bfe2cc2cab237c1cb049243c49e2963aef6e174a99ff62f040437ece12);
+        vk.vk_primary.S_comm.comm_row_audit_ts =
+            Field.reverse256(0x6c8bdd366284976415e2e78e0b476dc43c2c152e4e68aa7dfc58221d8be95c11);
+        vk.vk_primary.S_comm.comm_col =
+            Field.reverse256(0x02a2006fd6f3efa495dbe8787783abe38ff89d5092bb3e7653185a318ea40e16);
+        vk.vk_primary.S_comm.comm_col_read_ts =
+            Field.reverse256(0x65c00e98c109b19b056376eccefc77fa3ec317e08c9b39f9e144be64214cf518);
+        vk.vk_primary.S_comm.comm_col_audit_ts =
+            Field.reverse256(0x3d07b7a285029cec7f62cd50af5e913d75a790daace6763ad484aa855743e46c);
+
+        vk.vk_secondary.S_comm.comm_row =
+            Field.reverse256(0x3e4af172a04dfa61409a2ab14fff6a2241f522e1c3e69817eafc17d43b6c8612);
+        vk.vk_secondary.S_comm.comm_row_read_ts =
+            Field.reverse256(0xf1fe37fb155a7fa0c654d7aa7730b3b8a7f59c5e765282ccc8024e30854ca72f);
+        vk.vk_secondary.S_comm.comm_row_audit_ts =
+            Field.reverse256(0xd317b4013aea2f048fbae6aec9ea764b5797cd61a3f45ee5b59f8adf96e1f65e);
+        vk.vk_secondary.S_comm.comm_col =
+            Field.reverse256(0x19da5addabc0400e569d6d609bfdc7d09fab2555517a236a75b3ceee36d27c13);
+        vk.vk_secondary.S_comm.comm_col_read_ts =
+            Field.reverse256(0xcaa0f999972c2abcc03a7858dfefc00caec91d72d99ebd96708726598483bc5d);
+        vk.vk_secondary.S_comm.comm_col_audit_ts =
+            Field.reverse256(0x5f3d9f4ec1f9b5691cfaf475cd88bd542ab97fa6e375d0a76d9cf1199b4c4442);
 
         return vk;
     }

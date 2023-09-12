@@ -220,6 +220,186 @@ library TestUtilities {
         return polys;
     }
 
+    function loadScProofBatchPrimary() public returns (Abstractions.CompressedPolys[] memory) {
+        Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
+        uint256[] memory raw_poly = new uint256[](2);
+        raw_poly[0] = 0x2cb88cda7074d0e915b861660233a7eaad557e0a1c27d7292a5250efea90f15f;
+        raw_poly[1] = 0x2fc3a5740ac106a718c73133b9812001c7f657668dc5670e48b71604e8c3e02f;
+        polys[0] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x0162bb804c9e73cceee63639e4f219e33ae7883282b81284db8d80c721b98901;
+        raw_poly[1] = 0x2e5db754eb7d8246e5b47a3474445fc185f27da84c67e453596cfed7b2c3261b;
+        polys[1] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x10f4a94f31f2ad9682125790c43c241d9e9f775fa5c4ee3aec76102695f569c4;
+        raw_poly[1] = 0x189ee7fe38df1170a65100c43a015fcf0099aeb64d7dcf5b2b5af6cbdf1f5750;
+        polys[2] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x12432bb579b1692186d94f679a32670a15c4469f7106e5dca3d708fc37bad595;
+        raw_poly[1] = 0x04e1397a0bba33062b31baf1e4a4193e5fa1b950f3308a4114cd3fd3efd59742;
+        polys[3] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1b316418f58ed9f85c8a0902a4fb4d48842c7be16c0c77b35e01ec19bfb2e530;
+        raw_poly[1] = 0x0e6a6ef6915183f625d3800c329761966b1cd46fdb77e5190ead705018da051d;
+        polys[4] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x27ee77987bd8b8295390bd3d53357b19362f41831dded50c646d16a2a60eded7;
+        raw_poly[1] = 0x09c4ff7810ace3bf6e624f4f2f37d5bde560d4eddcfc6c4c50bef949a8dcc8d9;
+        polys[5] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x08e4ec681129eeafe3a7a5b05920c3d70b5c060bfef228e2104cd5919473d1ff;
+        raw_poly[1] = 0x16fef613a97b009941a36f7b2bd2dccecfcdd675011c938f530d99d988a1c665;
+        polys[6] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x2ee0540eeeea51f7ed0f9994dc7722e7677ba1d0c5b61cc480cb446e10c53d1b;
+        raw_poly[1] = 0x0b8f7a6b7ea7a31c1fd866bf619ec45c42347cbae46d13d32b8ab874b4a4c2f6;
+        polys[7] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x0417843133a94addb6e41868992f778d0c8301d1cb3c3345126865760b1d0326;
+        raw_poly[1] = 0x0cbc0dfe6ac3745c9f5a9eb90d4faabf5cacb461d0e181ca9a92e7dd5ecc3630;
+        polys[8] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x101ce79b8dd349bb192d8f9116ef309fdda02b0249f621ce23b963bb3a4e5564;
+        raw_poly[1] = 0x15ab3dd82b53832d167d427c7e5246fd539bb1a0a15bf3c1b4430c01180e82b9;
+        polys[9] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1da34f6eee4c35777ea6b1e0a348e2425fa9a80b7a31304b2dcf97414951403a;
+        raw_poly[1] = 0x0726ed95b29ecd536dee4faff0b5fc028f849df10a9ef90e55fcf208b3e8992f;
+        polys[10] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x15d0e3e94e435d5dda30a788cd7488eb1854918cba412a7c86f91aea4421647d;
+        raw_poly[1] = 0x28ca7be78b6a09f6fc240f731a885271290dcabea59f880e1aeb4db1346dbe52;
+        polys[11] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x151c25c9221de5fea2cf4a3a806f65f63876c58a790ea501242b486621c96c24;
+        raw_poly[1] = 0x1a23357373d56f16f5b9c27ddea7230596fa452547c6048a4a00c55849dc8b63;
+        polys[12] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1889cdce52633016f199554932439c40b6c44a63c3da9b9f79345cc089d5a8b7;
+        raw_poly[1] = 0x0687d7529a88e6db2307d3ee089dee043099c0a4ad7aea91f9952a9ff5fddd39;
+        polys[13] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x271946107ddc4f905b2883a81d69cc96770bc08c47b9d2989226542d08374f7e;
+        raw_poly[1] = 0x135f9e6a420f4a4c89fd407f51fec5715f212d758c56cf5dff6b56be512d885c;
+        polys[14] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x23b96a78557bbacecbf603a43ef94661f9e94b142d3978929b4712719778f62d;
+        raw_poly[1] = 0x2947b44b5ccf14180b9e9a9f99d18467c7efd734075d2bbe3d80ba201084f41c;
+        polys[15] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x203c906ff3d09060c38c150e18b380bd6241a9bf7ea209d30db068aba3078ccc;
+        raw_poly[1] = 0x011cb30cc0b34d4823f704981977c4bdc3a12016ead11edd5287fbf075928633;
+        polys[16] = Abstractions.CompressedPolys(raw_poly);
+
+        return polys;
+    }
+
+    function loadScProofBatchSecondary() public returns (Abstractions.CompressedPolys[] memory) {
+        Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
+        uint256[] memory raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
+        raw_poly[1] = 0x19802e5ea9dafb11f743eb43716e79f37c789b57b1b00ea449dbdc6f04ab9b6b;
+        polys[0] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x2d378e9b49f5f4860100f40327789d686238bd8810f179bbbae815fd25c9ef43;
+        raw_poly[1] = 0x18a845dd111372c0119e8d1fc6aac66042cf93ba5879a3c95fc245e3dcefa230;
+        polys[1] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x2364646dd2dbfcce18c0c763d9cab23d94f3250991d1c8cccb6845590d77896c;
+        raw_poly[1] = 0x2ade6948a404b8c4664c31ccded25d4663babe51c5645629452c7df3648d0321;
+        polys[2] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x0847fae886949c3213a3d28b2c001990f477611026038d43eda53ddbc39c9521;
+        raw_poly[1] = 0x2d045e7db376b31ff268396361ca58f115a3239b223a2b9e86b9eb2ec33af377;
+        polys[3] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1e114defaee4634772d44605960c69774c391901e87d05fbb482a878d5b828cd;
+        raw_poly[1] = 0x1da41dc7c237eea3fb05b5338888b50dca059c8d390dbee25ddf462b9299cb2d;
+        polys[4] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1021e441635b8647624cfffbaec46a004035aaa93bf27252b5e58f64954f7a4a;
+        raw_poly[1] = 0x1fb4b0bc6b92850061649d216c8fd20ab14852ff91ad442f0a9ce0b41f6ae8e8;
+        polys[5] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1d91b866179a441cd23c7286907d829b78b1c9d9450df2b82d0d1d989e411826;
+        raw_poly[1] = 0x0936bf1de7143e7377b0ff33a6a7a6b0ec885ca377ab6ab405745a7b8e5cab1a;
+        polys[6] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x16fd96f5262a2f4e8a94e0519fc362651e23f8de99b3caf796890c9f9549fd4a;
+        raw_poly[1] = 0x0a0a854fc54c00bfe91f9e46598f90d232df5b6ba9fabe40b305ead9127aa0e5;
+        polys[7] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x10c096a88e501c982a43e06bf915a00f83c222d75a0e25fcad57343d85a9a275;
+        raw_poly[1] = 0x136c07c92d8654af68f51d7a96ca1c8fdd12ff03044514d8bffdb87c304910db;
+        polys[8] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x0a41b82351e4fc1bf2d771f3b5b583dfa8ade85688488af9ae35cf61b00a1ebe;
+        raw_poly[1] = 0x2fbaa3e27f21d957e2e6569259e0be9bfcb6da9d4f402cf3d3bbaf600cc261bf;
+        polys[9] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x0bc68776b8fc9d9d4d2d5065127045d035fcd5560d9b618d600ece28c38f0b14;
+        raw_poly[1] = 0x0560bd07837f382632e4e6beb6de58c4947bd4ce18aed19ec7bed7ab02165bcd;
+        polys[10] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1bfc9f59708386db1ed2c5b4c744fe82a077012bcf6018bfc5c7d51d4de52bf6;
+        raw_poly[1] = 0x016f2f418e5e7faaddf505f19a74bc5fdbfd27b7e807875040dafca22cbfdf55;
+        polys[11] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x12ac31e13a35825d0ff3aa960049591c68dd7a23b7003ffe5f6d22d3dbf3dd8f;
+        raw_poly[1] = 0x20498768f0ccbb348ffe954acab72b7f931843b55419461efd64aadbd39a632b;
+        polys[12] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1aa5e9c768e90fdaedc6c334e0fa6509f880a8afdcbada154fa7d6c2868e700d;
+        raw_poly[1] = 0x21afb8283733c31b406c456bd694be932df60865aaa4b90ea096e27166737f92;
+        polys[13] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x1071fc4bd92ca1c137aa89d0910cba1ea548b26fed0604d3f071076fa69bf74e;
+        raw_poly[1] = 0x1966d30b0205d6de5e20f710553c750e7172fb52b92a32731870401f75956b71;
+        polys[14] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x14ad6e0b46d9b59b342aac46c8d1148962729df2f879f67e118be2f0928c03ba;
+        raw_poly[1] = 0x206ada83c370d6c75b9e0f1c29d8ae87c066eec223b0a5214351658dc8ef82d3;
+        polys[15] = Abstractions.CompressedPolys(raw_poly);
+
+        raw_poly = new uint256[](2);
+        raw_poly[0] = 0x072c3bc6f8332a63f263549220d394a84fcef27341f3408c109c599f07d97e43;
+        raw_poly[1] = 0x134cb4270f78e101fac442a000eabb3771bdd50dd4d276b9d6980599fd015804;
+        polys[16] = Abstractions.CompressedPolys(raw_poly);
+
+        return polys;
+    }
+
     function loadProof() public returns (Abstractions.CompressedSnark memory) {
         Abstractions.CompressedSnark memory proof;
 
@@ -387,6 +567,16 @@ library TestUtilities {
             0x13134a0672335328e0878dbca65909b37b784dc32cc302813598117d0f1b9ffa;
         proof.r_W_snark_primary.eval_col_read_ts = 0x0da1489631de72389c923e31cd496820f98a28749a050a83fa1d9aa7e4a8c50f;
         proof.r_W_snark_primary.eval_W = 0x07ce63dd203a606986287f23b89f5b68b30d11f0055e12d1f67152d6bf0f6019;
+
+        proof.r_W_snark_primary.sc_proof_batch = Abstractions.SumcheckProof(loadScProofBatchPrimary());
+        proof.r_W_snark_primary.evals_batch_arr = new uint256[](7);
+        proof.r_W_snark_primary.evals_batch_arr[0] = 0x19468567257ace724e35774460ac7e937011f1434e787d1b60c941bf8d84e3aa;
+        proof.r_W_snark_primary.evals_batch_arr[1] = 0x0b2af867c7b8d4b63f25f85088b0a4535fac8b341b403ce3190c196b6ffba9fc;
+        proof.r_W_snark_primary.evals_batch_arr[2] = 0x0b2af867c7b8d4b63f25f85088b0a4535fac8b341b403ce3190c196b6ffba9fc;
+        proof.r_W_snark_primary.evals_batch_arr[3] = 0x0b2af867c7b8d4b63f25f85088b0a4535fac8b341b403ce3190c196b6ffba9fc;
+        proof.r_W_snark_primary.evals_batch_arr[4] = 0x1f176f81f26dcc365d88a074e44270b4c49a93d042119221f9bdba942e8c38d5;
+        proof.r_W_snark_primary.evals_batch_arr[5] = 0x2805ee388ee73f3323fce54fee6c107a4bfa19bf252177e2f7627632da2ca98d;
+        proof.r_W_snark_primary.evals_batch_arr[6] = 0x299e6326a3377cba845485866f68ddded620f54defb2abd2a8f1caf4c9199665;
 
         proof.f_W_snark_secondary.eval_left_arr = new uint256[](8);
         proof.f_W_snark_secondary.eval_left_arr[0] = 0x25fb4b748551171f8c709173c983be713bc4728243d8a81ae83f3b038953ef3d;
@@ -571,6 +761,24 @@ library TestUtilities {
         proof.f_W_snark_secondary.eval_col_read_ts = 0x16096385dd61becd9b639742d204cc4d63a565e548730f544f539eddd48a5079;
         proof.f_W_snark_secondary.eval_W = 0x08d04ce171cf7c61087f116638d0f64e32c8c60d0f084bcc06365d87ed89e142;
 
+        proof.f_W_snark_secondary.sc_proof_batch = Abstractions.SumcheckProof(loadScProofBatchSecondary());
+
+        proof.f_W_snark_secondary.evals_batch_arr = new uint256[](7);
+        proof.f_W_snark_secondary.evals_batch_arr[0] =
+            0x1bc32f1f1ae00e36496c47ec554aa7dc778e27ef506ad4a2a013b4716698eec3;
+        proof.f_W_snark_secondary.evals_batch_arr[1] =
+            0x02e69888179b44e1ad0049064f75c900ad3b30f204c863ecbf35eb2f7739b3f0;
+        proof.f_W_snark_secondary.evals_batch_arr[2] =
+            0x02e69888179b44e1ad0049064f75c900ad3b30f204c863ecbf35eb2f7739b3f0;
+        proof.f_W_snark_secondary.evals_batch_arr[3] =
+            0x02e69888179b44e1ad0049064f75c900ad3b30f204c863ecbf35eb2f7739b3f0;
+        proof.f_W_snark_secondary.evals_batch_arr[4] =
+            0x1a39dc74dfc44ee2d56f3c5007cd6a39644d61067a1f9b7b3b9ebac2c177c276;
+        proof.f_W_snark_secondary.evals_batch_arr[5] =
+            0x273f004562b81f5b833e231c46dd143b4d4328f8ebf65514fb8ff8d0ef8de4f6;
+        proof.f_W_snark_secondary.evals_batch_arr[6] =
+            0x044b509a7adfcbd9313ac291f15c74cf7583b8b5d935b96ed904b3e6434afa4d;
+
         return proof;
     }
 
@@ -601,6 +809,12 @@ library TestUtilities {
             Field.reverse256(0x65c00e98c109b19b056376eccefc77fa3ec317e08c9b39f9e144be64214cf518);
         vk.vk_primary.S_comm.comm_col_audit_ts =
             Field.reverse256(0x3d07b7a285029cec7f62cd50af5e913d75a790daace6763ad484aa855743e46c);
+        vk.vk_primary.S_comm.comm_val_A =
+            Field.reverse256(0x7bf6880819f067cb610868db1b45a759c0b8d021ee4e7770b752552ce2792e10);
+        vk.vk_primary.S_comm.comm_val_B =
+            Field.reverse256(0x5bd4642918d6fc9b99a23543cc53ce8d2016a8414b1e940a1f4cbbba7299690c);
+        vk.vk_primary.S_comm.comm_val_C =
+            Field.reverse256(0xf51ff1bed9c759fc5251da795711db2d3862e379b8f14d2be3140f6616d55025);
 
         vk.vk_secondary.S_comm.comm_row =
             Field.reverse256(0x3e4af172a04dfa61409a2ab14fff6a2241f522e1c3e69817eafc17d43b6c8612);
@@ -614,6 +828,12 @@ library TestUtilities {
             Field.reverse256(0xcaa0f999972c2abcc03a7858dfefc00caec91d72d99ebd96708726598483bc5d);
         vk.vk_secondary.S_comm.comm_col_audit_ts =
             Field.reverse256(0x5f3d9f4ec1f9b5691cfaf475cd88bd542ab97fa6e375d0a76d9cf1199b4c4442);
+        vk.vk_secondary.S_comm.comm_val_A =
+            Field.reverse256(0x44978366abbcd92117cbc92b601d676b735b374fc6ecd4bd44da998522aa5721);
+        vk.vk_secondary.S_comm.comm_val_B =
+            Field.reverse256(0x3958a1194994d7f867d59afc1cdea9bbe6a1b138ef8a0fc9bba4a67244d70868);
+        vk.vk_secondary.S_comm.comm_val_C =
+            Field.reverse256(0x823f015c0f3ae7279d682cc968ac0ce5b5690ddad81d6c1f5759ffbded63c219);
 
         return vk;
     }

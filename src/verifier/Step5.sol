@@ -16,8 +16,30 @@ library Step5Lib {
         uint256 claim_init_expected_row,
         uint256 claim_read_expected_row,
         uint256 claim_write_expected_row,
-        uint256 claim_audit_expected_row
-    ) public pure returns (bool) {
+        uint256 claim_audit_expected_row,
+        bool printLogs
+    ) public view returns (bool) {
+        if (printLogs) {
+            console.log("claim_init_expected_row actual");
+            console.logBytes32(bytes32(claim_init_expected_row));
+            console.log("claim_init_expected_row expected (proof.eval_input_arr[0])");
+            console.logBytes32(bytes32(proof.eval_input_arr[0]));
+
+            console.log("claim_read_expected_row actual");
+            console.logBytes32(bytes32(claim_read_expected_row));
+            console.log("claim_read_expected_row expected (proof.eval_input_arr[1])");
+            console.logBytes32(bytes32(proof.eval_input_arr[1]));
+
+            console.log("claim_write_expected_row actual");
+            console.logBytes32(bytes32(claim_write_expected_row));
+            console.log("claim_write_expected_row expected (proof.eval_input_arr[2])");
+            console.logBytes32(bytes32(proof.eval_input_arr[2]));
+
+            console.log("claim_audit_expected_row actual");
+            console.logBytes32(bytes32(claim_audit_expected_row));
+            console.log("claim_audit_expected_row expected (proof.eval_input_arr[3])");
+            console.logBytes32(bytes32(proof.eval_input_arr[3]));
+        }
         if (claim_init_expected_row != proof.eval_input_arr[0]) {
             return false;
         }

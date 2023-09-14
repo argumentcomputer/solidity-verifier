@@ -6,7 +6,7 @@ import "src/blocks/poseidon/PoseidonNeptuneU24Optimized.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 library TestUtilities {
-    function loadScSatSecondary() public returns (Abstractions.CompressedPolys[] memory) {
+    function loadScSatSecondary() public pure returns (Abstractions.CompressedPolys[] memory) {
         Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
         uint256[] memory raw_poly = new uint256[](3);
         raw_poly[0] = 0x1a92153cd8f297b34a72db4d128b1159add5031194cf982141cc54182391d4d5;
@@ -113,7 +113,7 @@ library TestUtilities {
         return polys;
     }
 
-    function loadScSatPrimary() public returns (Abstractions.CompressedPolys[] memory) {
+    function loadScSatPrimary() public pure returns (Abstractions.CompressedPolys[] memory) {
         Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
         uint256[] memory raw_poly = new uint256[](3);
         raw_poly[0] = 0x04307958956afc72bb453365f15a82322f0f7cd90849dbcb1e12938461edd382;
@@ -220,7 +220,7 @@ library TestUtilities {
         return polys;
     }
 
-    function loadScProofBatchPrimary() public returns (Abstractions.CompressedPolys[] memory) {
+    function loadScProofBatchPrimary() public pure returns (Abstractions.CompressedPolys[] memory) {
         Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
         uint256[] memory raw_poly = new uint256[](2);
         raw_poly[0] = 0x2cb88cda7074d0e915b861660233a7eaad557e0a1c27d7292a5250efea90f15f;
@@ -310,7 +310,7 @@ library TestUtilities {
         return polys;
     }
 
-    function loadScProofBatchSecondary() public returns (Abstractions.CompressedPolys[] memory) {
+    function loadScProofBatchSecondary() public pure returns (Abstractions.CompressedPolys[] memory) {
         Abstractions.CompressedPolys[] memory polys = new Abstractions.CompressedPolys[](17);
         uint256[] memory raw_poly = new uint256[](2);
         raw_poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
@@ -400,7 +400,7 @@ library TestUtilities {
         return polys;
     }
 
-    function loadProof() public returns (Abstractions.CompressedSnark memory) {
+    function loadProof() public pure returns (Abstractions.CompressedSnark memory) {
         Abstractions.CompressedSnark memory proof;
 
         uint256[] memory l_u_secondary_X = new uint256[](2);
@@ -782,7 +782,8 @@ library TestUtilities {
         return proof;
     }
 
-    function loadPublicParameters() public returns (Abstractions.VerifierKey memory) {
+    function loadPublicParameters() public pure returns (Abstractions.VerifierKey memory) {
+        uint256 index = 0;
         Abstractions.VerifierKey memory vk;
 
         vk.f_arity_primary = 1;
@@ -834,6 +835,67 @@ library TestUtilities {
             Field.reverse256(0x3958a1194994d7f867d59afc1cdea9bbe6a1b138ef8a0fc9bba4a67244d70868);
         vk.vk_secondary.S_comm.comm_val_C =
             Field.reverse256(0x823f015c0f3ae7279d682cc968ac0ce5b5690ddad81d6c1f5759ffbded63c219);
+
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsPrimary = loadBn256Constants();
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsSecondary = loadGrumpkinConstants();
+
+        Abstractions.M[] memory m = new Abstractions.M[](constantsPrimary.m.length);
+        Abstractions.PSM[] memory psm = new Abstractions.PSM[](constantsPrimary.psm.length);
+        Abstractions.V_REST[] memory v_rests = new Abstractions.V_REST[](constantsPrimary.sparseMatrices.length);
+        Abstractions.W_HAT[] memory w_hats = new Abstractions.W_HAT[](constantsPrimary.sparseMatrices.length);
+        for (index = 0; index < constantsPrimary.sparseMatrices.length; index++) {
+            w_hats[index] = Abstractions.W_HAT(constantsPrimary.sparseMatrices[index].w_hat);
+            v_rests[index] = Abstractions.V_REST(constantsPrimary.sparseMatrices[index].v_rest);
+        }
+
+        for (index = 0; index < constantsPrimary.m.length; index++) {
+            m[index] = Abstractions.M(constantsPrimary.m[index]);
+        }
+
+        // For PSM we need to switch indexing (i,j -> j,i) while loading
+        uint256[] memory psm_inner;
+        for (index = 0; index < constantsPrimary.psm.length; index++) {
+            psm_inner = new uint256[](constantsPrimary.psm[index].length);
+            for (uint256 j = 0; j < constantsPrimary.psm[index].length; j++) {
+                psm_inner[j] = constantsPrimary.psm[j][index];
+            }
+            psm[index] = Abstractions.PSM(psm_inner);
+        }
+
+        vk.ro_consts_secondary = Abstractions.ROConstants(
+            Abstractions.Matrices(m, psm, w_hats, v_rests),
+            constantsPrimary.round_constants,
+            constantsPrimary.partialRounds,
+            constantsPrimary.fullRounds
+        );
+
+        m = new Abstractions.M[](constantsSecondary.m.length);
+        psm = new Abstractions.PSM[](constantsSecondary.psm.length);
+        v_rests = new Abstractions.V_REST[](constantsSecondary.sparseMatrices.length);
+        w_hats = new Abstractions.W_HAT[](constantsSecondary.sparseMatrices.length);
+        for (index = 0; index < constantsSecondary.sparseMatrices.length; index++) {
+            w_hats[index] = Abstractions.W_HAT(constantsSecondary.sparseMatrices[index].w_hat);
+            v_rests[index] = Abstractions.V_REST(constantsSecondary.sparseMatrices[index].v_rest);
+        }
+
+        for (index = 0; index < constantsSecondary.m.length; index++) {
+            m[index] = Abstractions.M(constantsSecondary.m[index]);
+        }
+
+        for (index = 0; index < constantsSecondary.psm.length; index++) {
+            psm_inner = new uint256[](constantsSecondary.psm[index].length);
+            for (uint256 j = 0; j < constantsSecondary.psm[index].length; j++) {
+                psm_inner[j] = constantsSecondary.psm[j][index];
+            }
+            psm[index] = Abstractions.PSM(psm_inner);
+        }
+
+        vk.ro_consts_primary = Abstractions.ROConstants(
+            Abstractions.Matrices(m, psm, w_hats, v_rests),
+            constantsSecondary.round_constants,
+            constantsSecondary.partialRounds,
+            constantsSecondary.fullRounds
+        );
 
         return vk;
     }

@@ -7,6 +7,8 @@ import "src/blocks/poseidon/Sponge.sol";
 import "src/blocks/grumpkin/Bn256.sol";
 import "src/blocks/grumpkin/Grumpkin.sol";
 
+import "test/utils.t.sol";
+
 library Step2GrumpkinLib {
     uint256 private constant NUM_FE_WITHOUT_IO_FOR_CRHF = 17;
     uint32 private constant DOMAIN_SEPARATOR = 0;
@@ -15,17 +17,21 @@ library Step2GrumpkinLib {
     function verify(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
-        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsPrimary,
-        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
         uint32 numSteps,
         uint256[] calldata z0_primary,
         uint256[] calldata z0_secondary
-    ) public returns (bool) {
+    ) public view returns (bool) {
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsSecondary =
+            PoseidonU24Optimized.newConstants(vk.ro_consts_secondary);
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsPrimary =
+            PoseidonU24Optimized.newConstants(vk.ro_consts_primary);
+
+        // Primary hasher uses secondary constants and vice versa according to Rust reference:
+        // https://github.com/lurk-lab/arecibo/blob/dev/src/lib.rs#L553
         if (!verifyPrimaryStep2(proof, vk, constantsSecondary, numSteps, z0_primary)) {
             console.log("[Step2 primary] false");
             return false;
         }
-
         if (!verifySecondaryStep2(proof, vk, constantsPrimary, numSteps, z0_secondary)) {
             console.log("[Step2 secondary] false");
             return false;
@@ -36,10 +42,10 @@ library Step2GrumpkinLib {
     function verifyPrimaryStep2(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
-        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsSecondary,
         uint32 numSteps,
         uint256[] calldata z0_primary
-    ) public returns (bool) {
+    ) public view returns (bool) {
         uint256 counter = 0;
         uint256 i = 0;
 
@@ -120,10 +126,10 @@ library Step2GrumpkinLib {
     function verifySecondaryStep2(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
-        PoseidonU24Optimized.PoseidonConstantsU24 calldata constantsSecondary,
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constantsPrimary,
         uint32 numSteps,
         uint256[] calldata z0_secondary
-    ) public returns (bool) {
+    ) public view returns (bool) {
         uint256 counter = 0;
         uint256 i = 0;
 
@@ -192,7 +198,7 @@ library Step2GrumpkinLib {
             "[Poseidon:Optimized verifySecondaryStep2] counter != elementsToHash.length"
         );
 
-        uint256 output = hash(elementsToHash.length, elementsToHash, constantsSecondary, Grumpkin.P_MOD); // Grumpkin.P_MOD
+        uint256 output = hash(elementsToHash.length, elementsToHash, constantsPrimary, Grumpkin.P_MOD); // Grumpkin.P_MOD
 
         // in Nova only 250 bits of output hash are significant
         if ((output & 0x03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) != proof.l_u_secondary.X[1]) {
@@ -205,9 +211,9 @@ library Step2GrumpkinLib {
     function hash(
         uint256 absorbLen,
         uint256[] memory elementsToHash,
-        PoseidonU24Optimized.PoseidonConstantsU24 calldata constants,
+        PoseidonU24Optimized.PoseidonConstantsU24 memory constants,
         uint256 modulus
-    ) private returns (uint256) {
+    ) private pure returns (uint256) {
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, uint32(absorbLen));
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, SQUEEZE_NUM);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);

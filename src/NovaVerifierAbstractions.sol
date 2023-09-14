@@ -76,9 +76,34 @@ library Abstractions {
         RelaxedR1CSSNARK r_W_snark_primary;
     }
 
+    struct Matrices {
+        M[] m;
+        PSM[] psm;
+        W_HAT[] w_hats;
+        V_REST[] v_rests;
+    }
+
+    struct M {
+        uint256[] m_inner;
+    }
+
+    struct PSM {
+        uint256[] psm_inner;
+    }
+
+    struct W_HAT {
+        uint256[] w_hat;
+    }
+
+    struct V_REST {
+        uint256[] v_rest;
+    }
+
     struct ROConstants {
-        uint256[] mixConstants;
+        Matrices matrices;
         uint256[] addRoundConstants;
+        uint256 partial_rounds;
+        uint256 full_rounds;
     }
 
     struct R1CSShapeSparkCommitment {
@@ -101,7 +126,6 @@ library Abstractions {
         uint256 digest;
     }
 
-    // TODO include num_cons and num_vars into loader
     struct VerifierKeyS2 {
         uint256 num_cons;
         uint256 num_vars;

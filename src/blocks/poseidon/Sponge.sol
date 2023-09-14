@@ -727,7 +727,7 @@ library NovaSpongeLib {
         uint32 statePosition;
     }
 
-    function initializeState(uint128 pValue) internal returns (PoseidonU24Optimized.HashInputs25 memory) {
+    function initializeState(uint128 pValue) internal pure returns (PoseidonU24Optimized.HashInputs25 memory) {
         PoseidonU24Optimized.HashInputs25 memory state = PoseidonU24Optimized.HashInputs25(
             uint256(pValue),
             0x0000000000000000000000000000000000000000000000000000000000000000,
@@ -762,7 +762,7 @@ library NovaSpongeLib {
         IOPatternLib.IOPattern memory pattern,
         uint32 domainSeparator,
         PoseidonU24Optimized.PoseidonConstantsU24 memory constants
-    ) public returns (SpongeU24 memory) {
+    ) public pure returns (SpongeU24 memory) {
         uint128 pValue = IOPatternLib.value(pattern, domainSeparator);
 
         PoseidonU24Optimized.HashInputs25 memory state = initializeState(pValue);
@@ -774,6 +774,7 @@ library NovaSpongeLib {
 
     function absorb(SpongeU24 memory sponge, uint256[] memory scalars, uint256 modulus)
         public
+        pure
         returns (SpongeU24 memory)
     {
         // TODO we can avoid copying state to array and vice versa if Poseidon's state will be array itself
@@ -808,6 +809,7 @@ library NovaSpongeLib {
 
     function squeeze(SpongeU24 memory sponge, uint32 length, uint256 modulus)
         public
+        pure
         returns (SpongeU24 memory, uint256[] memory)
     {
         uint32 rate = STATE_SIZE - 1;
@@ -836,7 +838,7 @@ library NovaSpongeLib {
         return (sponge, out);
     }
 
-    function stateToArray(PoseidonU24Optimized.HashInputs25 memory state) internal returns (uint256[] memory) {
+    function stateToArray(PoseidonU24Optimized.HashInputs25 memory state) internal pure returns (uint256[] memory) {
         uint256[] memory result = new uint256[](STATE_SIZE);
         result[0] = state.t0;
         result[1] = state.t1;
@@ -866,7 +868,7 @@ library NovaSpongeLib {
         return result;
     }
 
-    function arrayToState(uint256[] memory state) internal returns (PoseidonU24Optimized.HashInputs25 memory) {
+    function arrayToState(uint256[] memory state) internal pure returns (PoseidonU24Optimized.HashInputs25 memory) {
         require(state.length == STATE_SIZE, "[NovaSpongeBn256Lib::arrayToState] state.length != STATE_SIZE");
         PoseidonU24Optimized.HashInputs25 memory tempState = PoseidonU24Optimized.HashInputs25(
             state[0],
@@ -898,11 +900,11 @@ library NovaSpongeLib {
         return tempState;
     }
 
-    function absorbPosition(SpongeU24 memory sponge) internal returns (uint32) {
+    function absorbPosition(SpongeU24 memory sponge) internal pure returns (uint32) {
         return sponge.statePosition - 1;
     }
 
-    function permute(SpongeU24 memory sponge, uint256 modulus) internal returns (uint256[] memory) {
+    function permute(SpongeU24 memory sponge, uint256 modulus) internal pure returns (uint256[] memory) {
         PoseidonU24Optimized.HashInputs25 memory temp_state = sponge.state;
 
         PoseidonU24Optimized.hash(temp_state, sponge.constants, modulus);

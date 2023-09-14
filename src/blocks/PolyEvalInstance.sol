@@ -132,7 +132,7 @@ library PolyEvalInstanceLib {
         uint256[] memory x,
         uint256[] memory eval_vec,
         uint256 s
-    ) public returns (PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstance memory) {
         require(
             comm_vec.length == eval_vec.length,
             "[PolyEvalInstanceLib.batchGrumpkin]: comm_vec.length != eval_vec.length"

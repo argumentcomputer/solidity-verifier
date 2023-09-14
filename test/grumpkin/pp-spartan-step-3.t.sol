@@ -12,6 +12,7 @@ import "test/utils.t.sol";
 contract PpSpartanStep3Computations is Test {
     function load_transcript_claim_sat_final_r_sat_secondary()
         private
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory)
     {
         uint16 rounds = 38;
@@ -88,6 +89,7 @@ contract PpSpartanStep3Computations is Test {
 
     function load_transcript_claim_sat_final_r_sat_primary()
         private
+        pure
         returns (KeccakTranscriptLib.KeccakTranscript memory)
     {
         uint16 rounds = 38;
@@ -180,7 +182,6 @@ contract PpSpartanStep3Computations is Test {
         coeffs[9] = 0x1ef00a82010cd1db42e84b414588c50e07a6b66c6d74caff6c50c2b4bd162538;
 
         uint256 claim_inner = 0x208f3bc09df6f6eb01595a7d7708a2f7d8dafff813f123a4abdd99dfef2ff3aa;
-        uint256 num_rounds_sat = 131072;
 
         uint256 claim_set_final;
         uint256[] memory r_sat;
@@ -232,7 +233,6 @@ contract PpSpartanStep3Computations is Test {
         coeffs[9] = 0x2caf452f74e4f5dca0a18764e9a3a289c9a894f826dd791faafc409a46f94b94;
 
         uint256 claim_inner = 0x08353df9bb3663c3258222e99684ee10f83abc2931f0c4e1918a49e75498fc1d;
-        uint256 num_rounds_sat = 131072;
 
         uint256 claim_set_final;
         uint256[] memory r_sat;
@@ -391,7 +391,7 @@ contract PpSpartanStep3Computations is Test {
         assertEq(expected, 0x2cec4a6520269a70acce4ce20ea18bf7a1f9f6e39ef956ffe49b66f408cbe0e0);
     }
 
-    function test_final_verification_primary() public {
+    function test_final_verification_primary() public view {
         uint256 claim_mem_final_expected = 0x24fea9bfdc4e5678471d48bbf380e7740f095cf53e39e0b41ea40d9f4e28c7c4;
         uint256 claim_outer_final_expected = 0x19519a6219996bc7036849a928da6d92b99e3aab2e23c741b0c68160ace8d0c6;
         uint256 claim_inner_final_expected = 0x249eaaabbddbeca568b0de3c4591168ce20e0a0091fcf0c47e7130a056d97800;
@@ -407,7 +407,7 @@ contract PpSpartanStep3Computations is Test {
         );
     }
 
-    function test_final_verification_secondary() public {
+    function test_final_verification_secondary() public view {
         uint256 claim_mem_final_expected = 0x251d3ac8e236c65a4ced88ea672bc78906650b68c43627db9686096681d97b38;
         uint256 claim_outer_final_expected = 0x2f45328586b29dfb5a3feeeba4922647b06c9f34d9f703d09cb61b521604a694;
         uint256 claim_inner_final_expected = 0x2cec4a6520269a70acce4ce20ea18bf7a1f9f6e39ef956ffe49b66f408cbe0e0;
@@ -424,6 +424,7 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_r_secondary() public {
+        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
         uint256[] memory elements_to_hash = new uint256[](24);
         elements_to_hash[0] = 0x03e0cc9d0a2e880508793f5f2b0e202504238d16bede6fba0c963b3842ec2d78;
         elements_to_hash[1] = 0x175132b2b341f63846869347bfd3042888490760e56560e46f50949a68d3be88;
@@ -450,8 +451,9 @@ contract PpSpartanStep3Computations is Test {
         elements_to_hash[22] = 0x0aeede417aac0192af82bc801044ecf5a56aaf96627211baf4a45afd3bee109b;
         elements_to_hash[23] = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
-        uint256 expected =
-            Step3GrumpkinLib.compute_r_secondary(elements_to_hash, TestUtilities.loadBn256Constants(), Bn256.R_MOD);
+        uint256 expected = Step3GrumpkinLib.compute_r_secondary(
+            elements_to_hash, PoseidonU24Optimized.newConstants(vk.ro_consts_secondary), Bn256.R_MOD
+        );
         assertEq(expected, 0x000000000000000000000000000000005d0a54b95301f0700b055bccaee75c40);
     }
 
@@ -596,7 +598,7 @@ contract PpSpartanStep3Computations is Test {
         assertEq(expected[16], 0x2e986437477a974632e0ffcd780ddc863a63d78f83c5c9666ebc792ade06dc85);
     }
 
-    function load_transcript_c_secondary() private returns (KeccakTranscriptLib.KeccakTranscript memory) {
+    function load_transcript_c_secondary() private pure returns (KeccakTranscriptLib.KeccakTranscript memory) {
         uint16 rounds = 17;
         uint8[] memory state = new uint8[](64);
         state[0] = 0xe3;
@@ -677,7 +679,7 @@ contract PpSpartanStep3Computations is Test {
         assertEq(c, 0x0f704aab173727749094c0ca0df2e5a783c6a0b21cbde7783daa8e77a71b393d);
     }
 
-    function load_transcript_c_primary() private returns (KeccakTranscriptLib.KeccakTranscript memory) {
+    function load_transcript_c_primary() private pure returns (KeccakTranscriptLib.KeccakTranscript memory) {
         uint16 rounds = 17;
         uint8[] memory state = new uint8[](64);
         state[0] = 0x58;

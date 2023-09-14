@@ -39,47 +39,4 @@ library Step6GrumpkinLib {
         }
         return (result, r_prod_unpad);
     }
-
-    function compute_claims_init_audit(
-        Abstractions.RelaxedR1CSSNARK memory proof,
-        uint256 gamma1,
-        uint256 gamma2,
-        uint256 eval_Z,
-        uint256[] memory r_prod,
-        uint256 modulus,
-        function (uint256) returns (uint256) negate
-    ) internal returns (uint256, uint256) {
-        return (
-            Step5Lib.hash_func(
-                gamma1, gamma2, IdentityPolynomialLib.evaluate(r_prod, modulus), eval_Z, 0, modulus, negate
-                ),
-            Step5Lib.hash_func(
-                gamma1,
-                gamma2,
-                IdentityPolynomialLib.evaluate(r_prod, modulus),
-                eval_Z,
-                proof.eval_col_audit_ts,
-                modulus,
-                negate
-                )
-        );
-    }
-
-    function compute_claims_read_write(
-        Abstractions.RelaxedR1CSSNARK memory proof,
-        uint256 gamma1,
-        uint256 gamma2,
-        uint256 modulus,
-        function (uint256) returns (uint256) negateBase
-    ) internal returns (uint256, uint256) {
-        uint256 ts_write = addmod(proof.eval_col_read_ts, 1, modulus);
-        return (
-            Step5Lib.hash_func(
-                gamma1, gamma2, proof.eval_col, proof.eval_E_col_at_r_prod, proof.eval_col_read_ts, modulus, negateBase
-                ),
-            Step5Lib.hash_func(
-                gamma1, gamma2, proof.eval_col, proof.eval_E_col_at_r_prod, ts_write, modulus, negateBase
-                )
-        );
-    }
 }

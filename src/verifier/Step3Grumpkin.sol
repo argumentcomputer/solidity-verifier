@@ -188,17 +188,17 @@ library Step3GrumpkinLib {
 
     function compute_f_U_secondary(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
         public
+        view
         returns (Grumpkin.GrumpkinAffinePoint memory, Grumpkin.GrumpkinAffinePoint memory, uint256[] memory, uint256)
     {
         (uint256[] memory elementsToHash, Grumpkin.GrumpkinAffinePoint memory comm_T) =
             prepareElementsToHashSecondary(proof, vk);
 
-        // TODO implement fetching Bn256 Poseidon constants from vk
         return foldInstanceSecondary(
             proof.r_U_secondary,
             proof.l_u_secondary,
             comm_T,
-            compute_r_secondary(elementsToHash, TestUtilities.loadBn256Constants(), Bn256.R_MOD)
+            compute_r_secondary(elementsToHash, PoseidonU24Optimized.newConstants(vk.ro_consts_secondary), Bn256.R_MOD)
         );
     }
 
@@ -331,7 +331,7 @@ library Step3GrumpkinLib {
         uint256[] memory elementsToHash,
         PoseidonU24Optimized.PoseidonConstantsU24 memory constants,
         uint256 modulus
-    ) public returns (uint256) {
+    ) public pure returns (uint256) {
         SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, NUM_FE_FOR_RO);
         SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, 1);
         SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
@@ -531,6 +531,7 @@ library Step3GrumpkinLib {
 
     function compute_u_secondary(Abstractions.CompressedSnark calldata proof, uint256[] memory tau, uint256 c)
         public
+        view
         returns (PolyEvalInstanceLib.PolyEvalInstance memory)
     {
         uint256[] memory evals = new uint256[](3);
@@ -693,7 +694,7 @@ library Step3GrumpkinLib {
 
         transcript = KeccakTranscriptLib.absorb(transcript, label, claims_product_arr);
 
-        uint256 num_rounds = CommonUtilities.log2(vk.vk_secondary.S_comm.N);
+        uint256 num_rounds = CommonUtilities.log2(vk.vk_primary.S_comm.N);
 
         label[0] = 0x65; // Rust's b"e"
         uint256[] memory rand_eq = new uint256[](num_rounds);

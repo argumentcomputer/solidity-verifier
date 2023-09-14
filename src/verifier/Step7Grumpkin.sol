@@ -75,7 +75,7 @@ library Step7GrumpkinLib {
     function compute_c_secondary(
         Abstractions.RelaxedR1CSSNARK calldata proof,
         KeccakTranscriptLib.KeccakTranscript memory transcript
-    ) public returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
+    ) public pure returns (KeccakTranscriptLib.KeccakTranscript memory, uint256) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;
@@ -108,7 +108,7 @@ library Step7GrumpkinLib {
         uint256 U_comm_E_y,
         uint256[] memory r_sat,
         uint256 c
-    ) public returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
+    ) public view returns (PolyEvalInstanceLib.PolyEvalInstance memory) {
         uint256[] memory eval_vec = new uint256[](9);
         eval_vec[0] = proof.eval_Az;
         eval_vec[1] = proof.eval_Bz;
@@ -208,7 +208,7 @@ library Step7GrumpkinLib {
 
     function extract_sumcheck_proof(Abstractions.SumcheckProof memory proof)
         private
-        view
+        pure
         returns (SumcheckUtilities.SumcheckProof memory)
     {
         // TODO: simplify conversions between abstractions

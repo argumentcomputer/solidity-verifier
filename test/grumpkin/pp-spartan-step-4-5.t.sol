@@ -9,7 +9,7 @@ import "src/verifier/Step5Grumpkin.sol";
 import "test/utils.t.sol";
 
 contract PpSpartanStep4Step5Computations is Test {
-    function testStep4Verify() public {
+    function testStep4Verify() public pure {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
         assert(Step4Lib.verify(proof, Bn256.R_MOD, Grumpkin.P_MOD));
     }
@@ -501,7 +501,7 @@ contract PpSpartanStep4Step5Computations is Test {
         r_prod[16] = 0x0780ddd1b7bae1a8aff7cf5a352412e2956c573041e9ec3557bca02d7a2e78a1;
 
         (, PolyEvalInstanceLib.PolyEvalInstance[] memory expected) = Step5GrumpkinLib.compute_u_vec_items_primary(
-            proof.r_W_snark_primary, public_parameters.vk_primary, transcript, r_sat, r_prod
+            proof.r_W_snark_primary, public_parameters.vk_primary, transcript, r_sat, r_prod, false
         );
 
         assertEq(expected[0].c_x, 0x225b5ed62a6252b52c48074ea887026ad925357d7bbd259875cecc0db9d6ecc7);

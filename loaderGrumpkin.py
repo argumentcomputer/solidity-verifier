@@ -45,7 +45,6 @@ mds = ro_consts_secondary['mds']
 # uint256[]
 constants_mixConstantsSecondary = mds['m']
 constants_psmSecondary = ro_consts_secondary['psm']
-constants_psmSecondary = ro_consts_secondary['psm']
 constants_smSecondary = ro_consts_secondary['sm']
 constants_w_hatsSecondary = []
 constants_v_restsSecondary = []
@@ -156,7 +155,7 @@ r_u_primary_u = r_u_primary['u']
 
 # uint256
 r_u_secondary_comm_W_comm = r_u_secondary_comm_W['comm']
-print(r_u_secondary_comm_W_comm)
+#print(r_u_secondary_comm_W_comm)
 #print("r_u_secondary_comm_W_comm: ", r_u_secondary_comm_W_comm, formatNumber(r_u_secondary_comm_W_comm))
 # uint256
 r_u_secondary_comm_E_comm = r_u_secondary_comm_E['comm']
@@ -876,6 +875,7 @@ def pushToProof(data):
     command = command + addSumcheckProof(data.r_W_snark_primary_sc_proof_batch, True) + ','
     command = command + addNumbersArray(data.r_W_snark_primary_eval_output2_arr, True) + ')'
     command = command + ')\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
     if os.system(command) != 0:
         print("pushToProof failed")
         exit(1)
@@ -930,6 +930,7 @@ def pushToVk(data):
     command = command + addNumber(data.vk_primary_S_comm_comm_col_audit_ts, True) + '),'
     command = command + addNumber(data.vk_primary_digest, True) + ')'
     command = command + ')\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
     if os.system(command) != 0:
         print("pushToVk failed")
         exit(1)

@@ -143,6 +143,21 @@ library Abstractions {
         VerifierKeyS1 vk_primary;
     }
 
+    struct ROConstantsPasta {
+        uint256[] mixConstants;
+        uint256[] addRoundConstants;
+    }
+
+    struct VerifierKeyPasta {
+        uint256 f_arity_primary;
+        uint256 f_arity_secondary;
+        uint256 digest;
+        ROConstantsPasta ro_consts_primary;
+        ROConstantsPasta ro_consts_secondary;
+        VerifierKeyS2 vk_secondary;
+        VerifierKeyS1 vk_primary;
+    }
+
     function toTranscriptBytes(uint256[] memory scalars) public pure returns (uint8[] memory) {
         uint8[] memory output = new uint8[](32 * scalars.length);
         uint256 index = 0;

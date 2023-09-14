@@ -14,7 +14,7 @@ library Step2Lib {
 
     function verify(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk,
+        Abstractions.VerifierKeyPasta calldata vk,
         uint32 numSteps,
         uint256[] calldata z0_primary,
         uint256[] calldata z0_secondary
@@ -33,14 +33,14 @@ library Step2Lib {
 
     function verifyPrimaryStep2(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk,
+        Abstractions.VerifierKeyPasta calldata vk,
         uint32 numSteps,
         uint256[] calldata z0_primary
     ) public view returns (bool) {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
         if (
             !NovaSpongeVestaLib.constantsAreEqual(
-                vk.ro_consts_secondary.matrices.m[0].m_inner, vk.ro_consts_secondary.addRoundConstants
+                vk.ro_consts_secondary.mixConstants, vk.ro_consts_secondary.addRoundConstants
             )
         ) {
             console.log("[verifyPrimary] WrongVestaPoseidonConstantsError");
@@ -136,14 +136,14 @@ library Step2Lib {
 
     function verifySecondaryStep2(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk,
+        Abstractions.VerifierKeyPasta calldata vk,
         uint32 numSteps,
         uint256[] calldata z0_secondary
     ) public view returns (bool) {
         // Compare first 25 mix / arc Poseidon constants from verifier key with expected ones
         if (
             !NovaSpongePallasLib.constantsAreEqual(
-                vk.ro_consts_primary.matrices.m[0].m_inner, vk.ro_consts_primary.addRoundConstants
+                vk.ro_consts_primary.mixConstants, vk.ro_consts_primary.addRoundConstants
             )
         ) {
             console.log("[verifySecondary] WrongPallasPoseidonConstantsError");

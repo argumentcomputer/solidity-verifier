@@ -62,7 +62,7 @@ contract NovaVerifierContract {
         uint256 gamma2;
     }
 
-    Abstractions.VerifierKey public vk;
+    Abstractions.VerifierKeyPasta public vk;
     Abstractions.CompressedSnark public proof;
 
     KeccakTranscriptLib.KeccakTranscript private transcriptPrimary;
@@ -106,7 +106,7 @@ contract NovaVerifierContract {
     }
 
     // cast send 0x46b142dd1e924fab83ecc3c08e4d46e82f005e0e "pushToVk((uint256,uint256,uint256,(uint256[],uint256[]),(uint256[],uint256[]),((uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)))" "(1,1,1,([1],[1]),([1],[1]),((1,1,1,1,1,1,1,1,1,1),1),(1,1,(1,1,1,1,1,1,1,1,1,1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-    function pushToVk(Abstractions.VerifierKey calldata input) public {
+    function pushToVk(Abstractions.VerifierKeyPasta calldata input) public {
         vk = input;
     }
 

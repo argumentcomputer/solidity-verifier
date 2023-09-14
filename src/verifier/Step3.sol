@@ -332,7 +332,7 @@ library Step3Lib {
 
     function compute_rand_eq_secondary(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk,
+        Abstractions.VerifierKeyPasta calldata vk,
         KeccakTranscriptLib.KeccakTranscript memory transcript
     ) public view returns (KeccakTranscriptLib.KeccakTranscript memory, uint256[] memory) {
         uint256[] memory claims_product_arr = proof.f_W_snark_secondary.claims_product_arr;
@@ -646,11 +646,10 @@ library Step3Lib {
         return (transcript, tau);
     }
 
-    function compute_f_U_secondary(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
-        public
-        view
-        returns (Vesta.VestaAffinePoint memory, Vesta.VestaAffinePoint memory, uint256[] memory, uint256)
-    {
+    function compute_f_U_secondary(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKeyPasta calldata vk
+    ) public view returns (Vesta.VestaAffinePoint memory, Vesta.VestaAffinePoint memory, uint256[] memory, uint256) {
         (uint256[] memory elementsToHash, Vesta.VestaAffinePoint memory comm_T) =
             prepareElementsToHashSecondary(proof, vk);
 
@@ -682,7 +681,7 @@ library Step3Lib {
 
     function prepareElementsToHashSecondary(
         Abstractions.CompressedSnark calldata proof,
-        Abstractions.VerifierKey calldata vk
+        Abstractions.VerifierKeyPasta calldata vk
     ) private view returns (uint256[] memory, Vesta.VestaAffinePoint memory) {
         uint256 counter = 0;
         uint256[] memory elementsToHash = new uint256[](NUM_FE_FOR_RO);

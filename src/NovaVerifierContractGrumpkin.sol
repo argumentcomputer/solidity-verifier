@@ -112,9 +112,19 @@ contract NovaVerifierContractGrumpkin {
         proof = input;
     }
 
-    // cast send 0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f "pushToVk((uint256,uint256,uint256,(((uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(((uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)))" "(1,1,1,(([([1])],[([1])]),[1],1,1),(([([1])],[([1])]),[1],1,1),(1,1,(1,1,1,1,1,1,1,1,1,1),1),(1,1,(1,1,1,1,1,1,1,1,1,1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToVk((uint256,uint256,uint256,(((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)))" "(1,1,1,(([([1])],[([1])],[([1])],[([1])]),[1],1,1),(([([1])],[([1])],[([1])],[([1])]),[1],1,1),(1,1,(1,1,1,1,1,1,1,1,1,1),1),(1,1,(1,1,1,1,1,1,1,1,1,1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
     function pushToVk(Abstractions.VerifierKey calldata input) public {
         vk = input;
+    }
+
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsPrimary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))" "(([([1])],[([1])],[([1])],[([1])]),[1],1,1)" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    function pushToPoseidonConstantsPrimary(Abstractions.ROConstants calldata input) public {
+        vk.ro_consts_primary = input;
+    }
+
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsSecondary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))" "(([([1])],[([1])],[([1])],[([1])]),[1],1,1)" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    function pushToPoseidonConstantsSecondary(Abstractions.ROConstants calldata input) public {
+        vk.ro_consts_secondary = input;
     }
 
     // cast call 0x998abeb3e57409262ae5b751f60747921b33613e "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "false" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80

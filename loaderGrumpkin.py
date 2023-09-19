@@ -736,6 +736,9 @@ PUSH_TO_VK_FUNC_SIG = "pushToVk((" \
                       "(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)" \
                       "))"
 
+PUSH_TO_CONSTANTS_PRIMARY_FUNC_SIG = "pushToPoseidonConstantsPrimary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))"
+PUSH_TO_CONSTANTS_SECONDARY_FUNC_SIG = "pushToPoseidonConstantsSecondary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))"
+
 # expects hex number as string without '0x'
 def addNumber(number, useReversing):
     num = bytearray.fromhex(('{0:0{1}x}'.format(int(number, 16), 64)))
@@ -836,8 +839,6 @@ def pushToProof(data):
     command = command + addNumbersArray(data.f_W_snark_secondary_evals_batch_arr, True) + ','
     command = command + addSumcheckProof(data.f_W_snark_secondary_sc_proof_batch, True) + ','
     command = command + addNumbersArray(data.f_W_snark_secondary_eval_output2_arr, True) + '),('
-
-
     command = command + addNumber(data.r_W_snark_primary_comm_Az, True) + ','
     command = command + addNumber(data.r_W_snark_primary_comm_Bz, True) + ','
     command = command + addNumber(data.r_W_snark_primary_comm_Cz, True) + ','
@@ -880,7 +881,6 @@ def pushToProof(data):
         print("pushToProof failed")
         exit(1)
 
-# TODO currently it pushes only constants for a single round of Poseidon just for comparison with hardcoded ones in Poseidon Solidity contract
 def pushToVk(data):
     command = 'cast send' + ' '
     command = command + CONTRACT_ADDRESS + ' \"'
@@ -914,7 +914,114 @@ def pushToVk(data):
     command = command + addNumber(data.vk_secondary_S_comm_comm_col, True) + ','
     command = command + addNumber(data.vk_secondary_S_comm_comm_col_read_ts, True) + ','
     command = command + addNumber(data.vk_secondary_S_comm_comm_col_audit_ts, True) + '),'
+    command = command + addNumber(data.vk_secondary_digest, True) + '),('
+    command = command + addNumber(hex(data.vk_primary_num_cons), False) + ','
+    command = command + addNumber(hex(data.vk_primary_num_vars), False) + ',('
+    command = command + addNumber(hex(data.vk_primary_S_comm_N), False) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_val_A, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_val_B, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_val_C, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_row, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_row_read_ts, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_row_audit_ts, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_col, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_col_read_ts, True) + ','
+    command = command + addNumber(data.vk_primary_S_comm_comm_col_audit_ts, True) + '),'
+    command = command + addNumber(data.vk_primary_digest, True) + ')'
+    command = command + ')\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
+    print(data.constants_v_restsSecondary)
+    if os.system(command) != 0:
+        print("pushToVk failed")
+        exit(1)
 
+def pushToVkDebug(data):
+    command = 'cast send' + ' '
+    command = command + CONTRACT_ADDRESS + ' \"'
+    command = command + PUSH_TO_VK_FUNC_SIG + '\" \"('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ',(('
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + '),'
+    command = command + addNumbersArray([hex(1)], False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),(('
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + '),'
+    command = command + addNumbersArray([hex(1)], False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ',('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),'
+    command = command + addNumber(hex(1), False) + '),('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ',('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),'
+    command = command + addNumber(hex(1), False) + ')'
+    command = command + ')\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
+    print(command)
+    if os.system(command) != 0:
+        print("pushToVk failed")
+        exit(1)
+
+def pushToVkNoConstants(data):
+    command = 'cast send' + ' '
+    command = command + CONTRACT_ADDRESS + ' \"'
+    command = command + PUSH_TO_VK_FUNC_SIG + '\" \"('
+    command = command + addNumber(hex(data.f_arity_primary), False) + ','
+    command = command + addNumber(hex(data.f_arity_secondary), False) + ','
+    command = command + addNumber(data.digest, True) + ',(('
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + '),'
+    command = command + addNumbersArray([hex(1)], False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),(('
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + ','
+    command = command + addMatrix([[hex(1)]], False) + '),'
+    command = command + addNumbersArray([hex(1)], False) + ','
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + '),('
+    command = command + addNumber(hex(data.vk_secondary_num_cons), False) + ','
+    command = command + addNumber(hex(data.vk_secondary_num_vars), False) + ',('
+    command = command + addNumber(hex(data.vk_secondary_S_comm_N), False) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_val_A, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_val_B, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_val_C, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_row, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_row_read_ts, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_row_audit_ts, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_col, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_col_read_ts, True) + ','
+    command = command + addNumber(data.vk_secondary_S_comm_comm_col_audit_ts, True) + '),'
     command = command + addNumber(data.vk_secondary_digest, True) + '),('
     command = command + addNumber(hex(data.vk_primary_num_cons), False) + ','
     command = command + addNumber(hex(data.vk_primary_num_vars), False) + ',('
@@ -935,5 +1042,43 @@ def pushToVk(data):
         print("pushToVk failed")
         exit(1)
 
+def pushToConstantsPrimary(data):
+    command = 'cast send' + ' '
+    command = command + CONTRACT_ADDRESS + ' \"'
+    command = command + PUSH_TO_CONSTANTS_PRIMARY_FUNC_SIG + '\" \"(('
+    command = command + addMatrix(data.constants_mixConstantsPrimary, True) + ','
+    command = command + addMatrix(data.constants_psmPrimary, True) + ','
+    command = command + addMatrix(data.constants_w_hatsPrimary, True) + ','
+    command = command + addMatrix(data.constants_v_restsPrimary, True) + '),'
+    command = command + addNumbersArray(data.constants_addRoundConstantsPrimary, True) + ','
+    command = command + addNumber(hex(data.constants_partial_rounds_primary), False) + ','
+    command = command + addNumber(hex(data.constants_full_rounds_primary), False) + ')'
+    command = command + '\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
+    if os.system(command) != 0:
+        print("pushToConstantsPrimary failed")
+        exit(1)
+
+def pushToConstantsSecondary(data):
+    command = 'cast send' + ' '
+    command = command + CONTRACT_ADDRESS + ' \"'
+    command = command + PUSH_TO_CONSTANTS_SECONDARY_FUNC_SIG + '\" \"(('
+    command = command + addMatrix(data.constants_mixConstantsSecondary, True) + ','
+    command = command + addMatrix(data.constants_psmSecondary, True) + ','
+    command = command + addMatrix(data.constants_w_hatsSecondary, True) + ','
+    command = command + addMatrix(data.constants_v_restsSecondary, True) + '),'
+    command = command + addNumbersArray(data.constants_addRoundConstantsSecondary, True) + ','
+    command = command + addNumber(hex(data.constants_partial_rounds_secondary), False) + ','
+    command = command + addNumber(hex(data.constants_full_rounds_secondary), False) + ')'
+    command = command + '\" --private-key ' + PRIVATE_KEY
+    command = command + ' --rpc-url ' + RPC_URL
+    if os.system(command) != 0:
+        print("pushToConstantsSecondary failed")
+        exit(1)
+
 pushToProof(parsedProof)
-pushToVk(parsedVk)
+#pushToVk(parsedVk)
+
+pushToVkNoConstants(parsedVk)
+pushToConstantsPrimary(parsedVk)
+pushToConstantsSecondary(parsedVk)

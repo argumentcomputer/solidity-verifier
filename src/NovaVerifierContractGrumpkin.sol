@@ -71,6 +71,8 @@ contract NovaVerifierContractGrumpkin {
 
     Abstractions.VerifierKey public vk;
     Abstractions.CompressedSnark public proof;
+    Abstractions.ROConstants public poseidonConstantsPrimary;
+    Abstractions.ROConstants public poseidonConstantsSecondary;
 
     KeccakTranscriptLib.KeccakTranscript private transcriptPrimary;
     KeccakTranscriptLib.KeccakTranscript private transcriptSecondary;
@@ -112,19 +114,79 @@ contract NovaVerifierContractGrumpkin {
         proof = input;
     }
 
-    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToVk((uint256,uint256,uint256,(((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)))" "(1,1,1,(([([1])],[([1])],[([1])],[([1])]),[1],1,1),(([([1])],[([1])],[([1])],[([1])]),[1],1,1),(1,1,(1,1,1,1,1,1,1,1,1,1),1),(1,1,(1,1,1,1,1,1,1,1,1,1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToVk((uint256,uint256,uint256,(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint256)))" "(1,1,1,([([1])],[([1])],[([1])],[([1])],[1],1,1),([([1])],[([1])],[([1])],[([1])],[1],1,1),(1,1,(1,1,1,1,1,1,1,1,1,1),1),(1,1,(1,1,1,1,1,1,1,1,1,1),1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
     function pushToVk(Abstractions.VerifierKey calldata input) public {
         vk = input;
     }
 
-    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsPrimary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))" "(([([1])],[([1])],[([1])],[([1])]),[1],1,1)" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-    function pushToPoseidonConstantsPrimary(Abstractions.ROConstants calldata input) public {
-        vk.ro_consts_primary = input;
+    function pushToPoseidonConstantsPrimaryM(Abstractions.M[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsPrimary.m.push(input[index]);
+        }
     }
 
-    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsSecondary((((uint256[])[],(uint256[])[],(uint256[])[],(uint256[])[]),uint256[],uint256,uint256))" "(([([1])],[([1])],[([1])],[([1])]),[1],1,1)" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-    function pushToPoseidonConstantsSecondary(Abstractions.ROConstants calldata input) public {
-        vk.ro_consts_secondary = input;
+    function pushToPoseidonConstantsPrimaryPSM(Abstractions.PSM[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsPrimary.psm.push(input[index]);
+        }
+    }
+
+    function pushToPoseidonConstantsPrimaryWHAT(Abstractions.W_HAT[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsPrimary.w_hats.push(input[index]);
+        }
+    }
+
+    function pushToPoseidonConstantsPrimaryVREST(Abstractions.V_REST[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsPrimary.v_rests.push(input[index]);
+        }
+    }
+
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsPrimary(uint256[],uint256,uint256)" "[1]" "1" "1" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    function pushToPoseidonConstantsPrimary(
+        uint256[] calldata round_constants,
+        uint256 partial_rounds,
+        uint256 full_rounds
+    ) public {
+        poseidonConstantsPrimary.addRoundConstants = round_constants;
+        poseidonConstantsPrimary.partial_rounds = partial_rounds;
+        poseidonConstantsPrimary.full_rounds = full_rounds;
+    }
+
+    function pushToPoseidonConstantsSecondaryM(Abstractions.M[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsSecondary.m.push(input[index]);
+        }
+    }
+
+    function pushToPoseidonConstantsSecondaryPSM(Abstractions.PSM[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsSecondary.psm.push(input[index]);
+        }
+    }
+
+    function pushToPoseidonConstantsSecondaryWHAT(Abstractions.W_HAT[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsSecondary.w_hats.push(input[index]);
+        }
+    }
+
+    function pushToPoseidonConstantsSecondaryVREST(Abstractions.V_REST[] calldata input) public {
+        for (uint256 index = 0; index < input.length; index++) {
+            poseidonConstantsSecondary.v_rests.push(input[index]);
+        }
+    }
+
+    // cast send 0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E "pushToPoseidonConstantsSecondary(uint256[],uint256,uint256)" "[1]" "1" "1" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    function pushToPoseidonConstantsSecondary(
+        uint256[] calldata round_constants,
+        uint256 partial_rounds,
+        uint256 full_rounds
+    ) public {
+        poseidonConstantsSecondary.addRoundConstants = round_constants;
+        poseidonConstantsSecondary.partial_rounds = partial_rounds;
+        poseidonConstantsSecondary.full_rounds = full_rounds;
     }
 
     // cast call 0x998abeb3e57409262ae5b751f60747921b33613e "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "false" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
@@ -148,7 +210,11 @@ contract NovaVerifierContractGrumpkin {
         }
 
         // check if the output hashes in R1CS instances point to the right running instances
-        if (!Step2GrumpkinLib.verify(proof, vk, numSteps, z0_primary, z0_secondary)) {
+        if (
+            !Step2GrumpkinLib.verify(
+                proof, vk, poseidonConstantsPrimary, poseidonConstantsSecondary, numSteps, z0_primary, z0_secondary
+            )
+        ) {
             console.log("[Step2] false");
             return false;
         }
@@ -767,7 +833,7 @@ contract NovaVerifierContractGrumpkin {
         uint256 f_U_secondary_u;
 
         (f_U_secondary_comm_W, f_U_secondary_comm_E, f_U_secondary_X, f_U_secondary_u) =
-            Step3GrumpkinLib.compute_f_U_secondary(proof, vk);
+            Step3GrumpkinLib.compute_f_U_secondary(proof, vk, poseidonConstantsSecondary);
 
         (transcriptSecondary, precomputeOutput.tau) = Step3GrumpkinLib.compute_tau_secondary(
             proof,

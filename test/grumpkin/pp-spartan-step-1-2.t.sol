@@ -16,7 +16,11 @@ contract PpSpartanStep1Step2Computations is Test {
 
     function testStep2() public view {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (
+            Abstractions.VerifierKey memory vk,
+            Abstractions.ROConstants memory ro_consts_primary,
+            Abstractions.ROConstants memory ro_consts_secondary
+        ) = TestUtilities.loadPublicParameters();
         uint32 numSteps = 3;
         uint256[] memory z0_primary = new uint256[](1);
         z0_primary[0] = 0x0000000000000000000000000000000000000000000000000000000000000001;
@@ -24,6 +28,10 @@ contract PpSpartanStep1Step2Computations is Test {
         uint256[] memory z0_secondary = new uint256[](1);
         z0_secondary[0] = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
-        assert(Step2GrumpkinLib.verify(proof, vk, numSteps, z0_primary, z0_secondary));
+        assert(
+            Step2GrumpkinLib.verify(
+                proof, vk, ro_consts_primary, ro_consts_secondary, numSteps, z0_primary, z0_secondary
+            )
+        );
     }
 }

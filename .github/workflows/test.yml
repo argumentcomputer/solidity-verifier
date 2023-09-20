@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.8
 
       - name: Deploy main contract
         run: |
@@ -43,40 +43,40 @@ jobs:
         run: |
           [[ $(cast call ${{steps.deployment-grumpkin.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
 
-  #integration-tests-e2e-pasta:
-  #  needs: [unit-tests]
-  #  strategy:
-  #    fail-fast: true
+  integration-tests-e2e-pasta:
+    needs: [unit-tests]
+    strategy:
+      fail-fast: true
 
-  #  name: E2E verification (Pasta)
-  #  runs-on: [self-hosted]
-  #  steps:
-  #    - uses: actions/checkout@v3
-  #      with:
-  #        submodules: recursive
+    name: E2E verification (Pasta)
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-  #   - name: Install Foundry
-  #      uses: foundry-rs/foundry-toolchain@v1
-  #      with:
-  #        version: nightly
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
 
-  #    - name: Set up Python
-  #      uses: actions/setup-python@v4
-  #      with:
-  #        python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
 
-  #    - name: Deploy main contract
-  #      run: |
-  #        echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaPastaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
-  #      id: deployment-pasta
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaPastaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment-pasta
 
-  #    - name: Load proof and public parameters
-  #      run: |
-  #        python loaderPasta.py verifier-key-pasta.json compressed-snark-pasta.json ${{steps.deployment-pasta.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+      - name: Load proof and public parameters
+        run: |
+          python loaderPasta.py verifier-key-pasta.json compressed-snark-pasta.json ${{steps.deployment-pasta.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
 
-  #    - name: Check proof verification status
-  #      run: |
-  #        [[ $(cast call ${{steps.deployment-pasta.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+      - name: Check proof verification status
+        run: |
+          [[ $(cast call ${{steps.deployment-pasta.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
 
   unit-tests:
     strategy:

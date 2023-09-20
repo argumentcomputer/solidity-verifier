@@ -166,7 +166,7 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_claim_sat_final_r_sat_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_claim_sat_final_r_sat_secondary();
 
         uint256[] memory coeffs = new uint256[](10);
@@ -217,7 +217,7 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_claim_sat_final_r_sat_primary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
         KeccakTranscriptLib.KeccakTranscript memory transcript = load_transcript_claim_sat_final_r_sat_primary();
 
         uint256[] memory coeffs = new uint256[](10);
@@ -424,7 +424,8 @@ contract PpSpartanStep3Computations is Test {
     }
 
     function test_compute_r_secondary() public {
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory vk,, Abstractions.ROConstants memory ro_consts_secondary) =
+            TestUtilities.loadPublicParameters();
         uint256[] memory elements_to_hash = new uint256[](24);
         elements_to_hash[0] = 0x03e0cc9d0a2e880508793f5f2b0e202504238d16bede6fba0c963b3842ec2d78;
         elements_to_hash[1] = 0x175132b2b341f63846869347bfd3042888490760e56560e46f50949a68d3be88;
@@ -452,14 +453,14 @@ contract PpSpartanStep3Computations is Test {
         elements_to_hash[23] = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
         uint256 expected = Step3GrumpkinLib.compute_r_secondary(
-            elements_to_hash, PoseidonU24Optimized.newConstants(vk.ro_consts_secondary), Bn256.R_MOD
+            elements_to_hash, PoseidonU24Optimized.newConstants(ro_consts_secondary), Bn256.R_MOD
         );
         assertEq(expected, 0x000000000000000000000000000000005d0a54b95301f0700b055bccaee75c40);
     }
 
     function test_prepare_elements_to_r_computing() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory expected_elements;
         Grumpkin.GrumpkinAffinePoint memory commT;
@@ -520,13 +521,14 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_f_U_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,, Abstractions.ROConstants memory ro_consts_secondary) =
+            TestUtilities.loadPublicParameters();
         (
             Grumpkin.GrumpkinAffinePoint memory expected1,
             Grumpkin.GrumpkinAffinePoint memory expected2,
             uint256[] memory expected3,
             uint256 expected4
-        ) = Step3GrumpkinLib.compute_f_U_secondary(proof, public_parameters);
+        ) = Step3GrumpkinLib.compute_f_U_secondary(proof, public_parameters, ro_consts_secondary);
 
         assertEq(expected1.x, 0x3019a8c784334c0aaf50696e207ffd698bd60a364038a76ac3399250f56d8b54);
         assertEq(expected1.y, 0x26b53798d836b6632563da0058df951fc3b5b282876347560145fdc00331c7e1);
@@ -540,14 +542,15 @@ contract PpSpartanStep3Computations is Test {
     function test_compute_tau_secondary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = TestUtilities.loadTranscript();
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,, Abstractions.ROConstants memory ro_consts_secondary) =
+            TestUtilities.loadPublicParameters();
 
         (
             Grumpkin.GrumpkinAffinePoint memory commW,
             Grumpkin.GrumpkinAffinePoint memory commE,
             uint256[] memory X,
             uint256 u
-        ) = Step3GrumpkinLib.compute_f_U_secondary(proof, public_parameters);
+        ) = Step3GrumpkinLib.compute_f_U_secondary(proof, public_parameters, ro_consts_secondary);
 
         uint256[] memory expected;
         (, expected) = Step3GrumpkinLib.compute_tau_secondary(
@@ -575,7 +578,7 @@ contract PpSpartanStep3Computations is Test {
     function test_compute_tau_primary() public {
         KeccakTranscriptLib.KeccakTranscript memory transcript = TestUtilities.loadTranscript();
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory expected;
         (, expected) = Step3GrumpkinLib.compute_tau_primary(proof, public_parameters.vk_primary, transcript, false);
@@ -1120,7 +1123,7 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_rand_eq_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
         uint16 rounds = 20;
         uint8[] memory state = new uint8[](64);
         state[0] = 0x01;
@@ -1213,7 +1216,7 @@ contract PpSpartanStep3Computations is Test {
 
     function test_compute_rand_eq_primary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
         uint16 rounds = 20;
         uint8[] memory state = new uint8[](64);
         state[0] = 0x21;

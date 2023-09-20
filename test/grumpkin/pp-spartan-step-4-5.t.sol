@@ -390,7 +390,7 @@ contract PpSpartanStep4Step5Computations is Test {
 
     function test_compute_u_vec_items_primary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
 
         uint16 rounds = 56;
         uint8[] memory state = new uint8[](64);
@@ -520,7 +520,7 @@ contract PpSpartanStep4Step5Computations is Test {
 
     function test_compute_u_vec_items_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory public_parameters = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory public_parameters,,) = TestUtilities.loadPublicParameters();
 
         uint16 rounds = 56;
         uint8[] memory state = new uint8[](64);

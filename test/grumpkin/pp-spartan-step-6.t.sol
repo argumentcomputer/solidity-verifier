@@ -11,7 +11,7 @@ import "test/utils.t.sol";
 contract PpSpartanStep6Computations is Test {
     function test_compute_eval_Z_primary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory vk,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory r_prod = new uint256[](17);
         r_prod[0] = 0x05837413e5049a37ef21bc91fd21fcce3f89e80202ec70aa01872cc9221d95cd;
@@ -71,7 +71,7 @@ contract PpSpartanStep6Computations is Test {
 
     function test_compute_eval_Z_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory vk,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory r_prod = new uint256[](17);
         r_prod[0] = 0x1725a070098a94cf768334d9b0c3ac4a261682687b39c8e6db7ad3c2901d5e24;

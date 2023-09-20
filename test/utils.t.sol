@@ -782,8 +782,13 @@ library TestUtilities {
         return proof;
     }
 
-    function loadPublicParameters() public pure returns (Abstractions.VerifierKey memory) {
+    function loadPublicParameters()
+        public
+        pure
+        returns (Abstractions.VerifierKey memory, Abstractions.ROConstants memory, Abstractions.ROConstants memory)
+    {
         uint256 index = 0;
+
         Abstractions.VerifierKey memory vk;
 
         vk.f_arity_primary = 1;
@@ -862,8 +867,11 @@ library TestUtilities {
             psm[index] = Abstractions.PSM(psm_inner);
         }
 
-        vk.ro_consts_secondary = Abstractions.ROConstants(
-            Abstractions.Matrices(m, psm, w_hats, v_rests),
+        Abstractions.ROConstants memory secondary = Abstractions.ROConstants(
+            m,
+            psm,
+            w_hats,
+            v_rests,
             constantsPrimary.round_constants,
             constantsPrimary.partialRounds,
             constantsPrimary.fullRounds
@@ -890,14 +898,17 @@ library TestUtilities {
             psm[index] = Abstractions.PSM(psm_inner);
         }
 
-        vk.ro_consts_primary = Abstractions.ROConstants(
-            Abstractions.Matrices(m, psm, w_hats, v_rests),
+        Abstractions.ROConstants memory primary = Abstractions.ROConstants(
+            m,
+            psm,
+            w_hats,
+            v_rests,
             constantsSecondary.round_constants,
             constantsSecondary.partialRounds,
             constantsSecondary.fullRounds
         );
 
-        return vk;
+        return (vk, primary, secondary);
     }
 
     function loadTranscript() public pure returns (KeccakTranscriptLib.KeccakTranscript memory) {

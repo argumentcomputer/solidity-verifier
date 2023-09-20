@@ -168,7 +168,7 @@ contract PpSpartanStep7Computations is Test {
 
     function test_compute_u_secondary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory vk,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory r_sat = new uint256[](17);
         r_sat[0] = 0x25172cbbd1289dde3d5a3ec6806b7408475968df10e71565ca1ba3579b950bab;
@@ -204,7 +204,7 @@ contract PpSpartanStep7Computations is Test {
 
     function test_compute_u_primary() public {
         Abstractions.CompressedSnark memory proof = TestUtilities.loadProof();
-        Abstractions.VerifierKey memory vk = TestUtilities.loadPublicParameters();
+        (Abstractions.VerifierKey memory vk,,) = TestUtilities.loadPublicParameters();
 
         uint256[] memory r_sat = new uint256[](17);
         r_sat[0] = 0x144454412fd8764e4aaf2cec1546f1a9f1f154e7de160d033a632ecdfdd5964d;

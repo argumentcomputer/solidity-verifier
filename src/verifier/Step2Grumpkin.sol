@@ -17,14 +17,16 @@ library Step2GrumpkinLib {
     function verify(
         Abstractions.CompressedSnark calldata proof,
         Abstractions.VerifierKey calldata vk,
+        Abstractions.ROConstants calldata ro_consts_primary,
+        Abstractions.ROConstants calldata ro_consts_secondary,
         uint32 numSteps,
         uint256[] calldata z0_primary,
         uint256[] calldata z0_secondary
     ) public view returns (bool) {
         PoseidonU24Optimized.PoseidonConstantsU24 memory constantsSecondary =
-            PoseidonU24Optimized.newConstants(vk.ro_consts_secondary);
+            PoseidonU24Optimized.newConstants(ro_consts_secondary);
         PoseidonU24Optimized.PoseidonConstantsU24 memory constantsPrimary =
-            PoseidonU24Optimized.newConstants(vk.ro_consts_primary);
+            PoseidonU24Optimized.newConstants(ro_consts_primary);
 
         // Primary hasher uses secondary constants and vice versa according to Rust reference:
         // https://github.com/lurk-lab/arecibo/blob/dev/src/lib.rs#L553

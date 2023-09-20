@@ -76,13 +76,6 @@ library Abstractions {
         RelaxedR1CSSNARK r_W_snark_primary;
     }
 
-    struct Matrices {
-        M[] m;
-        PSM[] psm;
-        W_HAT[] w_hats;
-        V_REST[] v_rests;
-    }
-
     struct M {
         uint256[] m_inner;
     }
@@ -92,15 +85,18 @@ library Abstractions {
     }
 
     struct W_HAT {
-        uint256[] w_hat;
+        uint256[] w_hat_inner;
     }
 
     struct V_REST {
-        uint256[] v_rest;
+        uint256[] v_rest_inner;
     }
 
     struct ROConstants {
-        Matrices matrices;
+        M[] m;
+        PSM[] psm;
+        W_HAT[] w_hats;
+        V_REST[] v_rests;
         uint256[] addRoundConstants;
         uint256 partial_rounds;
         uint256 full_rounds;
@@ -137,8 +133,6 @@ library Abstractions {
         uint256 f_arity_primary;
         uint256 f_arity_secondary;
         uint256 digest;
-        ROConstants ro_consts_primary;
-        ROConstants ro_consts_secondary;
         VerifierKeyS2 vk_secondary;
         VerifierKeyS1 vk_primary;
     }

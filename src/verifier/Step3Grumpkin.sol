@@ -186,7 +186,11 @@ library Step3GrumpkinLib {
         return actual;
     }
 
-    function compute_f_U_secondary(Abstractions.CompressedSnark calldata proof, Abstractions.VerifierKey calldata vk)
+    function compute_f_U_secondary(
+        Abstractions.CompressedSnark calldata proof,
+        Abstractions.VerifierKey calldata vk,
+        Abstractions.ROConstants calldata ro_consts_secondary
+    )
         public
         view
         returns (Grumpkin.GrumpkinAffinePoint memory, Grumpkin.GrumpkinAffinePoint memory, uint256[] memory, uint256)
@@ -198,7 +202,7 @@ library Step3GrumpkinLib {
             proof.r_U_secondary,
             proof.l_u_secondary,
             comm_T,
-            compute_r_secondary(elementsToHash, PoseidonU24Optimized.newConstants(vk.ro_consts_secondary), Bn256.R_MOD)
+            compute_r_secondary(elementsToHash, PoseidonU24Optimized.newConstants(ro_consts_secondary), Bn256.R_MOD)
         );
     }
 

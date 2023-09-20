@@ -25,22 +25,20 @@ library PoseidonU24Optimized {
         returns (PoseidonConstantsU24 memory)
     {
         uint256 index;
-        require(constants.matrices.m.length == 25, "[Poseidon::newConstants] m.length != 25");
+        require(constants.m.length == 25, "[Poseidon::newConstants] m.length != 25");
         for (index = 0; index < 25; index++) {
-            require(constants.matrices.m[index].m_inner.length == 25, "[Poseidon::newConstants] m[index].length != 25");
+            require(constants.m[index].m_inner.length == 25, "[Poseidon::newConstants] m[index].length != 25");
         }
-        require(constants.matrices.psm.length == 25, "[Poseidon::newConstants] psm.length != 25");
+        require(constants.psm.length == 25, "[Poseidon::newConstants] psm.length != 25");
         for (index = 0; index < 25; index++) {
-            require(
-                constants.matrices.psm[index].psm_inner.length == 25, "[Poseidon::newConstants] psm[index].length != 25"
-            );
+            require(constants.psm[index].psm_inner.length == 25, "[Poseidon::newConstants] psm[index].length != 25");
         }
         require(
-            constants.matrices.w_hats.length == constants.partial_rounds,
+            constants.w_hats.length == constants.partial_rounds,
             "[Poseidon::newConstants] w_hats.length != partialRounds"
         );
         require(
-            constants.matrices.v_rests.length == constants.partial_rounds,
+            constants.v_rests.length == constants.partial_rounds,
             "[Poseidon::newConstants] v_rests.length != partialRounds"
         );
 
@@ -49,7 +47,7 @@ library PoseidonU24Optimized {
             psm_[i] = new uint256[](25);
             for (uint256 j = 0; j < 25; j++) {
                 // note the indexes!
-                psm_[i][j] = constants.matrices.psm[j].psm_inner[i];
+                psm_[i][j] = constants.psm[j].psm_inner[i];
             }
         }
 
@@ -58,14 +56,13 @@ library PoseidonU24Optimized {
             m_[i] = new uint256[](25);
             for (uint256 j = 0; j < 25; j++) {
                 // note the indexes!
-                m_[i][j] = constants.matrices.m[j].m_inner[i];
+                m_[i][j] = constants.m[j].m_inner[i];
             }
         }
 
-        SparseMatrixU24[] memory sparseMatrices = new SparseMatrixU24[](constants.matrices.w_hats.length);
+        SparseMatrixU24[] memory sparseMatrices = new SparseMatrixU24[](constants.w_hats.length);
         for (uint256 i = 0; i < sparseMatrices.length; i++) {
-            sparseMatrices[i] =
-                SparseMatrixU24(constants.matrices.w_hats[i].w_hat, constants.matrices.v_rests[i].v_rest);
+            sparseMatrices[i] = SparseMatrixU24(constants.w_hats[i].w_hat_inner, constants.v_rests[i].v_rest_inner);
         }
 
         return PoseidonConstantsU24(

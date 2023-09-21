@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/pasta/Vesta.sol";
-import "src/verifier/step4/KeccakTranscript.sol";
+import "src/blocks/KeccakTranscript.sol";
 import "src/blocks/EqPolynomial.sol";
 import "src/Utilities.sol";
 
@@ -40,7 +40,6 @@ library PrimarySumcheck {
             uint256 r_i;
             label[0] = 99; // c_label[0] = 99;
             (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-
             r[i] = r_i;
 
             e = PolyLib.evaluate(poly, r_i, Pallas.R_MOD);
@@ -87,7 +86,6 @@ library SecondarySumcheck {
             uint256 r_i;
             label[0] = 99; // c_label[0] = 99;
             (transcript, r_i) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-
             r[i] = r_i;
 
             e = PolyLib.evaluate(poly, r_i, Vesta.R_MOD);

@@ -2,41 +2,11 @@
 pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
-import "src/verifier/step4/KeccakTranscript.sol";
-import "src/verifier/step4/SumcheckLogic.sol";
+import "src/blocks/KeccakTranscript.sol";
+import "src/Utilities.sol";
+import "src/blocks/Sumcheck.sol";
 
 contract SumcheckTest is Test {
-    function log2(uint256 x) public pure returns (uint256 y) {
-        assembly {
-            let arg := x
-            x := sub(x, 1)
-            x := or(x, div(x, 0x02))
-            x := or(x, div(x, 0x04))
-            x := or(x, div(x, 0x10))
-            x := or(x, div(x, 0x100))
-            x := or(x, div(x, 0x10000))
-            x := or(x, div(x, 0x100000000))
-            x := or(x, div(x, 0x10000000000000000))
-            x := or(x, div(x, 0x100000000000000000000000000000000))
-            x := add(x, 1)
-            let m := mload(0x40)
-            mstore(m, 0xf8f9cbfae6cc78fbefe7cdc3a1793dfcf4f0e8bbd8cec470b6a28a7a5a3e1efd)
-            mstore(add(m, 0x20), 0xf5ecf1b3e9debc68e1d9cfabc5997135bfb7a7a3938b7b606b5b4b3f2f1f0ffe)
-            mstore(add(m, 0x40), 0xf6e4ed9ff2d6b458eadcdf97bd91692de2d4da8fd2d0ac50c6ae9a8272523616)
-            mstore(add(m, 0x60), 0xc8c0b887b0a8a4489c948c7f847c6125746c645c544c444038302820181008ff)
-            mstore(add(m, 0x80), 0xf7cae577eec2a03cf3bad76fb589591debb2dd67e0aa9834bea6925f6a4a2e0e)
-            mstore(add(m, 0xa0), 0xe39ed557db96902cd38ed14fad815115c786af479b7e83247363534337271707)
-            mstore(add(m, 0xc0), 0xc976c13bb96e881cb166a933a55e490d9d56952b8d4e801485467d2362422606)
-            mstore(add(m, 0xe0), 0x753a6d1b65325d0c552a4d1345224105391a310b29122104190a110309020100)
-            mstore(0x40, add(m, 0x100))
-            let magic := 0x818283848586878898a8b8c8d8e8f929395969799a9b9d9e9faaeb6bedeeff
-            let shift := 0x100000000000000000000000000000000000000000000000000000000000000
-            let a := div(mul(x, magic), shift)
-            y := div(mload(add(m, sub(255, a))), shift)
-            y := add(y, mul(256, gt(arg, 0x8000000000000000000000000000000000000000000000000000000000000000)))
-        }
-    }
-
     function testComputeTauPrimary() public {
         uint8[] memory input = new uint8[](16); // b"RelaxedR1CSSNARK" in Rust
         input[0] = 0x52;
@@ -329,7 +299,7 @@ contract SumcheckTest is Test {
         transcript = KeccakTranscriptLib.absorb(transcript, vk_comm_label, vk_comm);
         transcript = KeccakTranscriptLib.absorb(transcript, U_label, U);
 
-        uint256 num_rounds_x = log2(16384);
+        uint256 num_rounds_x = CommonUtilities.log2(16384);
         //uint256 num_rounds_y = log2(16384) + 1;
 
         uint8[] memory squeezeLabel = new uint8[](1); // b"t" in Rust
@@ -343,20 +313,20 @@ contract SumcheckTest is Test {
             tau[index] = keccakOutput;
         }
 
-        assertEq(tau[0], 0x327f4af4db96711d3192cee19b1946d5b9d3c61e78d6f352261e11af7cbed55a);
-        assertEq(tau[1], 0x2640290b59a25f849e020cb1b0063861e35a95a8c42a9cdd63928a4ea856adbf);
-        assertEq(tau[2], 0x11b72e2a69592c5545a794428674fd998d4e3fbd52f156eca4a66d54f09f775e);
-        assertEq(tau[3], 0x09b0dcdd3ebe153fea39180a0f6bf9546778ffd7e288088489529aa95097fcea);
-        assertEq(tau[4], 0x3757c49e53ce7f58203159e411db2fe38854df4fc7a93833f28e63960576202e);
-        assertEq(tau[5], 0x362681bac77a734c4b893a2a2ff2f3cfbff469319b1a1e851c139349f1f62232);
-        assertEq(tau[6], 0x3036e71d56b2ed7027b5e305dddbc94d3bae6c6afdfaec8bdcd7d05cd89fc4ef);
-        assertEq(tau[7], 0x33ebf2408bbe683a2516b6e3904d95f6a99da08c27843d425bb3e781b407f812);
-        assertEq(tau[8], 0x03b2369449d816527fe9f0ec97e4971a65a35f89762ae71610f06096337ea9f2);
-        assertEq(tau[9], 0x38ca25021f2193df59c755dcebe90a5efb52e97c0440597915d022e9a59357bd);
-        assertEq(tau[10], 0x240032a20ecb27257f7334b3f538d836f40783e9709b879bd5523f789aad0a63);
-        assertEq(tau[11], 0x364f7a4b101385305529e5d5237cb71e69950f2b4ed7b4f0b160b1aa3ac71c9a);
-        assertEq(tau[12], 0x3ffacadcc0e723b1fa45c1ad1b30612dc31924e6027171f0a5da6d8963671c5a);
-        assertEq(tau[13], 0x25ad865935043775d676da736cc400404b1060585df1386dd4f560de4c4680bc);
+        assertEq(tau[0], Field.reverse256(0xec15c1b59e4d0132159f6f523d6ea12c8cbdbd2c0f02ec9f47cab551a3eba530));
+        assertEq(tau[1], Field.reverse256(0x6dc76eb849302b3eb0dacf4f0954fac6c62825621a49a5aa3189d8266711dd0c));
+        assertEq(tau[2], Field.reverse256(0xf14fd95e50e62c669756afb51ae048ad61a67146f535a1180239104f71d10310));
+        assertEq(tau[3], Field.reverse256(0xe1435c8ac491329906db14b063647f4829819636933e1eba745970e65bcd6408));
+        assertEq(tau[4], Field.reverse256(0xe7f81e72eb554cc2d7586759ea3eeaf0c6adb12f8ed7412e8942716006b41625));
+        assertEq(tau[5], Field.reverse256(0x352704eceb46a3b8d90d8898d1ed7867e606f791ce5566df6d3954a15fff1e0a));
+        assertEq(tau[6], Field.reverse256(0xcfec1aa7ed04102c30cde1449bf855e062782e24e0c3d17d633840f0b5c27224));
+        assertEq(tau[7], Field.reverse256(0xdd73e72d775abf5812f25bcd4fe88e7c9960c9486a8e0d0a7c5a1702af406c3e));
+        assertEq(tau[8], Field.reverse256(0x1f21b52aae284e7cbe4f10adc93f6da159567295f7009cc0a970f5ebf62c893a));
+        assertEq(tau[9], Field.reverse256(0x62c359fb38367fea51324c44f9bf747736ef1f57be5147d2cb2a4e0845309415));
+        assertEq(tau[10], Field.reverse256(0xe7610dfab97ee9bf7bbe8c54048e6d33d344e4552f462780943c704c8ef5163b));
+        assertEq(tau[11], Field.reverse256(0xa80224715966a0dbd9ef37fc32447c9522988208aec37435f14e2de9c1f82e06));
+        assertEq(tau[12], Field.reverse256(0x2232489c8dacb3de64ddf91fa640a6dcffcf8e70c39fde06f374993226190529));
+        assertEq(tau[13], Field.reverse256(0x60a7c22598a889a01f92683f05715b048b204a42a0af90a4e2c4ddfb68a66814));
     }
 
     function testPolyUncompress() public {

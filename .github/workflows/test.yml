@@ -41,7 +41,7 @@ jobs:
 
       - name: Check proof verification status
         run: |
-          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
 
   unit-tests:
     strategy:

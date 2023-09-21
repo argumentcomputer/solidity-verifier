@@ -263,7 +263,6 @@ library Step3Lib {
         // in Rust length of coeffs is hardcoded to 10
         uint256[] memory coeffs = new uint256[](10);
         (transcript, coeffs[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-        coeffs[0] = Field.reverse256(coeffs[0]);
 
         for (uint256 index = 1; index < coeffs.length; index++) {
             coeffs[index] = mulmod(coeffs[index - 1], coeffs[0], Vesta.P_MOD);
@@ -282,7 +281,6 @@ library Step3Lib {
         // in Rust length of coeffs is hardcoded to 10
         uint256[] memory coeffs = new uint256[](10);
         (transcript, coeffs[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        coeffs[0] = Field.reverse256(coeffs[0]);
 
         for (uint256 index = 1; index < coeffs.length; index++) {
             coeffs[index] = mulmod(coeffs[index - 1], coeffs[0], Pallas.P_MOD);
@@ -323,7 +321,6 @@ library Step3Lib {
         for (index = 0; index < num_rounds; index++) {
             (transcript, rand_eq[index]) =
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-            rand_eq[index] = Field.reverse256(rand_eq[index]);
         }
 
         return (transcript, rand_eq);
@@ -362,7 +359,6 @@ library Step3Lib {
         for (index = 0; index < num_rounds; index++) {
             (transcript, rand_eq[index]) =
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-            rand_eq[index] = Field.reverse256(rand_eq[index]);
         }
 
         return (transcript, rand_eq);
@@ -429,7 +425,6 @@ library Step3Lib {
         label[0] = 0x63; // Rust's b"c"
         uint256 c;
         (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        c = Field.reverse256(c);
 
         return (transcript, c);
     }
@@ -459,7 +454,6 @@ library Step3Lib {
         label[0] = 0x63; // Rust's b"c"
         uint256 c;
         (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-        c = Field.reverse256(c);
 
         return (transcript, c);
     }
@@ -475,7 +469,6 @@ library Step3Lib {
 
         uint256 gamma_1;
         (transcript, gamma_1) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        gamma_1 = Field.reverse256(gamma_1);
 
         return (transcript, gamma_1);
     }
@@ -491,7 +484,6 @@ library Step3Lib {
 
         uint256 gamma_2;
         (transcript, gamma_2) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        gamma_2 = Field.reverse256(gamma_2);
 
         return (transcript, gamma_2);
     }
@@ -507,7 +499,6 @@ library Step3Lib {
 
         uint256 gamma_1;
         (transcript, gamma_1) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-        gamma_1 = Field.reverse256(gamma_1);
 
         return (transcript, gamma_1);
     }
@@ -523,7 +514,6 @@ library Step3Lib {
 
         uint256 gamma_2;
         (transcript, gamma_2) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-        gamma_2 = Field.reverse256(gamma_2);
 
         return (transcript, gamma_2);
     }
@@ -561,7 +551,6 @@ library Step3Lib {
 
         for (uint256 index = 0; index < tau.length; index++) {
             (transcript, tau[index]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
-            tau[index] = Field.reverse256(tau[index]);
         }
 
         if (useLogging) {
@@ -623,7 +612,6 @@ library Step3Lib {
         for (uint256 index = 0; index < tau.length; index++) {
             (transcript, tau[index]) =
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-            tau[index] = Field.reverse256(tau[index]);
         }
 
         if (useLogging) {

@@ -113,7 +113,7 @@ contract KeccakTranscriptContractTest is Test {
         uint256 output;
         (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        uint256 expected = 0x5ddffa8dc091862132788b8976af88b9a2c70594727e611c7217ba4c30c8c70a;
+        uint256 expected = Field.reverse256(0x5ddffa8dc091862132788b8976af88b9a2c70594727e611c7217ba4c30c8c70a);
         assertEq(output, expected);
 
         uint256 s3 = 128;
@@ -128,7 +128,7 @@ contract KeccakTranscriptContractTest is Test {
         squeezeLabel[1] = 0x32;
         (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        expected = 0x4d4bf42c065870395749fa1c4fb641df1e0d53f05309b03d5b1db7f0be3aa13d;
+        expected = Field.reverse256(0x4d4bf42c065870395749fa1c4fb641df1e0d53f05309b03d5b1db7f0be3aa13d);
         assertEq(output, expected);
     }
 
@@ -162,7 +162,7 @@ contract KeccakTranscriptContractTest is Test {
         uint256 output;
         (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        uint256 expected = 0xc64ec10ff9437f1053c8647b52358f10e59d80e7302a777dfecf8d49f0e29121;
+        uint256 expected = Field.reverse256(0xc64ec10ff9437f1053c8647b52358f10e59d80e7302a777dfecf8d49f0e29121);
         assertEq(output, expected);
 
         uint256 s3 = 128;
@@ -177,7 +177,7 @@ contract KeccakTranscriptContractTest is Test {
         squeezeLabel[1] = 0x32;
         (, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
 
-        expected = 0xe3585da385704879ec03ef201dbf228e7b227a5af709f83f3ed5f92a5037d633;
+        expected = Field.reverse256(0xe3585da385704879ec03ef201dbf228e7b227a5af709f83f3ed5f92a5037d633);
         assertEq(output, expected);
     }
 }

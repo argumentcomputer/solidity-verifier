@@ -50,12 +50,13 @@ library EqPolinomialLib {
         return result;
     }
 
-    function evalsVesta(uint256[] memory r) public pure returns (uint256[] memory) {
+    function evals(uint256[] memory r, uint256 modulus, function (uint256) returns (uint256) negateBase)
+        internal
+        returns (uint256[] memory)
+    {
         uint256[] memory evalsResult = new uint256[](2 ** r.length);
         uint256 size = 1;
         evalsResult[0] = 1;
-
-        uint256 modulusVesta = Vesta.P_MOD;
 
         uint256 r_i = 0;
         uint256 x = 0;
@@ -67,47 +68,13 @@ library EqPolinomialLib {
                 x = evalsResult[j];
                 y = evalsResult[j + size];
                 assembly {
-                    y := mulmod(x, r_i, modulusVesta) // Vesta
+                    y := mulmod(x, r_i, modulus)
                 }
 
-                minus_y = Vesta.negateBase(y); // Vesta
+                minus_y = negateBase(y);
 
                 assembly {
-                    x := addmod(x, minus_y, modulusVesta) // Vesta
-                }
-
-                evalsResult[j] = x;
-                evalsResult[j + size] = y;
-            }
-            size *= 2;
-        }
-        return evalsResult;
-    }
-
-    function evalsPallas(uint256[] memory r) public pure returns (uint256[] memory) {
-        uint256[] memory evalsResult = new uint256[](2 ** r.length);
-        uint256 size = 1;
-        evalsResult[0] = 1;
-
-        uint256 modulusPallas = Pallas.P_MOD;
-
-        uint256 r_i = 0;
-        uint256 x = 0;
-        uint256 y = 0;
-        uint256 minus_y = 0;
-        for (uint256 i = 0; i < r.length; i++) {
-            r_i = r[r.length - i - 1];
-            for (uint256 j = 0; j < size; j++) {
-                x = evalsResult[j];
-                y = evalsResult[j + size];
-                assembly {
-                    y := mulmod(x, r_i, modulusPallas) // Pallas
-                }
-
-                minus_y = Pallas.negateBase(y); // Pallas
-
-                assembly {
-                    x := addmod(x, minus_y, modulusPallas) // Pallas
+                    x := addmod(x, minus_y, modulus)
                 }
 
                 evalsResult[j] = x;

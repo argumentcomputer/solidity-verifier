@@ -807,8 +807,6 @@ library KeccakTranscriptLib {
 
         uint256 scalar = ScalarFromUniformLib.scalarFromUniform(transcript.state, curve);
 
-        scalar = Field.reverse256(scalar);
-
         // TODO make state transferring through blockchain
         return (transcript, scalar);
     }

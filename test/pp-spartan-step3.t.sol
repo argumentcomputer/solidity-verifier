@@ -287,14 +287,10 @@ contract PpSpartanStep3Computations is Test {
         uint256 comm_Az = 0x30880d50c7abf9334ea5774be9c0471dd4f4a9b5e6034559076812aa1db69fb9;
         uint256 comm_Bz = 0xa48247f0746d1101c890f5c7dfb9fc6fa8dab5ba240e708d0d7991346424eaad;
         uint256 comm_Cz = 0x322cd251f864d29d23cbedaa0886fa5ca581f61d1c74ed6d5e5ba26bc918a191;
-        //uint256 comm_E_row = 0xf12f26ac716736e7517e42b7db3807f9f7fd5c22f7adeb2a3141042e60de7b34;
-        //uint256 comm_E_col = 0xb1d7f3abb6e94115a9cf21b2d84b74beb0ba412b8ab83805eda0f41b8871c825;
 
         Vesta.VestaAffinePoint memory comm_Az_decompressed = Vesta.decompress(comm_Az);
         Vesta.VestaAffinePoint memory comm_Bz_decompressed = Vesta.decompress(comm_Bz);
         Vesta.VestaAffinePoint memory comm_Cz_decompressed = Vesta.decompress(comm_Cz);
-        //Vesta.VestaAffinePoint memory comm_E_row_decompressed = Vesta.decompress(comm_E_row);
-        //Vesta.VestaAffinePoint memory comm_E_col_decompressed = Vesta.decompress(comm_E_col);
 
         uint256[] memory X = new uint256[](2);
         X[0] = 0x1db2c0c8e0e4c94b326d04f9d69a496737eaa2852f693492700c6847a35726f2;
@@ -577,7 +573,6 @@ contract PpSpartanStep3Computations is Test {
         for (uint256 index = 0; index < tau.length; index++) {
             (transcript, tau[index]) =
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-            tau[index] = Field.reverse256(tau[index]);
             assertEq(tau[index], tau_expected[index]);
         }
 
@@ -604,7 +599,6 @@ contract PpSpartanStep3Computations is Test {
         label[0] = 0x63; // Rust's b"c"
         uint256 c;
         (transcript, c) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        c = Field.reverse256(c);
 
         PolyEvalInstanceLib.PolyEvalInstance memory u = PolyEvalInstanceLib.batchSecondary(comm_vec, tau, evals, c);
 
@@ -628,7 +622,6 @@ contract PpSpartanStep3Computations is Test {
 
         uint256 gamma_1;
         (transcript, gamma_1) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        gamma_1 = Field.reverse256(gamma_1);
 
         assertEq(gamma1_expected, gamma_1);
 
@@ -645,7 +638,6 @@ contract PpSpartanStep3Computations is Test {
 
         uint256 gamma_2;
         (transcript, gamma_2) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        gamma_2 = Field.reverse256(gamma_2);
 
         assertEq(gamma2_expected, gamma_2);
 
@@ -676,7 +668,6 @@ contract PpSpartanStep3Computations is Test {
         for (index = 0; index < num_rounds; index++) {
             (transcript, rand_eq[index]) =
                 KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-            rand_eq[index] = Field.reverse256(rand_eq[index]);
         }
 
         label[0] = 0x72; // Rust's b"r"
@@ -684,7 +675,6 @@ contract PpSpartanStep3Computations is Test {
         // in Rust length of coeffs is 10
         uint256[] memory coeffs = new uint256[](10);
         (transcript, coeffs[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);
-        coeffs[0] = Field.reverse256(coeffs[0]);
         assertEq(coeffs[0], expected_coeffs[0]);
 
         for (index = 1; index < coeffs.length; index++) {
@@ -802,7 +792,6 @@ contract PpSpartanStep3Computations is Test {
 
         assertEq(claim_sat_final_expected, claim_sat_final);
         assertEq(r_sat_expected.length, r_sat.length);
-
         for (uint256 index = 0; index < r_sat.length; index++) {
             assertEq(r_sat[index], r_sat_expected[index]);
         }

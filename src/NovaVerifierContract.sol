@@ -8,11 +8,13 @@ import "src/verifier/Step1.sol";
 import "src/verifier/Step2.sol";
 import "src/verifier/Step3.sol";
 import "src/verifier/Step4.sol";
+import "src/verifier/Step5.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
     struct IntermediateData {
         Step3IntermediateData step3;
+        Step5IntermediateData step5;
     }
 
     struct Step3IntermediateData {
@@ -43,6 +45,14 @@ contract NovaVerifierContract {
         uint256 U_comm_E_y;
         uint256 gamma1;
         uint256 gamma2;
+    }
+
+    struct Step5IntermediateData {
+        uint256[] r_prod;
+        PolyEvalInstanceLib.PolyEvalInstance u_vec_item_1;
+        PolyEvalInstanceLib.PolyEvalInstance u_vec_item_2;
+        PolyEvalInstanceLib.PolyEvalInstance u_vec_item_3;
+        PolyEvalInstanceLib.PolyEvalInstance u_vec_item_4;
     }
 
     Abstractions.VerifierKey public vk;
@@ -145,6 +155,22 @@ contract NovaVerifierContract {
 
         if (!Step4Lib.verify(proof)) {
             console.log("[Step4] false");
+            return false;
+        }
+
+        // Step 5:
+        // - multiset checks for the row
+        // from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1911
+
+        (primaryData, success) = verifyStep5Primary(primaryData);
+        if (!success) {
+            console.log("[Step5 Primary] false");
+            return false;
+        }
+
+        (secondaryData, success) = verifyStep5Secondary(secondaryData);
+        if (!success) {
+            console.log("[Step5 Secondary] false");
             return false;
         }
 
@@ -457,5 +483,87 @@ contract NovaVerifierContract {
             }
         }
         return precomputeOutput;
+    }
+
+    function verifyStep5Primary(IntermediateData memory primary) private returns (IntermediateData memory, bool) {
+        uint256 c;
+        (transcriptPrimary, c) = Step5Lib.compute_c_primary(proof.r_W_snark_primary, transcriptPrimary);
+
+        uint256[] memory r_prod = Step5Lib.compute_r_prod(c, primary.step3.r_sat);
+
+        (uint256 claim_init_expected_row, uint256 claim_audit_expected_row) = Step5Lib.compute_claims_init_audit(
+            proof.r_W_snark_primary.eval_row_audit_ts,
+            primary.step3.gamma1,
+            primary.step3.gamma2,
+            r_prod,
+            primary.step3.tau,
+            Vesta.P_MOD,
+            Vesta.negateBase
+        );
+
+        (uint256 claim_read_expected_row, uint256 claim_write_expected_row) = Step5Lib.compute_claims_read_write(
+            proof.r_W_snark_primary, primary.step3.gamma1, primary.step3.gamma2, Vesta.P_MOD, Vesta.negateBase
+        );
+
+        // compute u_vec items
+        PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_items;
+        (transcriptPrimary, u_vec_items) = Step5Lib.compute_u_vec_items_primary(
+            proof.r_W_snark_primary, vk.vk_primary, transcriptPrimary, primary.step3.r_sat, r_prod
+        );
+        require(u_vec_items.length == 4, "[verifyStep5Primary] u_vec_items.length != 4");
+
+        primary.step5 = Step5IntermediateData(r_prod, u_vec_items[0], u_vec_items[1], u_vec_items[2], u_vec_items[3]);
+
+        return (
+            primary,
+            Step5Lib.final_verification(
+                proof.r_W_snark_primary,
+                claim_init_expected_row,
+                claim_read_expected_row,
+                claim_write_expected_row,
+                claim_audit_expected_row
+                )
+        );
+    }
+
+    function verifyStep5Secondary(IntermediateData memory secondary) private returns (IntermediateData memory, bool) {
+        uint256 c;
+        (transcriptSecondary, c) = Step5Lib.compute_c_secondary(proof.f_W_snark_secondary, transcriptSecondary);
+
+        uint256[] memory r_prod = Step5Lib.compute_r_prod(c, secondary.step3.r_sat);
+
+        (uint256 claim_init_expected_row, uint256 claim_audit_expected_row) = Step5Lib.compute_claims_init_audit(
+            proof.f_W_snark_secondary.eval_row_audit_ts,
+            secondary.step3.gamma1,
+            secondary.step3.gamma2,
+            r_prod,
+            secondary.step3.tau,
+            Pallas.P_MOD,
+            Pallas.negateBase
+        );
+
+        (uint256 claim_read_expected_row, uint256 claim_write_expected_row) = Step5Lib.compute_claims_read_write(
+            proof.f_W_snark_secondary, secondary.step3.gamma1, secondary.step3.gamma2, Pallas.P_MOD, Pallas.negateBase
+        );
+
+        // compute u_vec items
+        PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec_items;
+        (transcriptSecondary, u_vec_items) = Step5Lib.compute_u_vec_items_secondary(
+            proof.f_W_snark_secondary, vk.vk_secondary, transcriptSecondary, secondary.step3.r_sat, r_prod
+        );
+        require(u_vec_items.length == 4, "[verifyStep5Secondary] u_vec_items.length != 4");
+
+        secondary.step5 = Step5IntermediateData(r_prod, u_vec_items[0], u_vec_items[1], u_vec_items[2], u_vec_items[3]);
+
+        return (
+            secondary,
+            Step5Lib.final_verification(
+                proof.f_W_snark_secondary,
+                claim_init_expected_row,
+                claim_read_expected_row,
+                claim_write_expected_row,
+                claim_audit_expected_row
+                )
+        );
     }
 }

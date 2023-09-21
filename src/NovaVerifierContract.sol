@@ -7,6 +7,7 @@ import "src/blocks/PolyEvalInstance.sol";
 import "src/verifier/Step1.sol";
 import "src/verifier/Step2.sol";
 import "src/verifier/Step3.sol";
+import "src/verifier/Step4.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
@@ -134,6 +135,16 @@ contract NovaVerifierContract {
         (primaryData, success) = verifyStep3Primary();
         if (!success) {
             console.log("[Step3 Primary] false");
+            return false;
+        }
+
+        // Step 4:
+        // - checks the required multiset relationship
+        // from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1628
+        // and https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1634
+
+        if (!Step4Lib.verify(proof)) {
+            console.log("[Step4] false");
             return false;
         }
 

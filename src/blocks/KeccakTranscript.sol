@@ -670,6 +670,33 @@ library KeccakTranscriptLib {
         return updatedState;
     }
 
+    function dom_sep(KeccakTranscript memory keccak, uint8[] memory dom_sep_input)
+        public
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory transcript = new uint8[](keccak.transcript.length + 4 + dom_sep_input.length);
+        uint256 index = 0;
+        // copy current transcript
+        for (uint256 i = 0; i < keccak.transcript.length; i++) {
+            transcript[i] = keccak.transcript[i];
+        }
+        index += keccak.transcript.length;
+
+        // append DOM_SEP_TAG
+        transcript[index] = uint8((DOM_SEP_TAG >> 24) & 0xFF);
+        transcript[index + 1] = uint8((DOM_SEP_TAG >> 16) & 0xFF);
+        transcript[index + 2] = uint8((DOM_SEP_TAG >> 8) & 0xFF);
+        transcript[index + 3] = uint8(DOM_SEP_TAG & 0xFF);
+        index += 4;
+
+        // append dom_sep_input
+        for (uint256 i = 0; i < dom_sep_input.length; i++) {
+            transcript[index + i] = dom_sep_input[i];
+        }
+
+        return KeccakTranscript(keccak.round, keccak.state, transcript);
+    }
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input)
         public
         pure

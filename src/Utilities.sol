@@ -82,7 +82,7 @@ library Field {
                 answer := mload(result_ptr)
             }
 
-            // This calculates the the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
+            // This calculates the Legendre symbol of base modulo modulus. Again, it is assumed modulus is prime.
             function is_square(base, modulus) -> isSquare {
                 let exponent := div(sub(modulus, 1), 2)
                 let exp_result := pow_mod(base, exponent, modulus)
@@ -177,8 +177,12 @@ library Field {
     function uint8ArrayToBytes32(uint8[32] memory input) public pure returns (bytes32) {
         bytes32 output;
 
-        for (uint256 i = 0; i < input.length; i++) {
+        for (uint256 i; i < input.length;) {
             output |= bytes32(bytes1(input[i])) >> (i * 8);
+
+            unchecked {
+                ++i;
+            }
         }
 
         return output;
@@ -252,7 +256,7 @@ library PolyLib {
     }
 
     function evalAtOne(UniPoly memory poly, uint256 mod) public pure returns (uint256 result) {
-        for (uint256 i = 0; i < poly.coeffs.length; i++) {
+        for (uint256 i; i < poly.coeffs.length; i++) {
             // result += poly.coeffs[i];
             result = addmod(result, poly.coeffs[i], mod);
         }
@@ -290,7 +294,7 @@ library PolyLib {
             linear_term = addmod(linear_term, negate(poly.coeffs_except_linear_term[i], mod), mod);
         }
 
-        uint256 coeff_index = 0;
+        uint256 coeff_index;
         uint256[] memory coeffs = new uint256[](
             poly.coeffs_except_linear_term.length + 1
         );
@@ -312,8 +316,12 @@ library PolyLib {
 
         bytes32 input_bytes = bytes32(input);
 
-        for (uint256 i = 0; i < 32; i++) {
+        for (uint256 i; i < 32;) {
             result[i] = uint8(input_bytes[31 - i]);
+
+            unchecked {
+                ++i;
+            }
         }
         return result;
     }
@@ -323,17 +331,29 @@ library PolyLib {
 
         uint256 offset;
         uint8[] memory coeff_bytes = toUInt8Array(poly.coeffs[0]);
-        for (uint256 i = 0; i < 32; i++) {
+        for (uint256 i; i < 32;) {
             result[i] = coeff_bytes[i];
+
+            unchecked {
+                ++i;
+            }
         }
         offset += 32;
 
-        for (uint256 i = 2; i < poly.coeffs.length; i++) {
+        for (uint256 i = 2; i < poly.coeffs.length;) {
             coeff_bytes = toUInt8Array(poly.coeffs[i]);
-            for (uint256 j = 0; j < 32; j++) {
+            for (uint256 j; j < 32;) {
                 result[offset + j] = coeff_bytes[j];
+
+                unchecked {
+                    ++j;
+                }
             }
             offset += 32;
+
+            unchecked {
+                ++i;
+            }
         }
 
         return result;

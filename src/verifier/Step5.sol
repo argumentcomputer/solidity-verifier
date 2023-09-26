@@ -234,7 +234,7 @@ library Step5Lib {
 
         label[0] = 0x72; // Rust's b"r"
 
-        // num_claims is hardcoded to be equal to 10
+        // num_claims is hardcoded to be equal to 10 (https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1651)
         uint256 num_claims = 10;
         uint256[] memory rho = new uint256[](num_claims);
         (transcript, rho[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);
@@ -270,7 +270,7 @@ library Step5Lib {
 
         label[0] = 0x72; // Rust's b"r"
 
-        // num_claims is hardcoded to be equal to 10
+        // num_claims is hardcoded to be equal to 10 (https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1651)
         uint256 num_claims = 10;
         uint256[] memory rho = new uint256[](num_claims);
         (transcript, rho[0]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curvePallas(), label);

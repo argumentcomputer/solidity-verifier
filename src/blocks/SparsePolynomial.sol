@@ -29,8 +29,8 @@ library SparsePolynomialLib {
         Z[] memory poly_X,
         uint256[] memory r_y,
         uint256 modulus,
-        function (uint256) pure returns (uint256) negateBase
-    ) internal pure returns (uint256) {
+        function (uint256) returns (uint256) negateBase
+    ) internal returns (uint256) {
         require(num_vars == r_y.length, "[SparsePolynomialLib.evaluate] num_vars != r_y.length");
 
         uint256 chi = 1;

@@ -9,12 +9,18 @@ import "src/verifier/Step2.sol";
 import "src/verifier/Step3.sol";
 import "src/verifier/Step4.sol";
 import "src/verifier/Step5.sol";
+import "src/verifier/Step6.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
     struct IntermediateData {
         Step3IntermediateData step3;
         Step5IntermediateData step5;
+        Step6IntermediateData step6;
+    }
+
+    struct Step6IntermediateData {
+        PolyEvalInstanceLib.PolyEvalInstance u_vec_item_5;
     }
 
     struct Step3IntermediateData {
@@ -171,6 +177,22 @@ contract NovaVerifierContract {
         (secondaryData, success) = verifyStep5Secondary(secondaryData);
         if (!success) {
             console.log("[Step5 Secondary] false");
+            return false;
+        }
+
+        // Step 6:
+        // - multiset checks for the col
+        // from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1939
+
+        (primaryData, success) = verifyStep6Primary(primaryData);
+        if (!success) {
+            console.log("[Step6 Primary] false");
+            return false;
+        }
+
+        (secondaryData, success) = verifyStep6Secondary(secondaryData);
+        if (!success) {
+            console.log("[Step6 Secondary] false");
             return false;
         }
 
@@ -563,6 +585,97 @@ contract NovaVerifierContract {
                 claim_read_expected_row,
                 claim_write_expected_row,
                 claim_audit_expected_row
+                )
+        );
+    }
+
+    function verifyStep6Secondary(IntermediateData memory secondary) private returns (IntermediateData memory, bool) {
+        uint256 eval_Z;
+        uint256[] memory r_prod_unpad;
+        (eval_Z, r_prod_unpad) = Step6Lib.compute_eval_Z(
+            proof.f_W_snark_secondary,
+            secondary.step3.U_X,
+            secondary.step3.U_u,
+            vk.vk_primary.S_comm.N,
+            vk.vk_primary.num_vars,
+            secondary.step5.r_prod,
+            Pallas.P_MOD,
+            Pallas.negateBase
+        );
+
+        (uint256 claim_init_expected_col, uint256 claim_audit_expected_col) = Step6Lib.compute_claims_init_audit(
+            proof.f_W_snark_secondary,
+            secondary.step3.gamma1,
+            secondary.step3.gamma2,
+            eval_Z,
+            secondary.step5.r_prod,
+            Pallas.P_MOD,
+            Pallas.negateBase
+        );
+
+        (uint256 claim_read_expected_col, uint256 claim_write_expected_col) = Step6Lib.compute_claims_read_write(
+            proof.f_W_snark_secondary, secondary.step3.gamma1, secondary.step3.gamma2, Pallas.P_MOD, Pallas.negateBase
+        );
+
+        uint256 comm_W_x;
+        uint256 comm_W_y;
+        secondary.step6 =
+            Step6IntermediateData(Step6Lib.compute_u_vec_5(proof.f_W_snark_secondary, r_prod_unpad, comm_W_x, comm_W_y));
+
+        return (
+            secondary,
+            Step6Lib.finalVerification(
+                proof.f_W_snark_secondary,
+                claim_init_expected_col,
+                claim_read_expected_col,
+                claim_write_expected_col,
+                claim_audit_expected_col
+                )
+        );
+    }
+
+    function verifyStep6Primary(IntermediateData memory primary) private returns (IntermediateData memory, bool) {
+        uint256 eval_Z;
+        uint256[] memory r_prod_unpad;
+        (eval_Z, r_prod_unpad) = Step6Lib.compute_eval_Z(
+            proof.r_W_snark_primary,
+            primary.step3.U_X,
+            primary.step3.U_u,
+            vk.vk_primary.S_comm.N,
+            vk.vk_primary.num_vars,
+            primary.step5.r_prod,
+            Vesta.P_MOD,
+            Vesta.negateBase
+        );
+
+        (uint256 claim_init_expected_col, uint256 claim_audit_expected_col) = Step6Lib.compute_claims_init_audit(
+            proof.r_W_snark_primary,
+            primary.step3.gamma1,
+            primary.step3.gamma2,
+            eval_Z,
+            primary.step5.r_prod,
+            Vesta.P_MOD,
+            Vesta.negateBase
+        );
+
+        (uint256 claim_read_expected_col, uint256 claim_write_expected_col) = Step6Lib.compute_claims_read_write(
+            proof.r_W_snark_primary, primary.step3.gamma1, primary.step3.gamma2, Vesta.P_MOD, Vesta.negateBase
+        );
+
+        uint256 comm_W_x = primary.step3.U_comm_W_x;
+        uint256 comm_W_y = primary.step3.U_comm_W_y;
+
+        primary.step6 =
+            Step6IntermediateData(Step6Lib.compute_u_vec_5(proof.r_W_snark_primary, r_prod_unpad, comm_W_x, comm_W_y));
+
+        return (
+            primary,
+            Step6Lib.finalVerification(
+                proof.r_W_snark_primary,
+                claim_init_expected_col,
+                claim_read_expected_col,
+                claim_write_expected_col,
+                claim_audit_expected_col
                 )
         );
     }

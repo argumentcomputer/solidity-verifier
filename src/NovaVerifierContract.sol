@@ -10,6 +10,7 @@ import "src/verifier/Step3.sol";
 import "src/verifier/Step4.sol";
 import "src/verifier/Step5.sol";
 import "src/verifier/Step6.sol";
+import "src/verifier/Step7.sol";
 import "src/NovaVerifierAbstractions.sol";
 
 contract NovaVerifierContract {
@@ -193,6 +194,21 @@ contract NovaVerifierContract {
         (secondaryData, success) = verifyStep6Secondary(secondaryData);
         if (!success) {
             console.log("[Step6 Secondary] false");
+            return false;
+        }
+
+        // Step 7:
+        // - batched claims verification
+        // from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L2009
+        success = verifyStep7Primary(primaryData);
+        if (!success) {
+            console.log("[Step7 Primary] false");
+            return false;
+        }
+
+        success = verifyStep7Secondary(secondaryData);
+        if (!success) {
+            console.log("[Step7 Secondary] false");
             return false;
         }
 
@@ -678,5 +694,105 @@ contract NovaVerifierContract {
                 claim_audit_expected_col
                 )
         );
+    }
+
+    function verifyStep7Primary(IntermediateData memory primary) private returns (bool) {
+        uint256 c;
+        (transcriptPrimary, c) = Step7Lib.compute_c_primary(proof.r_W_snark_primary, transcriptPrimary);
+
+        PolyEvalInstanceLib.PolyEvalInstance memory u = Step7Lib.compute_u_primary(
+            proof.r_W_snark_primary,
+            vk.vk_primary,
+            primary.step3.U_comm_E_x,
+            primary.step3.U_comm_E_y,
+            primary.step3.r_sat,
+            c
+        );
+
+        // constructing u_vec using items computed on previous steps
+        PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec = new PolyEvalInstanceLib.PolyEvalInstance[](7);
+        u_vec[0] = primary.step3.u_vec_item_0;
+        u_vec[1] = primary.step5.u_vec_item_1;
+        u_vec[2] = primary.step5.u_vec_item_2;
+        u_vec[3] = primary.step5.u_vec_item_3;
+        u_vec[4] = primary.step5.u_vec_item_4;
+        u_vec[5] = primary.step6.u_vec_item_5;
+        u_vec[6] = u;
+
+        u_vec = Step7Lib.compute_u_vec_padded(u_vec);
+
+        // tmp = rho
+        uint256 tmp;
+        (transcriptPrimary, tmp) = Step7Lib.compute_rho_primary(transcriptPrimary);
+
+        // claim_batch_final_left = claim_batch_join
+        (uint256 claim_batch_final_left, uint256 num_rounds_z, uint256[] memory powers_of_rho) =
+            Step7Lib.compute_sc_proof_batch_verification_input(u_vec, tmp, Vesta.P_MOD);
+
+        uint256[] memory r_z;
+        (transcriptPrimary, claim_batch_final_left, r_z) = Step7Lib.compute_claim_batch_final_left_primary(
+            proof.r_W_snark_primary.sc_proof_batch, transcriptPrimary, claim_batch_final_left, num_rounds_z
+        );
+
+        if (
+            claim_batch_final_left
+                != Step7Lib.compute_claim_batch_final_right(
+                    proof.r_W_snark_primary, r_z, u_vec, powers_of_rho, Vesta.P_MOD, Vesta.negateBase
+                )
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function verifyStep7Secondary(IntermediateData memory secondary) private returns (bool) {
+        uint256 c;
+        (transcriptSecondary, c) = Step7Lib.compute_c_secondary(proof.f_W_snark_secondary, transcriptSecondary);
+
+        PolyEvalInstanceLib.PolyEvalInstance memory u = Step7Lib.compute_u_secondary(
+            proof.f_W_snark_secondary,
+            vk.vk_secondary,
+            secondary.step3.U_comm_E_x,
+            secondary.step3.U_comm_E_y,
+            secondary.step3.r_sat,
+            c
+        );
+
+        // constructing u_vec using items computed on previous steps
+        PolyEvalInstanceLib.PolyEvalInstance[] memory u_vec = new PolyEvalInstanceLib.PolyEvalInstance[](7);
+        u_vec[0] = secondary.step3.u_vec_item_0;
+        u_vec[1] = secondary.step5.u_vec_item_1;
+        u_vec[2] = secondary.step5.u_vec_item_2;
+        u_vec[3] = secondary.step5.u_vec_item_3;
+        u_vec[4] = secondary.step5.u_vec_item_4;
+        u_vec[5] = secondary.step6.u_vec_item_5;
+        u_vec[6] = u;
+
+        u_vec = Step7Lib.compute_u_vec_padded(u_vec);
+
+        // tmp = rho
+        uint256 tmp;
+        (transcriptSecondary, tmp) = Step7Lib.compute_rho_secondary(transcriptSecondary);
+
+        // claim_batch_final_left = claim_batch_join
+        (uint256 claim_batch_final_left, uint256 num_rounds_z, uint256[] memory powers_of_rho) =
+            Step7Lib.compute_sc_proof_batch_verification_input(u_vec, tmp, Pallas.P_MOD);
+
+        uint256[] memory r_z;
+        (transcriptSecondary, claim_batch_final_left, r_z) = Step7Lib.compute_claim_batch_final_left_secondary(
+            proof.f_W_snark_secondary.sc_proof_batch, transcriptSecondary, claim_batch_final_left, num_rounds_z
+        );
+
+        if (
+            claim_batch_final_left
+                != Step7Lib.compute_claim_batch_final_right(
+                    proof.f_W_snark_secondary, r_z, u_vec, powers_of_rho, Pallas.P_MOD, Pallas.negateBase
+                )
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -69,6 +69,8 @@ contract NovaVerifierContract {
     KeccakTranscriptLib.KeccakTranscript private transcriptSecondary;
 
     bool private printLogs;
+    uint256 private gasLeftCounter1;
+    uint256 private gasLeftCounter2;
 
     function initialize()
         private
@@ -117,29 +119,39 @@ contract NovaVerifierContract {
     {
         printLogs = enableLogs;
 
+        gasLeftCounter1 = gasleft();
         (transcriptPrimary, transcriptSecondary) = initialize();
+        gasLeftCounter2 = gasleft();
+        console.log("transcript initialization cost: ", gasLeftCounter1 - gasLeftCounter2);
 
         IntermediateData memory primaryData;
         IntermediateData memory secondaryData;
 
         bool success;
 
+        gasLeftCounter1 = gasleft();
         // number of steps cannot be zero
         if (!Step1Lib.verify(proof, numSteps)) {
             console.log("[Step1] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 1 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
+        gasLeftCounter1 = gasleft();
         // check if the output hashes in R1CS instances point to the right running instances
         if (!Step2Lib.verify(proof, vk, numSteps, z0_primary, z0_secondary)) {
             console.log("[Step2] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 2 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
         // fold the running instance and last instance to get a folded instance
         // check the satisfiability of the folded instances using SNARKs proving the knowledge of their satisfying witnesses
         // from: https://github.com/lurk-lab/Nova/blob/solidity-verifier-pp-spartan/src/spartan/ppsnark.rs#L1565
 
+        gasLeftCounter1 = gasleft();
         // Sumcheck protocol verification (secondary) part
         (secondaryData, success) = verifyStep3Secondary();
         if (!success) {
@@ -153,13 +165,19 @@ contract NovaVerifierContract {
             console.log("[Step3 Primary] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 3 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
+        gasLeftCounter1 = gasleft();
         // check the required multiset relationship
         if (!Step4Lib.verify(proof, Vesta.P_MOD, Pallas.P_MOD)) {
             console.log("[Step4] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 4 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
+        gasLeftCounter1 = gasleft();
         // multiset check for the row
         (primaryData, success) = verifyStep5Primary(primaryData);
         if (!success) {
@@ -172,7 +190,10 @@ contract NovaVerifierContract {
             console.log("[Step5 Secondary] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 5 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
+        gasLeftCounter1 = gasleft();
         // multiset check for the col
         (primaryData, success) = verifyStep6Primary(primaryData);
         if (!success) {
@@ -185,7 +206,10 @@ contract NovaVerifierContract {
             console.log("[Step6 Secondary] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 6 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
+        gasLeftCounter1 = gasleft();
         // batched claims verification
         success = verifyStep7Primary(primaryData);
         if (!success) {
@@ -198,6 +222,8 @@ contract NovaVerifierContract {
             console.log("[Step7 Secondary] false");
             return false;
         }
+        gasLeftCounter2 = gasleft();
+        console.log("Step 7 cost: ", gasLeftCounter1 - gasLeftCounter2);
 
         return true;
     }

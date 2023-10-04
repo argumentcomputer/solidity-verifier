@@ -50,10 +50,6 @@ library PrimarySumcheck {
 }
 
 library SecondarySumcheck {
-    struct SumcheckProof {
-        PolyLib.CompressedUniPoly[] compressed_polys;
-    }
-
     function verify(
         PolyLib.SumcheckProof calldata proof,
         uint256 claim,

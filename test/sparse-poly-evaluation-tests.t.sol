@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
-import "src/verifier/step4/SparsePolynomial.sol";
+import "src/blocks/SparsePolynomial.sol";
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 

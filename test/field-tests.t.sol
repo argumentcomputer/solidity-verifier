@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@std/Test.sol";
-import "src/Field.sol";
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
+import "src/Utilities.sol";
+import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
 
 contract FieldLibraryTest is Test {
     function testPallasInvertFr() public {

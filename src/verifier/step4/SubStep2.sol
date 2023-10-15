@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.16;
 
-import "src/verifier/step4/EqPolynomial.sol";
-import "src/pasta/Vesta.sol";
-import "src/pasta/Pallas.sol";
+import "src/blocks/EqPolynomial.sol";
+import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/pasta/Pallas.sol";
 
 library SpartanVerificationSubStep2Lib {
     function verifyPrimary(
@@ -15,12 +15,12 @@ library SpartanVerificationSubStep2Lib {
         uint256 eval_E,
         uint256 U_u,
         uint256 claim_outer_final
-    ) public pure {
-        uint256 taus_bound_rx = EqPolinomialLib.evaluateVesta(tau, r_x);
+    ) public {
+        uint256 modulusVesta = Vesta.P_MOD;
+
+        uint256 taus_bound_rx = EqPolinomialLib.evaluate(tau, r_x, modulusVesta, Vesta.negateBase);
 
         uint256 claim_outer_final_computed;
-
-        uint256 modulusVesta = Vesta.P_MOD;
 
         uint256 tmp1;
         assembly {
@@ -55,12 +55,12 @@ library SpartanVerificationSubStep2Lib {
         uint256 eval_E,
         uint256 U_u,
         uint256 claim_outer_final
-    ) public pure {
-        uint256 taus_bound_rx = EqPolinomialLib.evaluatePallas(tau, r_x);
+    ) public {
+        uint256 modulusPallas = Pallas.P_MOD;
+
+        uint256 taus_bound_rx = EqPolinomialLib.evaluate(tau, r_x, modulusPallas, Pallas.negateBase);
 
         uint256 claim_outer_final_computed;
-
-        uint256 modulusPallas = Pallas.P_MOD;
 
         uint256 tmp1;
         assembly {

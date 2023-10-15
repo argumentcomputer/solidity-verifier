@@ -25,14 +25,6 @@ library ScalarFromUniformLib {
     uint256 public constant PALLAS_R2 = 0x3fffffffffffffffffffffffffffffff992c350be41914ad34786d38fffffffd;
     uint256 public constant PALLAS_R3 = 0x096d41af7b9cb7147797a99bc3c95d18d7d30dbd8b0de0e78c78ecb30000000f;
 
-    //uint64 private constant BN256_INV = 0x87d20782e4866389;
-    //uint64 private constant BN256_MODULUS_0 = 0x3c208c16d87cfd47;
-    //uint64 private constant BN256_MODULUS_1 = 0x97816a916871ca8d;
-    //uint64 private constant BN256_MODULUS_2 = 0xb85045b68181585d;
-    //uint64 private constant BN256_MODULUS_3 = 0x30644e72e131a029;
-    //uint256 public constant BN256_R2 = 0x0e0a77c19a07df2f666ea36f7879462c0a78eb28f5c70b3dd35d438dc58f0d9d;
-    //uint256 public constant BN256_R3 = 0x06d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
-
     uint64 private constant BN256_INV = 0xc2e1f593efffffff;
     uint64 private constant BN256_MODULUS_0 = 0x43e1f593f0000001;
     uint64 private constant BN256_MODULUS_1 = 0x2833e84879b97091;

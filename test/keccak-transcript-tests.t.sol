@@ -196,8 +196,6 @@ contract KeccakTranscriptContractTest is Test {
         input[2] = 0x73;
         input[3] = 0x74;
 
-        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
-
         uint256 input1 = 2;
         uint8[] memory label1 = new uint8[](2); // b"s1" in Rust
         label1[0] = 0x73;
@@ -208,16 +206,20 @@ contract KeccakTranscriptContractTest is Test {
         label2[0] = 0x73;
         label2[1] = 0x32;
 
-        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
-        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
-
         uint8[] memory squeezeLabel = new uint8[](2); // b"c1" in Rust
         squeezeLabel[0] = 0x63;
         squeezeLabel[1] = 0x31;
 
         ScalarFromUniformLib.Curve curve = ScalarFromUniformLib.curveBn256();
+
         uint256 output;
+
+        uint256 gasCost = gasleft();
+        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(input);
+        transcript = KeccakTranscriptLib.absorb(transcript, label1, input1);
+        transcript = KeccakTranscriptLib.absorb(transcript, label2, input2);
         (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
 
         uint256 expected = 0x9fb71e3b74bfd0b60d97349849b895595779a240b92a6fae86bd2812692b6b0e;
         assertEq(output, expected);
@@ -322,8 +324,50 @@ contract KeccakTranscriptContractTest is Test {
         squeeze_label[1] = 0x31;
 
         uint256 expected = 0xd12b7cd39aa2fc3af9bfd4f1dfd8ffa6498f57e35021675f4227d448b5540922;
-        uint256 output =
-            Field.reverse256(keccakTranscriptAssembly(instantiate_label, absorb_labels, inputs, squeeze_label));
+        uint256 output = Field.reverse256(
+            keccakTranscriptAssembly(instantiate_label, absorb_labels, inputs, squeeze_label, GRUMPKIN_P_MOD)
+        );
+
+        assertEq(output, expected);
+    }
+
+    function testKeccakTranscriptBn256Assembly() public {
+        uint8[] memory instantiate_label = new uint8[](4); // b"test" in Rust
+        instantiate_label[0] = 0x74;
+        instantiate_label[1] = 0x65;
+        instantiate_label[2] = 0x73;
+        instantiate_label[3] = 0x74;
+
+        uint8[] memory input1 = new uint8[](32);
+        input1[0] = 0x02;
+
+        uint8[] memory absorb_label1 = new uint8[](2); // b"s1" in Rust
+        absorb_label1[0] = 0x73;
+        absorb_label1[1] = 0x31;
+
+        uint8[] memory input2 = new uint8[](32);
+        input2[0] = 0x05;
+
+        uint8[][] memory inputs = new uint8[][](2);
+        inputs[0] = input1;
+        inputs[1] = input2;
+
+        uint8[] memory absorb_label2 = new uint8[](2); // b"s2" in Rust
+        absorb_label2[0] = 0x73;
+        absorb_label2[1] = 0x32;
+
+        uint8[][] memory absorb_labels = new uint8[][](2);
+        absorb_labels[0] = absorb_label1;
+        absorb_labels[1] = absorb_label2;
+
+        uint8[] memory squeeze_label = new uint8[](2); // b"c1" in Rust
+        squeeze_label[0] = 0x63;
+        squeeze_label[1] = 0x31;
+
+        uint256 expected = 0x9fb71e3b74bfd0b60d97349849b895595779a240b92a6fae86bd2812692b6b0e;
+        uint256 output = Field.reverse256(
+            keccakTranscriptAssembly(instantiate_label, absorb_labels, inputs, squeeze_label, BN256_P_MOD)
+        );
 
         assertEq(output, expected);
     }
@@ -337,6 +381,16 @@ contract KeccakTranscriptContractTest is Test {
     uint256 private constant GRUMPKIN_MODULUS_3 = 0x30644e72e131a029;
     uint256 public constant GRUMPKIN_R2 = 0x0e0a77c19a07df2f666ea36f7879462c0a78eb28f5c70b3dd35d438dc58f0d9d;
     uint256 public constant GRUMPKIN_R3 = 0x06d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
+
+    uint256 private constant BN256_P_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
+    uint256 private constant BN256_INV = 0xc2e1f593efffffff;
+    uint256 private constant BN256_MODULUS_0 = 0x43e1f593f0000001;
+    uint256 private constant BN256_MODULUS_1 = 0x2833e84879b97091;
+    uint256 private constant BN256_MODULUS_2 = 0xb85045b68181585d;
+    uint256 private constant BN256_MODULUS_3 = 0x30644e72e131a029;
+    uint256 public constant BN256_R2 = 0x0e0a77c19a07df2f666ea36f7879462e36fc76959f60cd29ac96341c4ffffffb;
+    uint256 public constant BN256_R3 = 0x0216d0b17f4e44a58c49833d53bb808553fe3ab1e35c59e31bb8e645ae216da7;
+
     uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;
     uint256 private constant PERSONA_TAG = 0x4e6f5452;
     uint256 private constant DOM_SEP_TAG = 0x4e6f4453;
@@ -344,7 +398,7 @@ contract KeccakTranscriptContractTest is Test {
     uint256 private constant KECCAK256_PREFIX_CHALLENGE_HI = 0x01;
     uint256 public constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
 
-    // Storage
+    // Storage pointers
     uint256 internal constant ROUND = 0x200 + 0x960 + 0x00;
     uint256 internal constant STATE_LO = 0x200 + 0x960 + 0x20;
     uint256 internal constant STATE_HI = 0x200 + 0x960 + 0x40;
@@ -354,12 +408,14 @@ contract KeccakTranscriptContractTest is Test {
     bytes4 internal constant ABSORB_INPUTS_LABELS_SIZE_MISMATCH = 0x2f94e9a8;
     bytes4 internal constant ABSORB_INPUTS_LABELS_OUT_OF_BOUND_INDEX = 0x6ce876d0;
     bytes4 internal constant ROUND_OVERFLOW = 0x9ab982d5;
+    bytes4 internal constant WRONG_CURVE_MODULUS_HAS_BEEN_USED = 0x49a7f6ee;
 
     function keccakTranscriptAssembly(
         uint8[] memory instantiate_label,
         uint8[][] memory absorb_labels,
         uint8[][] memory inputs,
-        uint8[] memory squeeze_label
+        uint8[] memory squeeze_label,
+        uint256 curve_p_mod
     ) private returns (uint256) {
         uint256 gasCost = gasleft();
         uint256 hash;
@@ -487,29 +543,110 @@ contract KeccakTranscriptContractTest is Test {
                 _d := xor(shl(192, r3), _d)
             }
 
-            function fromUniform(_d0, _d1) -> result {
+            function montgomeryReduceBn256(_r0, _r1, _r2, _r3) -> _d {
+                let r0 := _r0
+                let r1 := _r1
+                let r2 := _r2
+                let r3 := _r3
+                let r4 := 0
+                let r5 := 0
+                let r6 := 0
+                let r7 := 0
+
+                let k := mulmod(r0, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                let carry := 0
+                let carry2 := 0
+
+                carry2, carry := mac(r0, k, BN256_MODULUS_0, 0) // carry2 is used as a stub
+                r1, carry := mac(r1, k, BN256_MODULUS_1, carry)
+                r2, carry := mac(r2, k, BN256_MODULUS_2, carry)
+                r3, carry := mac(r3, k, BN256_MODULUS_3, carry)
+                r4, carry2 := adc(r4, 0, carry)
+
+                k := mulmod(r1, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r1, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r2, carry := mac(r2, k, BN256_MODULUS_1, carry)
+                r3, carry := mac(r3, k, BN256_MODULUS_2, carry)
+                r4, carry := mac(r4, k, BN256_MODULUS_3, carry)
+                r5, carry2 := adc(r5, carry2, carry)
+
+                k := mulmod(r2, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r2, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r3, carry := mac(r3, k, BN256_MODULUS_1, carry)
+                r4, carry := mac(r4, k, BN256_MODULUS_2, carry)
+                r5, carry := mac(r5, k, BN256_MODULUS_3, carry)
+                r6, carry2 := adc(r6, carry2, carry)
+
+                k := mulmod(r3, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r3, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r4, carry := mac(r4, k, BN256_MODULUS_1, carry)
+                r5, carry := mac(r5, k, BN256_MODULUS_2, carry)
+                r6, carry := mac(r6, k, BN256_MODULUS_3, carry)
+                r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+                // Result may be within MODULUS of the correct value
+
+                // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+                carry2 := 0
+                r0, carry2 := sbb(r4, BN256_MODULUS_0, carry2)
+                r1, carry2 := sbb(r5, BN256_MODULUS_1, carry2)
+                r2, carry2 := sbb(r6, BN256_MODULUS_2, carry2)
+                r3, carry2 := sbb(r7, BN256_MODULUS_3, carry2)
+
+                // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+                // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+                carry := 0
+                r0, carry := adc(r0, and(BN256_MODULUS_0, carry2), carry)
+                r1, carry := adc(r1, and(BN256_MODULUS_1, carry2), carry)
+                r2, carry := adc(r2, and(BN256_MODULUS_2, carry2), carry)
+                r3, carry := adc(r3, and(BN256_MODULUS_3, carry2), carry)
+
+                _d := r0
+                _d := xor(shl(64, r1), _d)
+                _d := xor(shl(128, r2), _d)
+                _d := xor(shl(192, r3), _d)
+            }
+
+            function fromUniform(_d0, _d1, _p_mod) -> result {
                 let d0 := _d0
                 let d1 := _d1
+                let modulus := _p_mod
 
-                d0 :=
-                    montgomeryReduceGrumpkin(
-                        and(d0, 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(64, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(128, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(192, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
-                    )
+                let d0_limb1 := and(d0, 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb2 := and(shr(64, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb3 := and(shr(128, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb4 := and(shr(192, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
 
-                d1 :=
-                    montgomeryReduceGrumpkin(
-                        and(d1, 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(64, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(128, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff),
-                        and(shr(192, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
-                    )
+                let d1_limb1 := and(d1, 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb2 := and(shr(64, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb3 := and(shr(128, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb4 := and(shr(192, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
 
-                d0 := mulmod(d0, GRUMPKIN_R2, GRUMPKIN_P_MOD)
-                d1 := mulmod(d1, GRUMPKIN_R3, GRUMPKIN_P_MOD)
-                result := addmod(d0, d1, GRUMPKIN_P_MOD)
+                let r2 := 0
+                let r3 := 0
+
+                if eq(modulus, GRUMPKIN_P_MOD) {
+                    r2 := GRUMPKIN_R2
+                    r3 := GRUMPKIN_R3
+                    d0 := montgomeryReduceGrumpkin(d0_limb1, d0_limb2, d0_limb3, d0_limb4)
+                    d1 := montgomeryReduceGrumpkin(d1_limb1, d1_limb2, d1_limb3, d1_limb4)
+                }
+                if eq(modulus, BN256_P_MOD) {
+                    r2 := BN256_R2
+                    r3 := BN256_R3
+                    d0 := montgomeryReduceBn256(d0_limb1, d0_limb2, d0_limb3, d0_limb4)
+                    d1 := montgomeryReduceBn256(d1_limb1, d1_limb2, d1_limb3, d1_limb4)
+                }
+
+                // if r2 is not set, it means that neither Grumpkin nor BN256 modulus is used which is not supported
+                if eq(r2, 0) {
+                    mstore(0x00, WRONG_CURVE_MODULUS_HAS_BEEN_USED)
+                    revert(0x00, 0x04)
+                }
+
+                d0 := mulmod(d0, r2, modulus)
+                d1 := mulmod(d1, r3, modulus)
+                result := addmod(d0, d1, modulus)
             }
 
             function init(_instantiate_label, _length) {
@@ -676,7 +813,7 @@ contract KeccakTranscriptContractTest is Test {
             // squeeze
             offset := squeeze(transcript_address, offset, squeeze_label)
 
-            hash := fromUniform(reverse(mload(STATE_LO)), reverse(mload(STATE_HI)))
+            hash := fromUniform(reverse(mload(STATE_LO)), reverse(mload(STATE_HI)), curve_p_mod)
         }
 
         console.log("gas cost: ", gasCost - uint256(gasleft()));

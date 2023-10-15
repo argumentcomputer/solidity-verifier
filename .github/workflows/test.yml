@@ -6,15 +6,50 @@ env:
   ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
   ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
 
-
 jobs:
   integration-tests-e2e:
     needs: [unit-tests]
     strategy:
       fail-fast: true
-
     name: E2E verification
     runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Spark.s.sol:SparkVerificationDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment
+
+      - name: Load proof and public parameters
+        run: |
+          python loaders/spark/loader.py verifier-key.json $ANVIL_PRIVATE_KEY ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL
+
+      - name: Check proof verification status (primary)
+        run: |
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verifyPrimary(uint256,uint256,uint256)(bool)" "0x07122b66b54727bf8bebec13052121d753589eb15040a49cb2ee5884810dc0a4" "0x339a352816f770e1bb7437e5cdd54bee76ed9ff13d1d7e9246f33e1a9dbc2656" "0x1ee416e56d10079af3a1785954078120077c6e428269fa00527b0e6a61d3d320" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+      - name: Check proof verification status (secondary)
+        run: |
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verifyPrimary(uint256,uint256,uint256)(bool)" "0x267c7eb46d40984b873837e3eb10319b67245557e8f49efceaed4836f1cc05ee" "0x08250c7a9ba4b363fde20f4f77a5d5634401c952e71556af1d17682322153b43" "0x0a01229ad7bbad1e74f05f55c482b1e9ecf2a8b81ed95a4cecc9d78c8f925224" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+
+  unit-tests:
+    strategy:
+      fail-fast: true
+
+    name: Nova verifier on Solidity
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
         with:

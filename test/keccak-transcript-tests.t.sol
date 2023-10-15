@@ -221,6 +221,20 @@ contract KeccakTranscriptContractTest is Test {
         (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
         console.log("gas cost: ", gasCost - uint256(gasleft()));
 
+        // getting state
+        /*
+        bytes memory stateLo = new bytes(32);
+        bytes memory stateHi = new bytes(32);
+        for (uint256 i = 0; i < 32; i++) {
+            stateLo[i] = bytes1(transcript.state[i]);
+            stateHi[i] = bytes1(transcript.state[i + 32]);
+        }
+
+        console.log("rounds: ", transcript.round);
+        console.logBytes32(bytes32(stateLo));
+        console.logBytes32(bytes32(stateHi));
+        */
+
         uint256 expected = 0x9fb71e3b74bfd0b60d97349849b895595779a240b92a6fae86bd2812692b6b0e;
         assertEq(output, expected);
 
@@ -270,6 +284,20 @@ contract KeccakTranscriptContractTest is Test {
         uint256 output;
         (transcript, output) = KeccakTranscriptLib.squeeze(transcript, curve, squeezeLabel);
         console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        // getting state
+        /*
+        bytes memory stateLo = new bytes(32);
+        bytes memory stateHi = new bytes(32);
+        for (uint256 i = 0; i < 32; i++) {
+            stateLo[i] = bytes1(transcript.state[i]);
+            stateHi[i] = bytes1(transcript.state[i + 32]);
+        }
+
+        console.log("rounds: ", transcript.round);
+        console.logBytes32(bytes32(stateLo));
+        console.logBytes32(bytes32(stateHi));
+        */
 
         uint256 expected = 0xd12b7cd39aa2fc3af9bfd4f1dfd8ffa6498f57e35021675f4227d448b5540922;
         assertEq(output, expected);
@@ -324,14 +352,45 @@ contract KeccakTranscriptContractTest is Test {
         squeeze_label[1] = 0x31;
 
         uint256 expected = 0xd12b7cd39aa2fc3af9bfd4f1dfd8ffa6498f57e35021675f4227d448b5540922;
-        uint256 output = Field.reverse256(
-            keccakTranscriptAssembly(instantiate_label, absorb_labels, inputs, squeeze_label, GRUMPKIN_P_MOD)
+
+        uint256 gasCost = gasleft();
+        uint256 output =
+            keccakTranscriptFromInitLabel(instantiate_label, absorb_labels, inputs, squeeze_label, GRUMPKIN_P_MOD);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        assertEq(Field.reverse256(output), expected);
+
+        // test-vector 2
+        input1 = new uint8[](32);
+        input1[0] = 0x80; // uint256 s3 = 128;
+
+        inputs = new uint8[][](1);
+        inputs[0] = input1;
+
+        absorb_label1 = new uint8[](2); // b"s3" in Rust
+        absorb_label1[0] = 0x73;
+        absorb_label1[1] = 0x33;
+        absorb_labels = new uint8[][](1);
+        absorb_labels[0] = absorb_label1;
+
+        // b"c2" in Rust
+        squeeze_label = new uint8[](2);
+        squeeze_label[0] = 0x63;
+        squeeze_label[1] = 0x32;
+
+        uint256 rounds = 1;
+        uint256 stateLo = 0x4ab52790b1ba6e3460fe70bbba5d07eb9b153ae612288cbbc115237a49886715;
+        uint256 stateHi = 0x5a438956ee1f0b336dd54e258aebe27db38b5c842c62765061737cdb2517e9b0;
+        uint256 outputFromGivenState = keccakTranscriptFromGivenState(
+            stateLo, stateHi, rounds, absorb_labels, inputs, squeeze_label, GRUMPKIN_P_MOD
         );
 
-        assertEq(output, expected);
+        expected = 0xfb894998c48dd652b32a109d3d2e579a0878f7f5cacfb572dc21666b9cfe221a;
+        assertEq(expected, Field.reverse256(outputFromGivenState));
     }
 
     function testKeccakTranscriptBn256Assembly() public {
+        // test-vector 1
         uint8[] memory instantiate_label = new uint8[](4); // b"test" in Rust
         instantiate_label[0] = 0x74;
         instantiate_label[1] = 0x65;
@@ -365,11 +424,40 @@ contract KeccakTranscriptContractTest is Test {
         squeeze_label[1] = 0x31;
 
         uint256 expected = 0x9fb71e3b74bfd0b60d97349849b895595779a240b92a6fae86bd2812692b6b0e;
-        uint256 output = Field.reverse256(
-            keccakTranscriptAssembly(instantiate_label, absorb_labels, inputs, squeeze_label, BN256_P_MOD)
-        );
 
-        assertEq(output, expected);
+        uint256 gasCost = gasleft();
+        uint256 output =
+            keccakTranscriptFromInitLabel(instantiate_label, absorb_labels, inputs, squeeze_label, BN256_P_MOD);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        assertEq(Field.reverse256(output), expected);
+
+        // test-vector 2
+        input1 = new uint8[](32);
+        input1[0] = 0x80; // uint256 s3 = 128;
+
+        inputs = new uint8[][](1);
+        inputs[0] = input1;
+
+        absorb_label1 = new uint8[](2); // b"s3" in Rust
+        absorb_label1[0] = 0x73;
+        absorb_label1[1] = 0x33;
+        absorb_labels = new uint8[][](1);
+        absorb_labels[0] = absorb_label1;
+
+        // b"c2" in Rust
+        squeeze_label = new uint8[](2);
+        squeeze_label[0] = 0x63;
+        squeeze_label[1] = 0x32;
+
+        uint256 rounds = 1;
+        uint256 stateLo = 0x4ab52790b1ba6e3460fe70bbba5d07eb9b153ae612288cbbc115237a49886715;
+        uint256 stateHi = 0x5a438956ee1f0b336dd54e258aebe27db38b5c842c62765061737cdb2517e9b0;
+        uint256 outputFromGivenState =
+            keccakTranscriptFromGivenState(stateLo, stateHi, rounds, absorb_labels, inputs, squeeze_label, BN256_P_MOD);
+
+        expected = 0xbfd4c50b7d6317e9267d5d65c985eb455a3561129c0b3beef79bfc8461a84f18;
+        assertEq(expected, Field.reverse256(outputFromGivenState));
     }
 
     // Constants
@@ -410,14 +498,15 @@ contract KeccakTranscriptContractTest is Test {
     bytes4 internal constant ROUND_OVERFLOW = 0x9ab982d5;
     bytes4 internal constant WRONG_CURVE_MODULUS_HAS_BEEN_USED = 0x49a7f6ee;
 
-    function keccakTranscriptAssembly(
-        uint8[] memory instantiate_label,
+    function keccakTranscriptFromGivenState(
+        uint256 stateLo_input,
+        uint256 stateHi_input,
+        uint256 round_input,
         uint8[][] memory absorb_labels,
         uint8[][] memory inputs,
         uint8[] memory squeeze_label,
         uint256 curve_p_mod
     ) private returns (uint256) {
-        uint256 gasCost = gasleft();
         uint256 hash;
         assembly {
             function mac(a, b, c, carry) -> ret1, ret2 {
@@ -649,43 +738,6 @@ contract KeccakTranscriptContractTest is Test {
                 result := addmod(d0, d1, modulus)
             }
 
-            function init(_instantiate_label, _length) {
-                let offset := 0
-                mstore(TRANSCRIPT, add(_length, 5))
-                offset := add(offset, 32)
-
-                // copy PERSONA_TAG
-                mstore8(add(TRANSCRIPT, 32), and(0xff, shr(24, PERSONA_TAG)))
-                mstore8(add(TRANSCRIPT, add(offset, 1)), and(0xff, shr(16, PERSONA_TAG)))
-                mstore8(add(TRANSCRIPT, add(offset, 2)), and(0xff, shr(8, PERSONA_TAG)))
-                mstore8(add(TRANSCRIPT, add(offset, 3)), and(0xff, PERSONA_TAG))
-                offset := add(offset, 3)
-
-                // copy instantiate_label
-                let index := 0
-                for {} lt(index, _length) {} {
-                    /*
-                        mstore8(add(TRANSCRIPT, 36), mload(add(_instantiate_label, 32)))
-                        mstore8(add(TRANSCRIPT, 37), mload(add(_instantiate_label, 64)))
-                        mstore8(add(TRANSCRIPT, 38), mload(add(_instantiate_label, 96)))
-                        mstore8(add(TRANSCRIPT, 39), mload(add(_instantiate_label, 128)))
-                    */
-
-                    mstore8(add(TRANSCRIPT, add(offset, 1)), mload(add(_instantiate_label, add(32, mul(32, index)))))
-
-                    index := add(index, 1)
-                    offset := add(offset, 1)
-                }
-
-                // compute STATE_LO
-                mstore8(add(TRANSCRIPT, add(offset, 1)), KECCAK256_PREFIX_CHALLENGE_LO)
-                mstore(STATE_LO, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
-
-                // compute STATE_HI
-                mstore8(add(TRANSCRIPT, add(offset, 1)), KECCAK256_PREFIX_CHALLENGE_HI)
-                mstore(STATE_HI, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
-            }
-
             function compute_total_transcript_length(_absorb_labels, _inputs, _length) -> _len {
                 let index := 0
                 let pointer := 0
@@ -793,7 +845,10 @@ contract KeccakTranscriptContractTest is Test {
                 _offset_ := add(_offset_, length)
             }
 
-            init(instantiate_label, mload(instantiate_label))
+            mstore(ROUND, round_input)
+            mstore(STATE_LO, stateLo_input)
+            mstore(STATE_HI, stateHi_input)
+
             let inputs_length := mload(inputs)
             if iszero(eq(mload(absorb_labels), inputs_length)) {
                 mstore(0x00, ABSORB_INPUTS_LABELS_SIZE_MISMATCH)
@@ -807,17 +862,68 @@ contract KeccakTranscriptContractTest is Test {
 
             // absorb
             let offset := 0
-            offset := absorb(transcript_address, offset, absorb_labels, inputs, inputs_length, 0)
-            offset := absorb(transcript_address, offset, absorb_labels, inputs, inputs_length, 1)
+            let index := 0
+            for {} lt(index, inputs_length) {} {
+                offset := absorb(transcript_address, offset, absorb_labels, inputs, inputs_length, index)
+                index := add(index, 1)
+            }
 
             // squeeze
             offset := squeeze(transcript_address, offset, squeeze_label)
 
             hash := fromUniform(reverse(mload(STATE_LO)), reverse(mload(STATE_HI)), curve_p_mod)
         }
-
-        console.log("gas cost: ", gasCost - uint256(gasleft()));
-
         return hash;
+    }
+
+    function keccakTranscriptFromInitLabel(
+        uint8[] memory instantiate_label,
+        uint8[][] memory absorb_labels,
+        uint8[][] memory inputs,
+        uint8[] memory squeeze_label,
+        uint256 curve_p_mod
+    ) private returns (uint256) {
+        uint256 rounds = 0;
+        uint256 stateLo;
+        uint256 stateHi;
+        assembly {
+            function init(_instantiate_label, _length) {
+                let offset := 0
+                mstore(TRANSCRIPT, add(_length, 5))
+                offset := add(offset, 32)
+
+                // copy PERSONA_TAG
+                mstore8(add(TRANSCRIPT, 32), and(0xff, shr(24, PERSONA_TAG)))
+                mstore8(add(TRANSCRIPT, add(offset, 1)), and(0xff, shr(16, PERSONA_TAG)))
+                mstore8(add(TRANSCRIPT, add(offset, 2)), and(0xff, shr(8, PERSONA_TAG)))
+                mstore8(add(TRANSCRIPT, add(offset, 3)), and(0xff, PERSONA_TAG))
+                offset := add(offset, 3)
+
+                // copy instantiate_label
+                let index := 0
+                for {} lt(index, _length) {} {
+                    mstore8(add(TRANSCRIPT, add(offset, 1)), mload(add(_instantiate_label, add(32, mul(32, index)))))
+
+                    index := add(index, 1)
+                    offset := add(offset, 1)
+                }
+
+                // compute STATE_LO
+                mstore8(add(TRANSCRIPT, add(offset, 1)), KECCAK256_PREFIX_CHALLENGE_LO)
+                mstore(STATE_LO, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
+
+                // compute STATE_HI
+                mstore8(add(TRANSCRIPT, add(offset, 1)), KECCAK256_PREFIX_CHALLENGE_HI)
+                mstore(STATE_HI, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
+            }
+
+            init(instantiate_label, mload(instantiate_label))
+
+            stateLo := mload(STATE_LO)
+            stateHi := mload(STATE_HI)
+        }
+
+        return
+            keccakTranscriptFromGivenState(stateLo, stateHi, rounds, absorb_labels, inputs, squeeze_label, curve_p_mod);
     }
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import "src/pasta/Pallas.sol";
-import "src/pasta/Vesta.sol";
-import "src/verifier/step4/EqPolynomial.sol";
+import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/pasta/Vesta.sol";
+import "src/blocks/EqPolynomial.sol";
 
 contract SparkMultiEvaluationContract {
     struct MatrixData {
@@ -84,19 +84,19 @@ contract SparkMultiEvaluationContract {
         }
     }
 
-    function verifyPrimary(uint256 expectedA, uint256 expectedB, uint256 expectedC) public view returns (bool) {
+    function verifyPrimary(uint256 expectedA, uint256 expectedB, uint256 expectedC) public returns (bool) {
         (uint256 evalsA, uint256 evalsB, uint256 evalsC) = multiEvaluatePrimary();
         return verifyInner(evalsA, evalsB, evalsC, expectedA, expectedB, expectedC);
     }
 
-    function verifySecondary(uint256 expectedA, uint256 expectedB, uint256 expectedC) public view returns (bool) {
+    function verifySecondary(uint256 expectedA, uint256 expectedB, uint256 expectedC) public returns (bool) {
         (uint256 evalsA, uint256 evalsB, uint256 evalsC) = multiEvaluateSecondary();
         return verifyInner(evalsA, evalsB, evalsC, expectedA, expectedB, expectedC);
     }
 
-    function multiEvaluateSecondary() private view returns (uint256, uint256, uint256) {
-        uint256[] memory T_x = EqPolinomialLib.evalsPallas(r_x_secondary);
-        uint256[] memory T_y = EqPolinomialLib.evalsPallas(r_y_secondary);
+    function multiEvaluateSecondary() private returns (uint256, uint256, uint256) {
+        uint256[] memory T_x = EqPolinomialLib.evals(r_x_secondary, Pallas.P_MOD, Pallas.negateBase);
+        uint256[] memory T_y = EqPolinomialLib.evals(r_y_secondary, Pallas.P_MOD, Pallas.negateBase);
 
         uint256 result_C_secondary = multiEvaluateInner(C_secondary, T_x, T_y, Pallas.P_MOD);
         uint256 result_B_secondary = multiEvaluateInner(B_secondary, T_x, T_y, Pallas.P_MOD);
@@ -105,9 +105,9 @@ contract SparkMultiEvaluationContract {
         return (result_A_secondary, result_B_secondary, result_C_secondary);
     }
 
-    function multiEvaluatePrimary() private view returns (uint256, uint256, uint256) {
-        uint256[] memory T_x = EqPolinomialLib.evalsVesta(r_x_primary);
-        uint256[] memory T_y = EqPolinomialLib.evalsVesta(r_y_primary);
+    function multiEvaluatePrimary() private returns (uint256, uint256, uint256) {
+        uint256[] memory T_x = EqPolinomialLib.evals(r_x_primary, Vesta.P_MOD, Vesta.negateBase);
+        uint256[] memory T_y = EqPolinomialLib.evals(r_y_primary, Vesta.P_MOD, Vesta.negateBase);
 
         uint256 result_C_primary = multiEvaluateInner(C_primary, T_x, T_y, Vesta.P_MOD);
         uint256 result_B_primary = multiEvaluateInner(B_primary, T_x, T_y, Vesta.P_MOD);

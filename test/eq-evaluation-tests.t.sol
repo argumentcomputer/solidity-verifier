@@ -638,9 +638,15 @@ contract EqEvaluationTest is Test {
         tau[16] = 0x2e986437477a974632e0ffcd780ddc863a63d78f83c5c9666ebc792ade06dc85;
 
         uint256 expected = 0x253343ce647165ea5a64ad085b301eb8956f9dbf3efaf92bfcde2e116598cc87;
+        uint256 gasCost = gasleft();
         uint256 actual = EqPolinomialLib.evaluate(r_prod, tau, Bn256.R_MOD, Bn256.negateScalar);
-
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
         assertEq(actual, expected);
+
+        gasCost = gasleft();
+        uint256 actual_assembly = eq_evaluate(r_prod, tau, Bn256.R_MOD);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+        assertEq(actual, actual_assembly);
     }
 
     function testEqEvaluationGrumpkinSecondary() public {
@@ -683,8 +689,63 @@ contract EqEvaluationTest is Test {
         tau[16] = 0x2c363a743c3118e6486e7a66a8dd4c02a904051fe0241bb01df569c10015a8dd;
 
         uint256 expected = 0x2069f251a7aa5836b38891be9298f89d74185db6167894a0aff108d1709f4a82;
+        uint256 gasCost = gasleft();
         uint256 actual = EqPolinomialLib.evaluate(r_prod, tau, Grumpkin.P_MOD, Grumpkin.negateBase);
-
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
         assertEq(actual, expected);
+
+        gasCost = gasleft();
+        uint256 actual_assembly = eq_evaluate(r_prod, tau, Grumpkin.P_MOD);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+        assertEq(actual, actual_assembly);
+    }
+
+    bytes4 internal constant R_RX_SIZE_MISMATCH = 0xf8364eba;
+
+    function eq_evaluate(uint256[] memory r, uint256[] memory rx, uint256 modulus) public returns (uint256) {
+        uint256 output = 1;
+
+        uint256 debug;
+        assembly {
+            if iszero(eq(mload(r), mload(rx))) {
+                mstore(0x00, R_RX_SIZE_MISMATCH)
+                revert(0x00, 0x04)
+            }
+
+            let minus_rx := 0
+            let minus_r := 0
+            let rx_inner := 0
+            let r_inner := 0
+            let tmp1 := 0
+            let tmp2 := 0
+            let tmp3 := 0
+            let resultIter := 0
+
+            let index := 0
+            for {} lt(index, mload(rx)) {} {
+                rx_inner := mload(add(rx, add(32, mul(32, index))))
+                r_inner := mload(add(r, add(32, mul(32, index))))
+                minus_rx := sub(modulus, mod(rx_inner, modulus))
+                minus_r := sub(modulus, mod(r_inner, modulus))
+
+                // rx[i] * r[i]
+                tmp1 := mulmod(rx_inner, r_inner, modulus)
+                // 1 - rx[i]
+                tmp2 := addmod(1, minus_rx, modulus)
+                // 1 - r[i]
+                tmp3 := addmod(1, minus_r, modulus)
+
+                // tmp1 + tmp2 * tmp3
+                tmp1 := addmod(tmp1, mulmod(tmp2, tmp3, modulus), modulus)
+
+                // accumulate result
+                resultIter := mulmod(tmp1, output, modulus)
+
+                output := resultIter
+
+                index := add(index, 1)
+            }
+        }
+        return output;
     }
 }

@@ -9,6 +9,19 @@ import "src/blocks/grumpkin/Bn256.sol";
 import "src/blocks/grumpkin/Grumpkin.sol";
 
 contract SparseEvaluationTest is Test {
+    function setupPoly_X(
+        SparsePolynomialLib.Z memory z0,
+        SparsePolynomialLib.Z memory z1,
+        SparsePolynomialLib.Z memory z2
+    ) public pure returns (SparsePolynomialLib.Z[] memory) {
+        SparsePolynomialLib.Z[] memory poly_X = new SparsePolynomialLib.Z[](3);
+        poly_X[0] = z0;
+        poly_X[1] = z1;
+        poly_X[2] = z2;
+
+        return poly_X;
+    }
+
     function testSparseEvaluationPrimary() public {
         // in Nova implementation r_y[0] is ignored (https://github.com/microsoft/Nova/blob/main/src/spartan/mod.rs#L511)
         uint256[] memory r_y = new uint256[](14);
@@ -35,7 +48,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x2875f52ba1a60c5b478f684b058d0e2bf2ce904bd0a377ce38699d1a2aa69fad);
 
-        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+        SparsePolynomialLib.Z[] memory poly_X = setupPoly_X(z0, z1, z2);
 
         uint256 num_vars = r_y.length;
 
@@ -70,7 +83,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x25b86df67043654b4f2becbaf1ea152688dfeffdb1de89cdf0164c59b0330198);
 
-        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+        SparsePolynomialLib.Z[] memory poly_X = setupPoly_X(z0, z1, z2);
 
         uint256 num_vars = r_y.length;
 
@@ -87,7 +100,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x1e7d17e953a2bee716b7139675a0fc9c1a3d34f00c1c071eac84e21f33841927);
 
-        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+        SparsePolynomialLib.Z[] memory poly_X = setupPoly_X(z0, z1, z2);
 
         uint256[] memory r_prod_unpad = new uint256[](14);
         // 0x0256f4d5674a529ec39e0afba3738d0263cb1d385a563ce608edad719f47d5fd;
@@ -108,9 +121,17 @@ contract SparseEvaluationTest is Test {
 
         uint256 eval_X_expected = 0x150bdf49815f761a709a60620133c9173e54c66514cb3b2bd3ff9dabfa24870d;
 
+        uint256 gasCost = gasleft();
         uint256 eval_X =
             SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Bn256.R_MOD, Bn256.negateScalar);
+        console.log("gas cost: ", gasCost - gasleft());
         assertEq(eval_X, eval_X_expected);
+
+        gasCost = gasleft();
+        uint256 eval_X_assembly = sparse_evaluate(r_prod_unpad, poly_X, Bn256.R_MOD);
+        console.log("gas cost (assembly): ", gasCost - gasleft());
+
+        assertEq(eval_X_assembly, eval_X_expected);
     }
 
     function testSparseEvaluateGrumpkin() public {
@@ -121,7 +142,7 @@ contract SparseEvaluationTest is Test {
         SparsePolynomialLib.Z memory z2 =
             SparsePolynomialLib.Z(2, 0x25049ad98282284f65ff8435aec45c47f9a39123eb6a33e8499ae079c504507a);
 
-        SparsePolynomialLib.Z[] memory poly_X = SparsePolynomialLib.setupPoly_X(z0, z1, z2);
+        SparsePolynomialLib.Z[] memory poly_X = setupPoly_X(z0, z1, z2);
 
         uint256[] memory r_prod_unpad = new uint256[](14);
         // 0x2c9493e9d5b214b3cad4bb621544e6001cb1dc10421ede559fb937d89568cd01;
@@ -142,8 +163,57 @@ contract SparseEvaluationTest is Test {
 
         uint256 eval_X_expected = 0x090edee35dda0b8a23da057d53201d4bd171b00405f04a4562777f60898718bd;
 
+        uint256 gasCost = gasleft();
         uint256 eval_X =
             SparsePolynomialLib.evaluate(r_prod_unpad.length, poly_X, r_prod_unpad, Grumpkin.P_MOD, Grumpkin.negateBase);
+        console.log("gas cost: ", gasCost - gasleft());
         assertEq(eval_X, eval_X_expected);
+
+        gasCost = gasleft();
+        uint256 eval_X_assembly = sparse_evaluate(r_prod_unpad, poly_X, Grumpkin.P_MOD);
+        console.log("gas cost: ", gasCost - gasleft());
+
+        assertEq(eval_X_assembly, eval_X_expected);
+    }
+
+    function sparse_evaluate(uint256[] memory r_prod_unpad, SparsePolynomialLib.Z[] memory poly_X, uint256 modulus)
+        private
+        returns (uint256)
+    {
+        uint256 output;
+        assembly {
+            let poly_X_len := mload(poly_X)
+            let r_prod_unpad_length := mload(r_prod_unpad)
+
+            let index := 0
+            for {} lt(index, poly_X_len) {} {
+                let chi := 1
+                let r_y_index := 0
+                let poly_X_pointer := mload(add(poly_X, add(32, mul(32, index))))
+                let z := mload(poly_X_pointer)
+
+                let j := 0
+                for {} lt(j, r_prod_unpad_length) {} {
+                    switch eq(and(shr(sub(sub(r_prod_unpad_length, j), 1), z), 1), 1)
+                    case 1 {
+                        r_y_index := mload(add(r_prod_unpad, add(32, mul(32, j))))
+                        chi := mulmod(chi, r_y_index, modulus)
+                    }
+                    default {
+                        r_y_index := sub(modulus, mod(mload(add(r_prod_unpad, add(32, mul(32, j)))), modulus))
+                        chi := mulmod(chi, addmod(1, r_y_index, modulus), modulus)
+                    }
+
+                    j := add(j, 1)
+                }
+                // accumulate result
+                z := mload(add(poly_X_pointer, 32))
+                chi := mulmod(chi, z, modulus)
+                output := addmod(output, chi, modulus)
+
+                index := add(index, 1)
+            }
+        }
+        return output;
     }
 }

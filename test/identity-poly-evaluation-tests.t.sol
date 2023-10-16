@@ -83,9 +83,16 @@ contract IdentityPolyEvaluationTest is Test {
 
         uint256 expected = 0x2fb845b1e95db8f9b947d9f569955c15c891df75549330fc41097b0128a537dd;
 
+        uint256 gasCost = gasleft();
         uint256 actual = IdentityPolynomialLib.evaluate(r_prod, Bn256.R_MOD);
-
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
         assertEq(actual, expected);
+
+        gasCost = gasleft();
+        uint256 actual_assembly = id_evaluate(r_prod, Bn256.R_MOD);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+
+        assertEq(actual_assembly, expected);
     }
 
     function testIdentityPolyEvaluateGrumpkin() public {
@@ -110,8 +117,32 @@ contract IdentityPolyEvaluationTest is Test {
 
         uint256 expected = 0x1abd738cc5f6956b8bb48f38abee3422dd877599c18804f94a1d037b1aaf7b58;
 
+        uint256 gasCost = gasleft();
         uint256 actual = IdentityPolynomialLib.evaluate(r_prod, Grumpkin.P_MOD);
-
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
         assertEq(actual, expected);
+
+        gasCost = gasleft();
+        uint256 actual_assembly = id_evaluate(r_prod, Grumpkin.P_MOD);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+        assertEq(actual_assembly, expected);
+    }
+
+    function id_evaluate(uint256[] memory r, uint256 modulus) private returns (uint256) {
+        uint256 output;
+        assembly {
+            let tmp := 0
+            let length := mload(r)
+            let index := 0
+            for {} lt(index, length) {} {
+                tmp := shl(sub(sub(length, index), 1), 1)
+                tmp := and(tmp, 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                tmp := mulmod(tmp, mload(add(r, add(32, mul(32, index)))), modulus)
+                output := addmod(tmp, output, modulus)
+                index := add(index, 1)
+            }
+        }
+
+        return output;
     }
 }

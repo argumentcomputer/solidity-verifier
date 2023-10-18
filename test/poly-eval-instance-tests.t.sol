@@ -217,8 +217,10 @@ contract PolyEvalInstanceTest is Test {
             0x2a0099d439d2573a8eba9b5bc393917375fa2abbd3da2e5af15cc0e0cae608ce
         );
 
+        uint256 gasCost = gasleft();
         PolyEvalInstanceLib.PolyEvalInstance memory actual =
             PolyEvalInstanceLib.batchBn256(comm_vec, r_sat, eval_vec, c);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
 
         uint256 e_expected = 0x101e200bd035b257fe90e8d2d1c0df37860d3f49effed18058414ff5ec3d465c;
         Bn256.Bn256AffinePoint memory c_expected = Bn256.Bn256AffinePoint(
@@ -233,6 +235,13 @@ contract PolyEvalInstanceTest is Test {
         for (uint256 index = 0; index < r_sat.length; index++) {
             assertEq(r_sat[index], actual.x[index]);
         }
+
+        (uint256 c_x_assembly, uint256 c_y_assembly, uint256 e_assembly) =
+            poly_eval_assembly_bn256(comm_vec, eval_vec, c);
+
+        assertEq(e_assembly, e_expected);
+        assertEq(actual.c_x, c_x_assembly);
+        assertEq(actual.c_y, c_y_assembly);
     }
 
     function testPolyEvalInstanceBatchGrumpkin() public {
@@ -314,8 +323,10 @@ contract PolyEvalInstanceTest is Test {
             0x1e7ea7240c683088a2b611e1e6c61d935f3788ac65e075a7ccac0079d34dcd46
         );
 
+        uint256 gasCost = gasleft();
         PolyEvalInstanceLib.PolyEvalInstance memory actual =
             PolyEvalInstanceLib.batchGrumpkin(comm_vec, r_sat, eval_vec, c);
+        console.log("gasCost: ", gasCost - uint256(gasleft()));
 
         uint256 e_expected = 0x0088669e792dcb64cc9598dbed28620719bebd0129650d26e886bc06dc43d852;
         Grumpkin.GrumpkinAffinePoint memory c_expected = Grumpkin.GrumpkinAffinePoint(
@@ -329,6 +340,338 @@ contract PolyEvalInstanceTest is Test {
         assertEq(r_sat.length, actual.x.length);
         for (uint256 index = 0; index < r_sat.length; index++) {
             assertEq(r_sat[index], actual.x[index]);
+        }
+
+        (uint256 c_x_assembly, uint256 c_y_assembly, uint256 e_assembly) =
+            poly_eval_assembly_grumpkin(comm_vec, eval_vec, c);
+
+        assertEq(e_assembly, e_expected);
+        assertEq(actual.c_x, c_x_assembly);
+        assertEq(actual.c_y, c_y_assembly);
+    }
+
+    // Errors
+    bytes4 internal constant COMMS_EVALS_SIZE_MISMATCH = 0x426de8af;
+    bytes4 internal constant Z_EQUALS_ZERO = 0x95fee54e;
+    bytes4 internal constant BN256_POINTS_ADDITION_ERROR = 0x554efa60;
+    bytes4 internal constant BN256_SCALAR_MUL_ERROR = 0x8c654ede;
+
+    // Storage
+    uint256 internal constant A_X = 0x200 + 0x10000 + 0x00;
+    uint256 internal constant A_Y = 0x200 + 0x10000 + 0x20;
+    uint256 internal constant A_Z = 0x200 + 0x10000 + 0x40;
+    uint256 internal constant T0 = 0x200 + 0x10000 + 0x60;
+    uint256 internal constant T1 = 0x200 + 0x10000 + 0x80;
+    uint256 internal constant T2 = 0x200 + 0x10000 + 0xa0;
+    uint256 internal constant T3 = 0x200 + 0x10000 + 0xc0;
+    uint256 internal constant T4 = 0x200 + 0x10000 + 0xe0;
+    uint256 internal constant T5 = 0x200 + 0x10000 + 0x100;
+    uint256 internal constant B_X = 0x200 + 0x10000 + 0x120;
+    uint256 internal constant B_Y = 0x200 + 0x10000 + 0x140;
+    uint256 internal constant B_Z = 0x200 + 0x10000 + 0x160;
+    uint256 internal constant C_POWERED = 0x200 + 0x10000 + 0x180;
+    uint256 internal constant ADD_BN256_INPUT = 0x200 + 0x10000 + 0x1a0;
+    uint256 internal constant ADD_BN256_OUTPUT = 0x200 + 0x10000 + 0x1c0;
+    uint256 internal constant SCALAR_MUL_BN256_INPUT = 0x200 + 0x10000 + 0x1e0;
+    uint256 internal constant SCALAR_MUL_BN256_OUTPUT = 0x200 + 0x10000 + 0x200;
+
+    // Constants
+    uint256 internal constant GRUMPKIN_R_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
+    uint256 internal constant GRUMPKIN_P_MOD = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+    uint256 internal constant BN256_P_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
+    uint256 internal constant BN256_R_MOD = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+
+    function poly_eval_assembly_bn256(Bn256.Bn256AffinePoint[] memory comm_vec, uint256[] memory eval_vec, uint256 c)
+        private
+        returns (uint256 c_x, uint256 c_y, uint256 e)
+    {
+        uint256[2][] memory _comm_vec = new uint256[2][](comm_vec.length);
+        for (uint256 index = 0; index < _comm_vec.length; index++) {
+            _comm_vec[index][0] = comm_vec[index].x;
+            _comm_vec[index][1] = comm_vec[index].y;
+        }
+
+        uint256 gasCost = gasleft();
+        (c_x, c_y, e) = poly_eval_assembly(_comm_vec, eval_vec, c, BN256_P_MOD);
+        console.log("gas cost [BN256] (assembly): ", gasCost - uint256(gasleft()));
+    }
+
+    function poly_eval_assembly_grumpkin(
+        Grumpkin.GrumpkinAffinePoint[] memory comm_vec,
+        uint256[] memory eval_vec,
+        uint256 c
+    ) private returns (uint256 c_x, uint256 c_y, uint256 e) {
+        uint256[2][] memory _comm_vec = new uint256[2][](comm_vec.length);
+        for (uint256 index = 0; index < _comm_vec.length; index++) {
+            _comm_vec[index][0] = comm_vec[index].x;
+            _comm_vec[index][1] = comm_vec[index].y;
+        }
+
+        uint256 gasCost = gasleft();
+        (c_x, c_y, e) = poly_eval_assembly(_comm_vec, eval_vec, c, GRUMPKIN_P_MOD);
+        console.log("gas cost [Grumpkin] (assembly): ", gasCost - uint256(gasleft()));
+    }
+
+    function poly_eval_assembly(uint256[2][] memory comm_vec, uint256[] memory eval_vec, uint256 c, uint256 p_modulus)
+        private
+        returns (uint256 c_x, uint256 c_y, uint256 e)
+    {
+        assembly {
+            function to_affine(_x, _y, _z, _modulus) -> ret1, ret2 {
+                if eq(_z, 0) {
+                    mstore(0x00, Z_EQUALS_ZERO)
+                    revert(0x00, 0x04)
+                }
+
+                // invert z
+                let mPtr := mload(0x40)
+                mstore(mPtr, 0x20)
+                mstore(add(mPtr, 0x20), 0x20)
+                mstore(add(mPtr, 0x40), 0x20)
+                mstore(add(mPtr, 0x60), _z)
+                mstore(add(mPtr, 0x80), sub(_modulus, 2))
+                mstore(add(mPtr, 0xa0), _modulus)
+                if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) { revert(0, 0) }
+                let zinv := mload(0x00)
+
+                ret1 := mulmod(_x, zinv, _modulus)
+                ret2 := mulmod(_y, zinv, _modulus)
+            }
+
+            function _identity(_x, _y) -> ret {
+                ret := 0
+                if iszero(eq(_x, 0)) { ret := 1 }
+                if iszero(eq(_y, 0)) { ret := 1 }
+            }
+
+            function double_grumpkin(_x, _y) -> ret_x, ret_y {
+                switch _identity(_x, _y)
+                case 0 {
+                    ret_x := _x
+                    ret_y := _y
+                }
+                default {
+                    ret_x := _x
+                    ret_y := _y
+
+                    let t0 := mulmod(ret_x, ret_x, GRUMPKIN_R_MOD)
+                    let t1 := mulmod(ret_y, ret_y, GRUMPKIN_R_MOD)
+                    let t2 := 1
+                    let t3 := mulmod(ret_x, ret_y, GRUMPKIN_R_MOD)
+                    t3 := addmod(t3, t3, GRUMPKIN_R_MOD)
+                    let z3 := ret_x
+                    z3 := addmod(z3, z3, GRUMPKIN_R_MOD)
+                    let x3 := 0
+                    let y3 :=
+                        mulmod(t2, 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffce, GRUMPKIN_R_MOD)
+                    y3 := addmod(x3, y3, GRUMPKIN_R_MOD)
+                    x3 := addmod(t1, sub(GRUMPKIN_R_MOD, mod(y3, GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD)
+                    y3 := addmod(t1, y3, GRUMPKIN_R_MOD)
+                    y3 := mulmod(x3, y3, GRUMPKIN_R_MOD)
+                    x3 := mulmod(t3, x3, GRUMPKIN_R_MOD)
+                    z3 := mulmod(z3, 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffce, GRUMPKIN_R_MOD)
+                    t2 := 0
+                    t3 := addmod(t0, sub(GRUMPKIN_R_MOD, mod(t2, GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD)
+                    t3 := 0
+                    t3 := addmod(t3, z3, GRUMPKIN_R_MOD)
+                    z3 := addmod(t0, t0, GRUMPKIN_R_MOD)
+                    t0 := addmod(z3, t0, GRUMPKIN_R_MOD)
+                    t0 := addmod(t0, t2, GRUMPKIN_R_MOD)
+                    t0 := mulmod(t0, t3, GRUMPKIN_R_MOD)
+                    y3 := addmod(y3, t0, GRUMPKIN_R_MOD)
+                    t2 := ret_y
+                    t2 := addmod(t2, t2, GRUMPKIN_R_MOD)
+                    t0 := mulmod(t2, t3, GRUMPKIN_R_MOD)
+                    x3 := addmod(x3, sub(GRUMPKIN_R_MOD, mod(t0, GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD)
+                    z3 := mulmod(t2, t1, GRUMPKIN_R_MOD)
+                    z3 := addmod(z3, z3, GRUMPKIN_R_MOD)
+                    z3 := addmod(z3, z3, GRUMPKIN_R_MOD)
+
+                    ret_x, ret_y := to_affine(x3, y3, z3, GRUMPKIN_R_MOD)
+                }
+            }
+
+            function add_bn256(_a_x, _a_y, _b_x, _b_y) -> _c_x, _c_y {
+                mstore(ADD_BN256_INPUT, _a_x)
+                mstore(add(ADD_BN256_INPUT, 32), _a_y)
+                mstore(add(ADD_BN256_INPUT, 64), _b_x)
+                mstore(add(ADD_BN256_INPUT, 96), _b_y)
+
+                let success := call(gas(), 0x06, 0, ADD_BN256_INPUT, 0x80, ADD_BN256_OUTPUT, 0x40)
+                switch success
+                case 0 {
+                    mstore(0x00, BN256_POINTS_ADDITION_ERROR)
+                    revert(0x00, 0x04)
+                }
+
+                _c_x := mload(ADD_BN256_OUTPUT)
+                _c_y := mload(add(ADD_BN256_OUTPUT, 32))
+            }
+
+            function add_grumpkin(_a_x, _a_y, _b_x, _b_y) -> _c_x, _c_y {
+                mstore(A_X, _a_x)
+                mstore(A_Y, _a_y)
+                mstore(A_Z, 1)
+                mstore(B_X, _b_x)
+                mstore(B_Y, _b_y)
+                mstore(B_Z, 1)
+
+                if eq(_identity(_a_x, _a_y), 0) {
+                    mstore(A_X, 0)
+                    mstore(A_Y, 1)
+                    mstore(A_Z, 0)
+                }
+
+                if eq(_identity(_b_x, _b_y), 0) {
+                    mstore(B_X, 0)
+                    mstore(B_Y, 1)
+                    mstore(B_Z, 0)
+                }
+
+                let _c_z := 0
+
+                mstore(T0, mulmod(mload(A_X), mload(B_X), GRUMPKIN_R_MOD))
+                mstore(T1, mulmod(mload(A_Y), mload(B_Y), GRUMPKIN_R_MOD))
+                mstore(T2, mulmod(mload(A_Z), mload(B_Z), GRUMPKIN_R_MOD))
+                mstore(T3, addmod(mload(A_X), mload(A_Y), GRUMPKIN_R_MOD))
+                mstore(T4, addmod(mload(B_X), mload(B_Y), GRUMPKIN_R_MOD))
+                mstore(T3, mulmod(mload(T3), mload(T4), GRUMPKIN_R_MOD))
+                mstore(T4, addmod(mload(T0), mload(T1), GRUMPKIN_R_MOD))
+                mstore(T3, addmod(mload(T3), sub(GRUMPKIN_R_MOD, mod(mload(T4), GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD))
+                mstore(T4, addmod(mload(A_X), mload(A_Z), GRUMPKIN_R_MOD))
+                mstore(T5, addmod(mload(B_X), mload(B_Z), GRUMPKIN_R_MOD))
+                mstore(T4, mulmod(mload(T4), mload(T5), GRUMPKIN_R_MOD))
+                mstore(T5, addmod(mload(T0), mload(T2), GRUMPKIN_R_MOD))
+                mstore(T4, addmod(mload(T4), sub(GRUMPKIN_R_MOD, mod(mload(T5), GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD))
+                mstore(T5, addmod(mload(A_Y), mload(A_Z), GRUMPKIN_R_MOD))
+                _c_x := addmod(mload(B_Y), mload(B_Z), GRUMPKIN_R_MOD)
+                mstore(T5, mulmod(mload(T5), _c_x, GRUMPKIN_R_MOD))
+                _c_x := addmod(mload(T1), mload(T2), GRUMPKIN_R_MOD)
+                mstore(T5, addmod(mload(T5), sub(GRUMPKIN_R_MOD, mod(_c_x, GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD))
+                // skip c_z := A, since constant A = 0 in Grumpkin
+                _c_x :=
+                    mulmod(mload(T2), 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffce, GRUMPKIN_R_MOD) // mul_by_3b
+                _c_z := addmod(_c_x, _c_z, GRUMPKIN_R_MOD)
+                _c_x := addmod(mload(T1), sub(GRUMPKIN_R_MOD, mod(_c_z, GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD)
+                _c_z := addmod(mload(T1), _c_z, GRUMPKIN_R_MOD)
+                _c_y := mulmod(_c_x, _c_z, GRUMPKIN_R_MOD)
+                mstore(T1, addmod(mload(T0), mload(T0), GRUMPKIN_R_MOD))
+                mstore(T1, addmod(mload(T1), mload(T0), GRUMPKIN_R_MOD))
+                mstore(T2, 0) // since constant A = 0 in Grumpkin
+                mstore(
+                    T4,
+                    mulmod(
+                        mload(T4), 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffce, GRUMPKIN_R_MOD
+                    )
+                ) // mul_by_3b
+                mstore(T1, addmod(mload(T1), mload(T2), GRUMPKIN_R_MOD))
+                mstore(T2, addmod(mload(T0), sub(GRUMPKIN_R_MOD, mod(mload(T2), GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD))
+                mstore(T2, 0) // since constant A = 0 in Grumpkin
+                mstore(T4, addmod(mload(T4), mload(T2), GRUMPKIN_R_MOD))
+                mstore(T0, mulmod(mload(T1), mload(T4), GRUMPKIN_R_MOD))
+                _c_y := addmod(_c_y, mload(T0), GRUMPKIN_R_MOD)
+                mstore(T0, mulmod(mload(T5), mload(T4), GRUMPKIN_R_MOD))
+                _c_x := mulmod(mload(T3), _c_x, GRUMPKIN_R_MOD)
+                _c_x := addmod(_c_x, sub(GRUMPKIN_R_MOD, mod(mload(T0), GRUMPKIN_R_MOD)), GRUMPKIN_R_MOD)
+                mstore(T0, mulmod(mload(T3), mload(T1), GRUMPKIN_R_MOD))
+                _c_z := mulmod(mload(T5), _c_z, GRUMPKIN_R_MOD)
+                _c_z := addmod(_c_z, mload(T0), GRUMPKIN_R_MOD)
+
+                switch and(and(eq(_c_x, 0), eq(_c_y, 1)), eq(_c_z, 0))
+                case 1 {
+                    _c_x := 0
+                    _c_y := 0
+                }
+                default { _c_x, _c_y := to_affine(_c_x, _c_y, _c_z, GRUMPKIN_R_MOD) }
+            }
+
+            function scalar_mul_bn256(_a_x, _a_y, _scalar) -> _c_x, _c_y {
+                mstore(SCALAR_MUL_BN256_INPUT, _a_x)
+                mstore(add(SCALAR_MUL_BN256_INPUT, 32), _a_y)
+                mstore(add(SCALAR_MUL_BN256_INPUT, 64), _scalar)
+
+                let success := call(gas(), 0x07, 0, SCALAR_MUL_BN256_INPUT, 0x60, SCALAR_MUL_BN256_OUTPUT, 0x40)
+                switch success
+                case 0 {
+                    mstore(0x00, BN256_SCALAR_MUL_ERROR)
+                    revert(0x00, 0x04)
+                }
+
+                _c_x := mload(SCALAR_MUL_BN256_OUTPUT)
+                _c_y := mload(add(SCALAR_MUL_BN256_OUTPUT, 32))
+            }
+
+            function scalar_mul_grumpkin(_a_x, a_y, _scalar) -> _c_x, _c_y {
+                let bitIndex := 0
+                for {} lt(bitIndex, 255) {} {
+                    _c_x, _c_y := double_grumpkin(_c_x, _c_y)
+                    bitIndex := add(bitIndex, 1)
+
+                    if eq(and(shr(sub(255, bitIndex), _scalar), 1), 1) {
+                        _c_x, _c_y := add_grumpkin(_c_x, _c_y, _a_x, a_y)
+                    }
+                }
+            }
+
+            if iszero(eq(mload(comm_vec), mload(eval_vec))) {
+                mstore(0x00, COMMS_EVALS_SIZE_MISMATCH)
+                revert(0x00, 0x04)
+            }
+
+            let tmp_x := 0
+            let tmp_y := 0
+            mstore(C_POWERED, 1)
+
+            e := 0
+            c_x := 0
+            c_y := 0
+
+            let index := 0
+            if eq(p_modulus, GRUMPKIN_P_MOD) {
+                for {} lt(index, mload(comm_vec)) {} {
+                    e :=
+                        addmod(
+                            e,
+                            mulmod(mload(C_POWERED), mload(add(eval_vec, add(32, mul(32, index)))), GRUMPKIN_P_MOD),
+                            GRUMPKIN_P_MOD
+                        )
+
+                    tmp_x, tmp_y :=
+                        scalar_mul_grumpkin(
+                            mload(add(mload(add(comm_vec, 32)), mul(64, index))),
+                            mload(add(mload(add(comm_vec, 32)), add(32, mul(64, index)))),
+                            mload(C_POWERED)
+                        )
+
+                    c_x, c_y := add_grumpkin(tmp_x, tmp_y, c_x, c_y)
+
+                    mstore(C_POWERED, mulmod(mload(C_POWERED), c, GRUMPKIN_P_MOD))
+                    index := add(index, 1)
+                }
+            }
+
+            if eq(p_modulus, BN256_P_MOD) {
+                for {} lt(index, mload(comm_vec)) {} {
+                    e :=
+                        addmod(
+                            e,
+                            mulmod(mload(C_POWERED), mload(add(eval_vec, add(32, mul(32, index)))), BN256_P_MOD),
+                            BN256_P_MOD
+                        )
+
+                    tmp_x, tmp_y :=
+                        scalar_mul_bn256(
+                            mload(add(mload(add(comm_vec, 32)), mul(64, index))),
+                            mload(add(mload(add(comm_vec, 32)), add(32, mul(64, index)))),
+                            mload(C_POWERED)
+                        )
+
+                    c_x, c_y := add_bn256(tmp_x, tmp_y, c_x, c_y)
+
+                    mstore(C_POWERED, mulmod(mload(C_POWERED), c, BN256_P_MOD))
+                    index := add(index, 1)
+                }
+            }
         }
     }
 

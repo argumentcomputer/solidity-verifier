@@ -371,6 +371,25 @@ contract GrumpkinCurvesContractTests is Test {
         assertEq(a_add_b.y, c_y);
     }
 
+    function testGrumpkinPointsAddition11() public {
+        Grumpkin.GrumpkinAffinePoint memory a = Grumpkin.GrumpkinAffinePoint(0, 0);
+        Grumpkin.GrumpkinAffinePoint memory b = Grumpkin.GrumpkinAffinePoint(0, 0);
+
+        uint256 gasCost = gasleft();
+        Grumpkin.GrumpkinAffinePoint memory a_add_b = Grumpkin.add(a, b);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        assertEq(a_add_b.x, 0);
+        assertEq(a_add_b.y, 0);
+
+        gasCost = gasleft();
+        (uint256 c_x, uint256 c_y) = add_grumpkin_assembly(a.x, a.y, b.x, b.y);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+
+        assertEq(a_add_b.x, c_x);
+        assertEq(a_add_b.y, c_y);
+    }
+
     // Errors
     bytes4 internal constant Z_EQUALS_ZERO = 0x95fee54e;
 
@@ -484,7 +503,13 @@ contract GrumpkinCurvesContractTests is Test {
             mstore(T0, mulmod(mload(T3), mload(T1), modulus))
             c_z := mulmod(mload(T5), c_z, modulus)
             c_z := addmod(c_z, mload(T0), modulus)
-            c_x, c_y := to_affine(c_x, c_y, c_z, modulus)
+
+            switch and(and(eq(c_x, 0), eq(c_y, 1)), eq(c_z, 0))
+            case 1 {
+                c_x := 0
+                c_y := 0
+            }
+            default { c_x, c_y := to_affine(c_x, c_y, c_z, modulus) }
         }
     }
 
@@ -670,8 +695,6 @@ contract GrumpkinCurvesContractTests is Test {
             }
         }
     }
-
-    function scalar_mul_assembly() private {}
 
     function testGrumpkinDecompression() public {
         uint256 compressedGrumpkinPoint = 0x0eb7400597f60115135a47416a82e673ada930a84d61fdcff6238b7432f5cc4a;

@@ -38,6 +38,10 @@ library Grumpkin {
             rhs_x = 0;
             rhs_y = 1;
             rhs_z = 0;
+            // if both p1 and p2 are identities, result is identity
+            if (is_identity(p1)) {
+                return GrumpkinAffinePoint(0, 0);
+            }
         }
 
         // t0, t1, t2, t3, t4, t5

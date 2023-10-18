@@ -547,7 +547,9 @@ library Step3Lib {
         label = new uint8[](1); // Rust's b"t"
         label[0] = 0x74;
 
-        uint256[] memory tau = new uint256[](17);
+        uint256 num_rounds_sat = CommonUtilities.log2(vk.S_comm.N);
+
+        uint256[] memory tau = new uint256[](num_rounds_sat);
 
         for (uint256 index = 0; index < tau.length; index++) {
             (transcript, tau[index]) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveVesta(), label);

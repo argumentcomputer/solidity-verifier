@@ -692,7 +692,9 @@ contract PolyEvalInstanceTest is Test {
 
         a[1] = PolyEvalInstanceLib.PolyEvalInstance(0, 0, x, 0);
 
+        uint256 gasCost = gasleft();
         PolyEvalInstanceLib.PolyEvalInstance[] memory a_padded = PolyEvalInstanceLib.pad(a);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
 
         // they both now have max length
         assertEq(a_padded[0].x.length, 20);
@@ -706,5 +708,76 @@ contract PolyEvalInstanceTest is Test {
         for (uint256 i = 10; i < 20; i++) {
             assertEq(a_padded[0].x[i], 1);
         }
+
+        gasCost = gasleft();
+        PolyEvalInstanceLib.PolyEvalInstance[] memory a_padded_assembly = pad_assembly(a);
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+
+        assertEq(a_padded_assembly[0].x.length, 20);
+        assertEq(a_padded_assembly[1].x.length, 20);
+        for (uint256 i = 0; i < 10; i++) {
+            assertEq(a_padded_assembly[0].x[i], 0);
+        }
+        for (uint256 i = 10; i < 20; i++) {
+            assertEq(a_padded_assembly[0].x[i], 1);
+        }
+    }
+
+    uint256 internal constant OUTPUT = 0x200 + 0x200 + 0x00;
+
+    function pad_assembly(PolyEvalInstanceLib.PolyEvalInstance[] memory input)
+        private
+        returns (PolyEvalInstanceLib.PolyEvalInstance[] memory output)
+    {
+        uint256 x_length_max;
+        assembly {
+            let index := 0
+            let length := mload(input)
+            let pointer := 0
+            let cur_length := 0
+            for {} lt(index, length) {} {
+                pointer := mload(add(add(input, 32), mul(32, index)))
+                pointer := mload(add(pointer, 64)) // x of i-th PolyEvalInstance from input
+                cur_length := mload(pointer)
+                if eq(gt(cur_length, x_length_max), 1) { x_length_max := cur_length }
+                index := add(index, 1)
+            }
+        }
+        uint256[] memory x = new uint256[](x_length_max);
+        assembly {
+            let i := 0
+            let j := 0
+            let length := mload(input)
+            let pointer := 0
+            let cur_length := 0
+            let leading_zeroes_length := 0
+            for {} lt(i, 1) {} {
+                pointer := mload(add(add(input, 32), mul(32, i)))
+                pointer := mload(add(pointer, 64)) // x of i-th PolyEvalInstance from input
+                cur_length := mload(pointer)
+
+                j := 0
+                leading_zeroes_length := sub(x_length_max, cur_length)
+                for {} lt(j, leading_zeroes_length) {} {
+                    mstore(add(add(x, 32), mul(32, j)), 0)
+                    j := add(j, 1)
+                }
+                for {} lt(j, x_length_max) {} {
+                    mstore(
+                        add(add(x, 32), mul(32, j)),
+                        mload(add(add(pointer, 32), mul(32, sub(j, leading_zeroes_length))))
+                    )
+                    j := add(j, 1)
+                }
+
+                // replace i-th input's x with newly constructed
+                pointer := mload(add(add(input, 32), mul(32, i)))
+                mstore(add(pointer, 64), x)
+
+                i := add(i, 1)
+            }
+        }
+
+        return input;
     }
 }

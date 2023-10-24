@@ -355,6 +355,7 @@ contract PolyEvalInstanceTest is Test {
     bytes4 internal constant Z_EQUALS_ZERO = 0x95fee54e;
     bytes4 internal constant BN256_POINTS_ADDITION_ERROR = 0x554efa60;
     bytes4 internal constant BN256_SCALAR_MUL_ERROR = 0x8c654ede;
+    bytes4 internal constant Z_INV_COMPUTING_ERROR = 0x119abe7f;
 
     // Storage
     uint256 internal constant A_X = 0x200 + 0x10000 + 0x00;
@@ -431,7 +432,10 @@ contract PolyEvalInstanceTest is Test {
                 mstore(add(mPtr, 0x60), _z)
                 mstore(add(mPtr, 0x80), sub(_modulus, 2))
                 mstore(add(mPtr, 0xa0), _modulus)
-                if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) { revert(0, 0) }
+                if iszero(staticcall(gas(), 0x05, mPtr, 0xc0, 0x00, 0x20)) {
+                    mstore(0x00, Z_INV_COMPUTING_ERROR)
+                    revert(0x00, 0x04)
+                }
                 let zinv := mload(0x00)
 
                 ret1 := mulmod(_x, zinv, _modulus)

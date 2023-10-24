@@ -400,4 +400,830 @@ contract SumcheckTests is Test {
             assertEq(r_z_expected[index], r_z_actual[index]);
         }
     }
+
+    function testSumcheckGrumpkinAssembly() public {
+        SumcheckUtilities.SumcheckProof memory proof = loadSumcheckProofGrumpkin();
+        uint256 claim_batch_joint = 0x14172dd27cbf1b2e93412a545e1948697533ef38539aa340bf476019bb6ecf6a;
+
+        uint16 rounds = 60;
+        uint8[] memory state = new uint8[](64);
+        state[0] = 0x80;
+        state[1] = 0xa4;
+        state[2] = 0x1d;
+        state[3] = 0xfc;
+        state[4] = 0xf0;
+        state[5] = 0x69;
+        state[6] = 0x59;
+        state[7] = 0x5a;
+        state[8] = 0xe3;
+        state[9] = 0x22;
+        state[10] = 0xd0;
+        state[11] = 0xcc;
+        state[12] = 0x67;
+        state[13] = 0xd9;
+        state[14] = 0x0a;
+        state[15] = 0xd6;
+        state[16] = 0x7a;
+        state[17] = 0x79;
+        state[18] = 0x34;
+        state[19] = 0xab;
+        state[20] = 0x84;
+        state[21] = 0xe4;
+        state[22] = 0xc3;
+        state[23] = 0xb1;
+        state[24] = 0xd2;
+        state[25] = 0xab;
+        state[26] = 0x63;
+        state[27] = 0x45;
+        state[28] = 0x19;
+        state[29] = 0x8a;
+        state[30] = 0x1f;
+        state[31] = 0xdc;
+        state[32] = 0x07;
+        state[33] = 0x7c;
+        state[34] = 0xe9;
+        state[35] = 0xc9;
+        state[36] = 0x9e;
+        state[37] = 0x27;
+        state[38] = 0x91;
+        state[39] = 0xc8;
+        state[40] = 0x93;
+        state[41] = 0xf1;
+        state[42] = 0xe1;
+        state[43] = 0x12;
+        state[44] = 0x48;
+        state[45] = 0xbb;
+        state[46] = 0x1c;
+        state[47] = 0x96;
+        state[48] = 0x41;
+        state[49] = 0x78;
+        state[50] = 0xe7;
+        state[51] = 0xf6;
+        state[52] = 0x86;
+        state[53] = 0x2b;
+        state[54] = 0x6a;
+        state[55] = 0x3a;
+        state[56] = 0x54;
+        state[57] = 0x29;
+        state[58] = 0x05;
+        state[59] = 0x1f;
+        state[60] = 0x7a;
+        state[61] = 0xe0;
+        state[62] = 0xe2;
+        state[63] = 0x81;
+
+        KeccakTranscriptLib.KeccakTranscript memory transcript =
+            KeccakTranscriptLib.KeccakTranscript(rounds, state, new uint8[](0));
+        uint256 num_rounds_z = 17;
+
+        uint256 claim_batch_joint_expected;
+        uint256[] memory r_z_expected;
+
+        uint256 gasCost = gasleft();
+        (claim_batch_joint_expected, r_z_expected, transcript) =
+            SumcheckGrumpkin.verify(proof, claim_batch_joint, num_rounds_z, 2, transcript);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        gasCost = gasleft();
+        (uint256 claim_batch_joint_actual, uint256[] memory r_z_actual) = sumcheck_verify_assembly(
+            proof,
+            claim_batch_joint,
+            num_rounds_z,
+            2,
+            rounds,
+            0x80a41dfcf069595ae322d0cc67d90ad67a7934ab84e4c3b1d2ab6345198a1fdc,
+            0x077ce9c99e2791c893f1e11248bb1c964178e7f6862b6a3a5429051f7ae0e281,
+            GRUMPKIN_P_MOD
+        );
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+
+        assertEq(claim_batch_joint_actual, claim_batch_joint_expected);
+        assertEq(r_z_actual.length, r_z_expected.length);
+        for (uint256 index = 0; index < num_rounds_z; index++) {
+            assertEq(r_z_expected[index], r_z_actual[index]);
+        }
+    }
+
+    function testSumcheckBn256Assembly() public {
+        SumcheckUtilities.SumcheckProof memory proof = loadSumcheckProofBn256();
+        uint256 claim_batch_joint = 0x17327cf20e588d94a8d1a34b607a09a6c74188d43fe6294b670ea76383009bc2;
+
+        uint16 rounds = 60;
+        uint8[] memory state = new uint8[](64);
+        state[0] = 0xa7;
+        state[1] = 0x7b;
+        state[2] = 0x23;
+        state[3] = 0xe1;
+        state[4] = 0x1c;
+        state[5] = 0x3b;
+        state[6] = 0x95;
+        state[7] = 0xd7;
+        state[8] = 0x9e;
+        state[9] = 0xee;
+        state[10] = 0xdd;
+        state[11] = 0x4e;
+        state[12] = 0x75;
+        state[13] = 0xdb;
+        state[14] = 0x66;
+        state[15] = 0xdb;
+        state[16] = 0xfe;
+        state[17] = 0xc2;
+        state[18] = 0x2f;
+        state[19] = 0x0d;
+        state[20] = 0xe9;
+        state[21] = 0x6a;
+        state[22] = 0x3e;
+        state[23] = 0x19;
+        state[24] = 0x32;
+        state[25] = 0x3b;
+        state[26] = 0x67;
+        state[27] = 0x61;
+        state[28] = 0x36;
+        state[29] = 0x90;
+        state[30] = 0x71;
+        state[31] = 0x94;
+        state[32] = 0xf1;
+        state[33] = 0xe1;
+        state[34] = 0x89;
+        state[35] = 0x9f;
+        state[36] = 0x4a;
+        state[37] = 0x2e;
+        state[38] = 0x33;
+        state[39] = 0x0a;
+        state[40] = 0x19;
+        state[41] = 0xd1;
+        state[42] = 0xda;
+        state[43] = 0x1d;
+        state[44] = 0x30;
+        state[45] = 0xf1;
+        state[46] = 0x1c;
+        state[47] = 0x2a;
+        state[48] = 0x05;
+        state[49] = 0xa4;
+        state[50] = 0xd4;
+        state[51] = 0xbb;
+        state[52] = 0x0f;
+        state[53] = 0x4f;
+        state[54] = 0xf5;
+        state[55] = 0xaa;
+        state[56] = 0x38;
+        state[57] = 0xc8;
+        state[58] = 0x2c;
+        state[59] = 0x93;
+        state[60] = 0x39;
+        state[61] = 0x86;
+        state[62] = 0xdf;
+        state[63] = 0xc8;
+
+        KeccakTranscriptLib.KeccakTranscript memory transcript =
+            KeccakTranscriptLib.KeccakTranscript(rounds, state, new uint8[](0));
+        uint256 num_rounds_z = 17;
+
+        uint256 claim_batch_joint_expected;
+        uint256[] memory r_z_expected;
+
+        uint256 gasCost = gasleft();
+        (claim_batch_joint_expected, r_z_expected, transcript) =
+            SumcheckBn256.verify(proof, claim_batch_joint, num_rounds_z, 2, transcript);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
+
+        gasCost = gasleft();
+        (uint256 claim_batch_joint_actual, uint256[] memory r_z_actual) = sumcheck_verify_assembly(
+            proof,
+            claim_batch_joint,
+            num_rounds_z,
+            2,
+            rounds,
+            0xa77b23e11c3b95d79eeedd4e75db66dbfec22f0de96a3e19323b676136907194,
+            0xf1e1899f4a2e330a19d1da1d30f11c2a05a4d4bb0f4ff5aa38c82c933986dfc8,
+            BN256_P_MOD
+        );
+        console.log("gas cost (assembly): ", gasCost - uint256(gasleft()));
+
+        assertEq(claim_batch_joint_actual, claim_batch_joint_expected);
+        assertEq(r_z_actual.length, r_z_expected.length);
+        for (uint256 index = 0; index < num_rounds_z; index++) {
+            assertEq(r_z_expected[index], r_z_actual[index]);
+        }
+    }
+
+    // Constants
+    uint256 private constant GRUMPKIN_P_MOD = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+    uint256 private constant GRUMPKIN_INV = 0x87d20782e4866389;
+    uint256 private constant GRUMPKIN_MODULUS_0 = 0x3c208c16d87cfd47;
+    uint256 private constant GRUMPKIN_MODULUS_1 = 0x97816a916871ca8d;
+    uint256 private constant GRUMPKIN_MODULUS_2 = 0xb85045b68181585d;
+    uint256 private constant GRUMPKIN_MODULUS_3 = 0x30644e72e131a029;
+    uint256 public constant GRUMPKIN_R2 = 0x0e0a77c19a07df2f666ea36f7879462c0a78eb28f5c70b3dd35d438dc58f0d9d;
+    uint256 public constant GRUMPKIN_R3 = 0x06d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
+    uint256 private constant BN256_P_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
+    uint256 private constant BN256_INV = 0xc2e1f593efffffff;
+    uint256 private constant BN256_MODULUS_0 = 0x43e1f593f0000001;
+    uint256 private constant BN256_MODULUS_1 = 0x2833e84879b97091;
+    uint256 private constant BN256_MODULUS_2 = 0xb85045b68181585d;
+    uint256 private constant BN256_MODULUS_3 = 0x30644e72e131a029;
+    uint256 public constant BN256_R2 = 0x0e0a77c19a07df2f666ea36f7879462e36fc76959f60cd29ac96341c4ffffffb;
+    uint256 public constant BN256_R3 = 0x0216d0b17f4e44a58c49833d53bb808553fe3ab1e35c59e31bb8e645ae216da7;
+    uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;
+    uint256 private constant PERSONA_TAG = 0x4e6f5452;
+    uint256 private constant DOM_SEP_TAG = 0x4e6f4453;
+    uint256 private constant KECCAK256_PREFIX_CHALLENGE_LO = 0x00;
+    uint256 private constant KECCAK256_PREFIX_CHALLENGE_HI = 0x01;
+    uint256 public constant KECCAK_TRANSCRIPT_STATE_BYTE_LEN = 64;
+
+    // Errors
+    bytes4 internal constant ABSORB_INPUTS_LABELS_SIZE_MISMATCH = 0x2f94e9a8;
+    bytes4 internal constant ABSORB_INPUTS_LABELS_OUT_OF_BOUND_INDEX = 0x6ce876d0;
+    bytes4 internal constant ROUND_OVERFLOW = 0x9ab982d5;
+    bytes4 internal constant WRONG_CURVE_MODULUS_HAS_BEEN_USED = 0x49a7f6ee;
+    bytes4 internal constant NUM_ROUNDS_SUMCHECK_POLYS_LENGTH_ERROR = 0x6c62aed8;
+    bytes4 internal constant UNI_POLY_DEGREE_BOUND_MISMATCH = 0x090abb27;
+    bytes4 internal constant ZERO_ONE_EVALS_SUM_E_MISMATCH = 0x71dffba2;
+
+    // Storage pointers
+    uint256 internal constant ROUND = 0x200 + 0x12c0 + 0x00;
+    uint256 internal constant STATE_LO = 0x200 + 0x12c0 + 0x20;
+    uint256 internal constant STATE_HI = 0x200 + 0x12c0 + 0x40;
+    uint256 internal constant TRANSCRIPT = 0x200 + 0x12c0 + 0x60;
+
+    function sumcheck_verify_assembly(
+        SumcheckUtilities.SumcheckProof memory proof,
+        uint256 claim,
+        uint256 num_rounds,
+        uint256 degree_bound,
+        uint256 round_input,
+        uint256 stateLo_input,
+        uint256 stateHi_input,
+        uint256 curve_p_mod
+    ) private returns (uint256 e, uint256[] memory r) {
+        r = new uint256[](proof.compressed_polys.length);
+        assembly {
+            function mac(a, b, c, carry) -> ret1, ret2 {
+                let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc :=
+                    addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry :=
+                    addmod(
+                        addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff),
+                        carry,
+                        0xffffffffffffffffffffffffffffffff
+                    )
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_bc_add_carry)
+            }
+
+            function adc(a, b, carry) -> ret1, ret2 {
+                let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
+                let a_add_b_add_carry :=
+                    addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_b_add_carry)
+            }
+
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            function reverse(_input) -> _output {
+                _output := _input
+                _output :=
+                    or(
+                        shr(8, and(_output, 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00)),
+                        shl(8, and(_output, 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF))
+                    )
+                _output :=
+                    or(
+                        shr(16, and(_output, 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000)),
+                        shl(16, and(_output, 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF))
+                    )
+                _output :=
+                    or(
+                        shr(32, and(_output, 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000)),
+                        shl(32, and(_output, 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF))
+                    )
+                _output :=
+                    or(
+                        shr(64, and(_output, 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000)),
+                        shl(64, and(_output, 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF))
+                    )
+                _output := or(shr(128, _output), shl(128, _output))
+            }
+
+            function montgomeryReduceGrumpkin(_r0, _r1, _r2, _r3) -> _d {
+                let r0 := _r0
+                let r1 := _r1
+                let r2 := _r2
+                let r3 := _r3
+                let r4 := 0
+                let r5 := 0
+                let r6 := 0
+                let r7 := 0
+
+                let k := mulmod(r0, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                let carry := 0
+                let carry2 := 0
+
+                carry2, carry := mac(r0, k, GRUMPKIN_MODULUS_0, 0) // carry2 is used as a stub
+                r1, carry := mac(r1, k, GRUMPKIN_MODULUS_1, carry)
+                r2, carry := mac(r2, k, GRUMPKIN_MODULUS_2, carry)
+                r3, carry := mac(r3, k, GRUMPKIN_MODULUS_3, carry)
+                r4, carry2 := adc(r4, 0, carry)
+
+                k := mulmod(r1, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r1, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+                r2, carry := mac(r2, k, GRUMPKIN_MODULUS_1, carry)
+                r3, carry := mac(r3, k, GRUMPKIN_MODULUS_2, carry)
+                r4, carry := mac(r4, k, GRUMPKIN_MODULUS_3, carry)
+                r5, carry2 := adc(r5, carry2, carry)
+
+                k := mulmod(r2, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r2, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+                r3, carry := mac(r3, k, GRUMPKIN_MODULUS_1, carry)
+                r4, carry := mac(r4, k, GRUMPKIN_MODULUS_2, carry)
+                r5, carry := mac(r5, k, GRUMPKIN_MODULUS_3, carry)
+                r6, carry2 := adc(r6, carry2, carry)
+
+                k := mulmod(r3, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r3, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+                r4, carry := mac(r4, k, GRUMPKIN_MODULUS_1, carry)
+                r5, carry := mac(r5, k, GRUMPKIN_MODULUS_2, carry)
+                r6, carry := mac(r6, k, GRUMPKIN_MODULUS_3, carry)
+                r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+                // Result may be within MODULUS of the correct value
+
+                // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+                carry2 := 0
+                r0, carry2 := sbb(r4, GRUMPKIN_MODULUS_0, carry2)
+                r1, carry2 := sbb(r5, GRUMPKIN_MODULUS_1, carry2)
+                r2, carry2 := sbb(r6, GRUMPKIN_MODULUS_2, carry2)
+                r3, carry2 := sbb(r7, GRUMPKIN_MODULUS_3, carry2)
+
+                // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+                // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+                carry := 0
+                r0, carry := adc(r0, and(GRUMPKIN_MODULUS_0, carry2), carry)
+                r1, carry := adc(r1, and(GRUMPKIN_MODULUS_1, carry2), carry)
+                r2, carry := adc(r2, and(GRUMPKIN_MODULUS_2, carry2), carry)
+                r3, carry := adc(r3, and(GRUMPKIN_MODULUS_3, carry2), carry)
+
+                _d := r0
+                _d := xor(shl(64, r1), _d)
+                _d := xor(shl(128, r2), _d)
+                _d := xor(shl(192, r3), _d)
+            }
+
+            function montgomeryReduceBn256(_r0, _r1, _r2, _r3) -> _d {
+                let r0 := _r0
+                let r1 := _r1
+                let r2 := _r2
+                let r3 := _r3
+                let r4 := 0
+                let r5 := 0
+                let r6 := 0
+                let r7 := 0
+
+                let k := mulmod(r0, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                let carry := 0
+                let carry2 := 0
+
+                carry2, carry := mac(r0, k, BN256_MODULUS_0, 0) // carry2 is used as a stub
+                r1, carry := mac(r1, k, BN256_MODULUS_1, carry)
+                r2, carry := mac(r2, k, BN256_MODULUS_2, carry)
+                r3, carry := mac(r3, k, BN256_MODULUS_3, carry)
+                r4, carry2 := adc(r4, 0, carry)
+
+                k := mulmod(r1, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r1, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r2, carry := mac(r2, k, BN256_MODULUS_1, carry)
+                r3, carry := mac(r3, k, BN256_MODULUS_2, carry)
+                r4, carry := mac(r4, k, BN256_MODULUS_3, carry)
+                r5, carry2 := adc(r5, carry2, carry)
+
+                k := mulmod(r2, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r2, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r3, carry := mac(r3, k, BN256_MODULUS_1, carry)
+                r4, carry := mac(r4, k, BN256_MODULUS_2, carry)
+                r5, carry := mac(r5, k, BN256_MODULUS_3, carry)
+                r6, carry2 := adc(r6, carry2, carry)
+
+                k := mulmod(r3, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+                r0, carry := mac(r3, k, BN256_MODULUS_0, 0) // r0 used as a stub
+                r4, carry := mac(r4, k, BN256_MODULUS_1, carry)
+                r5, carry := mac(r5, k, BN256_MODULUS_2, carry)
+                r6, carry := mac(r6, k, BN256_MODULUS_3, carry)
+                r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+                // Result may be within MODULUS of the correct value
+
+                // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+                carry2 := 0
+                r0, carry2 := sbb(r4, BN256_MODULUS_0, carry2)
+                r1, carry2 := sbb(r5, BN256_MODULUS_1, carry2)
+                r2, carry2 := sbb(r6, BN256_MODULUS_2, carry2)
+                r3, carry2 := sbb(r7, BN256_MODULUS_3, carry2)
+
+                // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+                // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+                carry := 0
+                r0, carry := adc(r0, and(BN256_MODULUS_0, carry2), carry)
+                r1, carry := adc(r1, and(BN256_MODULUS_1, carry2), carry)
+                r2, carry := adc(r2, and(BN256_MODULUS_2, carry2), carry)
+                r3, carry := adc(r3, and(BN256_MODULUS_3, carry2), carry)
+
+                _d := r0
+                _d := xor(shl(64, r1), _d)
+                _d := xor(shl(128, r2), _d)
+                _d := xor(shl(192, r3), _d)
+            }
+
+            function fromUniform(_d0, _d1, _p_mod) -> result {
+                let d0 := _d0
+                let d1 := _d1
+                let modulus := _p_mod
+
+                let d0_limb1 := and(d0, 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb2 := and(shr(64, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb3 := and(shr(128, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d0_limb4 := and(shr(192, d0), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+
+                let d1_limb1 := and(d1, 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb2 := and(shr(64, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb3 := and(shr(128, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+                let d1_limb4 := and(shr(192, d1), 0x000000000000000000000000000000000000000000000000ffffffffffffffff)
+
+                let r2 := 0
+                let r3 := 0
+
+                if eq(modulus, GRUMPKIN_P_MOD) {
+                    r2 := GRUMPKIN_R2
+                    r3 := GRUMPKIN_R3
+                    d0 := montgomeryReduceGrumpkin(d0_limb1, d0_limb2, d0_limb3, d0_limb4)
+                    d1 := montgomeryReduceGrumpkin(d1_limb1, d1_limb2, d1_limb3, d1_limb4)
+                }
+                if eq(modulus, BN256_P_MOD) {
+                    r2 := BN256_R2
+                    r3 := BN256_R3
+                    d0 := montgomeryReduceBn256(d0_limb1, d0_limb2, d0_limb3, d0_limb4)
+                    d1 := montgomeryReduceBn256(d1_limb1, d1_limb2, d1_limb3, d1_limb4)
+                }
+
+                // if r2 is not set, it means that neither Grumpkin nor BN256 modulus is used which is not supported
+                if eq(r2, 0) {
+                    mstore(0x00, WRONG_CURVE_MODULUS_HAS_BEEN_USED)
+                    revert(0x00, 0x04)
+                }
+
+                d0 := mulmod(d0, r2, modulus)
+                d1 := mulmod(d1, r3, modulus)
+                result := addmod(d0, d1, modulus)
+            }
+
+            function compute_total_transcript_length(_input_length) -> _len {
+                _len := add(_len, 4) // 4 bytes of DOM_SEP_TAG
+                _len := add(_len, 2) // 2 bytes of round variable
+                _len := add(_len, 32) // 32 bytes of STATE_LO
+                _len := add(_len, 32) // 32 bytes of STATE_HI
+                _len := add(_len, 1) // 1 bytes of absorb label
+                _len := add(_len, 1) // 1 byte of squeeze label
+                _len := add(_len, _input_length) // input length in bytes
+                _len := add(_len, 1) // 1 byte of LO/HI prefix
+            }
+
+            function squeeze(_transcript_address, offset_, _squeeze_label_byte) -> _offset_ {
+                _offset_ := offset_
+
+                // copy DOM_SEP_TAG
+                mstore8(add(_transcript_address, _offset_), and(0xff, shr(24, DOM_SEP_TAG)))
+                mstore8(add(_transcript_address, add(_offset_, 1)), and(0xff, shr(16, DOM_SEP_TAG)))
+                mstore8(add(_transcript_address, add(_offset_, 2)), and(0xff, shr(8, DOM_SEP_TAG)))
+                mstore8(add(_transcript_address, add(_offset_, 3)), and(0xff, DOM_SEP_TAG))
+                _offset_ := add(_offset_, 4)
+
+                // append round
+                mstore8(add(_transcript_address, _offset_), and(0xff, mload(ROUND)))
+                mstore8(add(_transcript_address, add(_offset_, 1)), and(0xff, shr(8, mload(ROUND))))
+                _offset_ := add(_offset_, 2)
+
+                // append state
+                mstore(add(_transcript_address, _offset_), mload(STATE_LO))
+                mstore(add(_transcript_address, add(_offset_, 32)), mload(STATE_HI))
+                _offset_ := add(_offset_, 64)
+
+                // append squeeze label (in reference implementation we know it is a single byte)
+                mstore8(add(_transcript_address, _offset_), _squeeze_label_byte)
+                _offset_ := add(_offset_, 1)
+
+                // increment round
+                let round := mload(ROUND)
+                if eq(round, 0xffff) {
+                    mstore(0x00, ROUND_OVERFLOW)
+                    revert(0x00, 0x04)
+                }
+                mstore(ROUND, add(round, 1))
+
+                // update state
+                mstore8(add(_transcript_address, _offset_), KECCAK256_PREFIX_CHALLENGE_LO)
+                mstore(STATE_LO, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
+
+                mstore8(add(_transcript_address, _offset_), KECCAK256_PREFIX_CHALLENGE_HI)
+                mstore(STATE_HI, keccak256(add(TRANSCRIPT, 32), mload(TRANSCRIPT)))
+            }
+
+            function eval_at_one(_poly, _linear_term, _modulus) -> output {
+                let poly_length := mload(_poly)
+                let index := 1
+                let mPtr := mload(0x40)
+                mstore(mPtr, add(1, poly_length))
+                mstore(add(mPtr, 32), mload(add(_poly, 32)))
+                mstore(add(mPtr, 64), _linear_term)
+
+                index := 1
+                for {} lt(index, poly_length) {} {
+                    mstore(add(mPtr, add(64, mul(32, index))), mload(add(_poly, add(32, mul(32, index)))))
+                    index := add(index, 1)
+                }
+
+                index := 0
+                for {} lt(index, mload(mPtr)) {} {
+                    output := addmod(output, mload(add(add(mPtr, 32), mul(32, index))), _modulus)
+                    index := add(index, 1)
+                }
+            }
+            function eval_at_zero(_poly) -> output {
+                output := mload(add(_poly, 32))
+            }
+
+            function degree(_poly) -> output {
+                output := mload(_poly)
+            }
+
+            function evaluate(_poly, _linear_term, _r, _modulus) -> _output {
+                let poly_length := mload(_poly)
+                let index := 1
+                let mPtr := mload(0x40)
+                mstore(mPtr, add(1, poly_length))
+                mstore(add(mPtr, 32), mload(add(_poly, 32)))
+                mstore(add(mPtr, 64), _linear_term)
+
+                index := 1
+                for {} lt(index, poly_length) {} {
+                    mstore(add(mPtr, add(64, mul(32, index))), mload(add(_poly, add(32, mul(32, index)))))
+                    index := add(index, 1)
+                }
+
+                index := 1
+                let power := _r
+                _output := mload(add(mPtr, 32))
+                for {} lt(index, mload(mPtr)) {} {
+                    _output :=
+                        addmod(_output, mulmod(power, mload(add(add(mPtr, 32), mul(32, index))), _modulus), _modulus)
+                    power := mulmod(power, _r, _modulus)
+                    index := add(index, 1)
+                }
+            }
+
+            function compute_linear_term(_proof_poly, _e, _modulus) -> _linear_term {
+                let poly_length := mload(_proof_poly)
+                let temp := addmod(mload(add(_proof_poly, 32)), mload(add(_proof_poly, 32)), _modulus)
+                _linear_term := addmod(_e, sub(_modulus, mod(temp, _modulus)), _modulus)
+
+                let j := 1
+                for {} lt(j, poly_length) {} {
+                    _linear_term :=
+                        addmod(
+                            _linear_term,
+                            sub(_modulus, mod(mload(add(_proof_poly, add(32, mul(32, j)))), _modulus)),
+                            _modulus
+                        )
+                    j := add(j, 1)
+                }
+            }
+
+            e := claim
+
+            let pointer := mload(proof)
+            let length := mload(pointer)
+
+            if iszero(eq(length, num_rounds)) {
+                mstore(0x00, NUM_ROUNDS_SUMCHECK_POLYS_LENGTH_ERROR)
+                revert(0x00, 0x04)
+            }
+
+            // initialize transcript with the given stateLo / stateHi and rounds number
+            mstore(ROUND, round_input)
+            mstore(STATE_LO, stateLo_input)
+            mstore(STATE_HI, stateHi_input)
+
+            let i := 0
+            let proof_poly := 0
+            let linear_term := 0
+            for {} lt(i, length) {} {
+                // decompress //////
+                proof_poly := mload(add(pointer, add(32, mul(32, i))))
+                proof_poly := mload(proof_poly)
+                linear_term := compute_linear_term(proof_poly, e, curve_p_mod)
+                //////////////////////////////////////////////////////
+
+                if iszero(eq(degree(proof_poly), degree_bound)) {
+                    mstore(0x00, UNI_POLY_DEGREE_BOUND_MISMATCH)
+                    revert(0x00, 0x04)
+                }
+
+                if iszero(
+                    eq(
+                        addmod(eval_at_zero(proof_poly), eval_at_one(proof_poly, linear_term, curve_p_mod), curve_p_mod),
+                        e
+                    )
+                ) {
+                    mstore(0x00, ZERO_ONE_EVALS_SUM_E_MISMATCH)
+                    revert(0x00, 0x04)
+                }
+
+                // compute r[i] (using transcript)
+                let offset := 0
+                let total_transcript_length := compute_total_transcript_length(mul(32, mload(proof_poly)))
+                mstore(TRANSCRIPT, total_transcript_length)
+                offset := add(offset, 32)
+
+                // absorb label (0x70)
+                mstore8(add(TRANSCRIPT, offset), 0x70)
+                offset := add(offset, 1)
+
+                // absorb input
+                let j := 0
+                let proof_poly_coeff := mload(add(proof_poly, 32))
+                for {} lt(j, 32) {} {
+                    mstore8(add(add(TRANSCRIPT, offset), j), byte(sub(31, j), proof_poly_coeff))
+                    j := add(j, 1)
+                }
+                offset := add(offset, 32)
+
+                j := 0
+                proof_poly_coeff := mload(add(proof_poly, 64))
+                for {} lt(j, 32) {} {
+                    mstore8(add(add(TRANSCRIPT, offset), j), byte(sub(31, j), proof_poly_coeff))
+                    j := add(j, 1)
+                }
+                offset := add(offset, 32)
+
+                // squeeze label (0x63)
+                offset := squeeze(TRANSCRIPT, offset, 0x63)
+
+                // r[i] computing
+                mstore(
+                    add(r, add(32, mul(32, i))),
+                    fromUniform(reverse(mload(STATE_LO)), reverse(mload(STATE_HI)), curve_p_mod)
+                )
+                //////////////////////////////////////////////////////
+
+                // evaluate
+                e := evaluate(proof_poly, linear_term, mload(add(r, add(32, mul(32, i)))), curve_p_mod)
+                //////////////////////////////////////////////////////
+
+                i := add(i, 1)
+            }
+        }
+    }
+
+    function testSumcheckUtilitiesEvaluate() public {
+        uint256[] memory _poly = new uint256[](2);
+        _poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
+        _poly[1] = 0x25452cfad3824a44dec4dc2f36394e91da792d047a652f2d3a92682d1fd5b413;
+        SumcheckUtilities.UniPoly memory poly = SumcheckUtilities.UniPoly(_poly);
+        uint256 r = 0x212329f6462c4d3d4f55b683c4c11a46c67256b9858b95c77c4b168e17388429;
+
+        uint256 expected = SumcheckUtilities.evaluate(poly, r, Grumpkin.P_MOD);
+        uint256 actual = evaluate_assembly(poly, r, Grumpkin.P_MOD);
+        assertEq(expected, actual);
+    }
+
+    function evaluate_assembly(SumcheckUtilities.UniPoly memory poly, uint256 r, uint256 modulus)
+        public
+        returns (uint256 output)
+    {
+        assembly {
+            let index := 1
+            let pointer := mload(poly)
+            let length := mload(pointer)
+            let power := r
+            output := mload(add(pointer, 32))
+            for {} lt(index, length) {} {
+                output := addmod(output, mulmod(power, mload(add(add(pointer, 32), mul(32, index))), modulus), modulus)
+                power := mulmod(power, r, modulus)
+                index := add(index, 1)
+            }
+        }
+    }
+
+    function testEvalAtZero() public {
+        uint256[] memory _poly = new uint256[](2);
+        _poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
+        _poly[1] = 0x25452cfad3824a44dec4dc2f36394e91da792d047a652f2d3a92682d1fd5b413;
+        SumcheckUtilities.UniPoly memory poly = SumcheckUtilities.UniPoly(_poly);
+
+        assertEq(SumcheckUtilities.evalAtZero(poly), eval_at_zero_assembly(poly));
+    }
+
+    function eval_at_zero_assembly(SumcheckUtilities.UniPoly memory poly) public returns (uint256 output) {
+        assembly {
+            output := mload(poly)
+            output := mload(add(output, 32))
+        }
+    }
+
+    function testEvalAtOne() public {
+        uint256[] memory _poly = new uint256[](2);
+        _poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
+        _poly[1] = 0x25452cfad3824a44dec4dc2f36394e91da792d047a652f2d3a92682d1fd5b413;
+        SumcheckUtilities.UniPoly memory poly = SumcheckUtilities.UniPoly(_poly);
+
+        assertEq(SumcheckUtilities.evalAtOne(poly, Grumpkin.P_MOD), eval_at_one_assembly(poly, Grumpkin.P_MOD));
+    }
+
+    function eval_at_one_assembly(SumcheckUtilities.UniPoly memory poly, uint256 modulus)
+        public
+        returns (uint256 output)
+    {
+        assembly {
+            let index := 0
+            let pointer := mload(poly)
+            let length := mload(pointer)
+            for {} lt(index, length) {} {
+                output := addmod(output, mload(add(add(pointer, 32), mul(32, index))), modulus)
+                index := add(index, 1)
+            }
+        }
+    }
+
+    function testDegree() public {
+        uint256[] memory _poly = new uint256[](2);
+        _poly[0] = 0x1b0d37af60e28b1596ec77275cba184fa6a27dff7c347d44d98d19d5a3f3bd3d;
+        _poly[1] = 0x25452cfad3824a44dec4dc2f36394e91da792d047a652f2d3a92682d1fd5b413;
+        SumcheckUtilities.UniPoly memory poly = SumcheckUtilities.UniPoly(_poly);
+
+        assertEq(SumcheckUtilities.degree(poly), degree_assembly(poly));
+    }
+
+    function degree_assembly(SumcheckUtilities.UniPoly memory poly) public returns (uint256 output) {
+        assembly {
+            output := mload(poly)
+            output := mload(output)
+            output := sub(output, 1)
+        }
+    }
+
+    function testDecompress() public {
+        SumcheckUtilities.SumcheckProof memory proof = loadSumcheckProofGrumpkin();
+        uint256 e = 0x14172dd27cbf1b2e93412a545e1948697533ef38539aa340bf476019bb6ecf6a;
+        SumcheckUtilities.UniPoly memory expected =
+            SumcheckUtilities.decompress(proof.compressed_polys[0], e, Grumpkin.P_MOD, Grumpkin.negateBase);
+        SumcheckUtilities.UniPoly memory actual = decompress_assembly(proof.compressed_polys[0], e, Grumpkin.P_MOD);
+
+        assertEq(expected.coeffs.length, actual.coeffs.length);
+        for (uint256 index = 0; index < expected.coeffs.length; index++) {
+            assertEq(expected.coeffs[index], actual.coeffs[index]);
+        }
+    }
+
+    function decompress_assembly(SumcheckUtilities.CompressedUniPoly memory poly, uint256 hint, uint256 modulus)
+        internal
+        returns (SumcheckUtilities.UniPoly memory)
+    {
+        uint256[] memory result_ = new uint256[](poly.coeffs_except_linear_term.length + 1);
+        SumcheckUtilities.UniPoly memory result = SumcheckUtilities.UniPoly(result_);
+
+        assembly {
+            let pointer := mload(poly)
+            let length := mload(pointer)
+            let temp := addmod(mload(add(pointer, 32)), mload(add(pointer, 32)), modulus)
+
+            let linear_term := addmod(hint, sub(modulus, mod(temp, modulus)), modulus)
+
+            let index := 1
+            for {} lt(index, length) {} {
+                linear_term :=
+                    addmod(linear_term, sub(modulus, mod(mload(add(pointer, add(32, mul(32, index)))), modulus)), modulus)
+                index := add(index, 1)
+            }
+
+            mstore(add(result_, 32), mload(add(pointer, 32)))
+            mstore(add(result_, 64), linear_term)
+
+            index := 1
+            for {} lt(index, length) {} {
+                mstore(add(result_, add(64, mul(32, index))), mload(add(pointer, add(32, mul(32, index)))))
+                index := add(index, 1)
+            }
+        }
+        return result;
+    }
 }

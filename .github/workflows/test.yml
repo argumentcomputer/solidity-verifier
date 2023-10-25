@@ -14,7 +14,7 @@ jobs:
       fail-fast: true
 
     name: E2E verification
-    runs-on: [self-hosted]
+    runs-on: buildjet-16vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,11 +48,16 @@ jobs:
       fail-fast: true
 
     name: Unit Tests
-    runs-on: [self-hosted]
+    runs-on: buildjet-16vcpu-ubuntu-2204
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
 
       - name: Set up Python
         uses: actions/setup-python@v4

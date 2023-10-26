@@ -140,7 +140,9 @@ contract GrumpkinCurvesContractTests is Test {
     function testBnDecompression2() public {
         uint256 compressedBnPoint = 0x2e03e31d1390cec6f8a9e09b54c5fdded07a3fb1c909f20dc392c4ecbede7789;
 
+        uint256 gasCost = gasleft();
         Bn256.Bn256AffinePoint memory point = Bn256.decompress(compressedBnPoint);
+        console.log("gas cost: ", gasCost - uint256(gasleft()));
 
         assertEq(point.x, 0x2e03e31d1390cec6f8a9e09b54c5fdded07a3fb1c909f20dc392c4ecbede7789);
         assertEq(point.y, 0x1a28a3d14671aef04ecddc2e37ba640983ac9a249f8504db242d880d2946bb92);
@@ -709,7 +711,9 @@ contract GrumpkinCurvesContractTests is Test {
         uint256 compressedGrumpkinPoint =
             Field.reverse256(0x88bed3689a94506fe46065e5600749882804d3bf4793864638f641b3b2325157);
 
+        uint256 gasCost = gasleft();
         Grumpkin.GrumpkinAffinePoint memory point = Grumpkin.decompress(compressedGrumpkinPoint);
+        console.log("gas cost: ", gasCost - gasleft());
 
         assertEq(point.x, 0x175132b2b341f63846869347bfd3042888490760e56560e46f50949a68d3be88);
         assertEq(point.y, 0x2f7039df869b2f301490e03faedf85d7b6079ee4e389fb09e87425446ec2133d);

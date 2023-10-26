@@ -4,6 +4,7 @@ import "@std/Test.sol";
 import "src/Utilities.sol";
 
 library Bn256 {
+    // P_MOD and R_MOD need to be switched (and whole set of unit-tests revisited)!!!
     uint256 public constant P_MOD = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
     uint256 public constant R_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
     uint256 public constant B = 3;

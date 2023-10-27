@@ -14,7 +14,7 @@ jobs:
       fail-fast: true
 
     name: E2E verification
-    runs-on: buildjet-16vcpu-ubuntu-2204
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
         with:

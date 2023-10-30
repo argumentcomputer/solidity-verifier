@@ -137,6 +137,26 @@ library Abstractions {
         VerifierKeyS1 vk_primary;
     }
 
+    struct VerifierKeyS1Zeromorph {
+        uint256 num_cons;
+        uint256 num_vars;
+        R1CSShapeSparkCommitment S_comm;
+    }
+
+    struct VerifierKeyS2Zeromorph {
+        uint256 num_cons;
+        uint256 num_vars;
+        R1CSShapeSparkCommitment S_comm;
+    }
+
+    struct VerifierKeyZeromorph {
+        uint256 f_arity_primary;
+        uint256 f_arity_secondary;
+        uint256 digest;
+        VerifierKeyS2Zeromorph vk_secondary;
+        VerifierKeyS1Zeromorph vk_primary;
+    }
+
     struct ROConstantsPasta {
         uint256[] mixConstants;
         uint256[] addRoundConstants;

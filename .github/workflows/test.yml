@@ -8,6 +8,41 @@ env:
 
 
 jobs:
+  integration-tests-e2e-zeromorph:
+    needs: [ unit-tests ]
+    strategy:
+      fail-fast: true
+
+    name: E2E verification (Zeromorph)
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaZeromorphVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment-zeromorph
+
+      - name: Load proof and public parameters
+        run: |
+          python loaderZeromorph.py verifier-key-zeromorph.json compressed-snark-zeromorph.json ${{steps.deployment-zeromorph.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+
+      - name: Check proof verification status
+        run: |
+          [[ $(cast call ${{steps.deployment-zeromorph.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+
   integration-tests-e2e-grumpkin:
     needs: [ unit-tests ]
     strategy:

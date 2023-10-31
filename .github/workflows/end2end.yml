@@ -1,0 +1,65 @@
+# Run integration tests when a maintainer comments `!test` on a PR
+name: End to end integration tests
+
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
+  ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
+
+jobs:
+  integration-tests-e2e:
+    strategy:
+      fail-fast: true
+
+    name: E2E verification
+    runs-on: [self-hosted]
+    if:
+      github.event.issue.pull_request
+      && github.event.issue.state == 'open'
+      && contains(github.event.comment.body, '!test')
+      && (github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout PR branch
+        run: gh pr checkout $PR_NUMBER
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment
+
+      - name: Load proof and public parameters
+        run: |
+          python loader.py pp-verifier-key.json pp-compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+
+      - name: Check proof verification status
+        run: |
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+
+      - name: Comment on successful run
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            End-to-end `!test` action succeeded! :rocket:
+
+            https://github.com/lurk-lab/ci-lab/actions/runs/${{ github.run_id }}

@@ -1,22 +1,25 @@
-name: test
+name: Run unit tests
 
-on: [workflow_dispatch, push, pull_request]
-
-env:
-  ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
-  ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
-
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+  workflow_dispatch:
 
 jobs:
   integration-tests-e2e:
-    needs: [unit-tests]
+    name: E2E verification
+    # Run on merge_group and workflow_dispatch only
+    if: (github.event_name != 'push' && github.event_name != 'pull_request')  || github.event.action == 'enqueued'
+    runs-on: [self-hosted]
+    env:
+      ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
+      ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
     strategy:
       fail-fast: true
-
-    name: E2E verification
-    runs-on: [self-hosted]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -50,7 +53,7 @@ jobs:
     name: Unit Tests
     runs-on: [self-hosted]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 

@@ -62,4 +62,4 @@ jobs:
           body: |
             End-to-end `!test` action succeeded! :rocket:
 
-            https://github.com/lurk-lab/ci-lab/actions/runs/${{ github.run_id }}
+            https://github.com/lurk-lab/solidity-verifier/actions/runs/${{ github.run_id }}

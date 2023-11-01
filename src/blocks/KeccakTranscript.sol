@@ -973,6 +973,33 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint memory point)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[](32 * 2 + 1);
+        uint256 index = 0;
+        // write x coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.x)[31 - i]));
+            index++;
+        }
+        // write y coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.y)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether point is at infinity
+        if (Bn256.is_identity(point)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        return absorb(keccak, label, output);
+    }
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint[] memory points)
         public
         pure

@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/Utilities.sol";
+import "src/blocks/grumpkin/Bn256.sol";
 
 library Abstractions {
     struct RelaxedR1CSInstance {
@@ -155,6 +156,26 @@ library Abstractions {
         uint256 digest;
         VerifierKeyS2Zeromorph vk_secondary;
         VerifierKeyS1Zeromorph vk_primary;
+        UVKZGVerifierKey vp;
+    }
+
+    struct UVKZGVerifierKey {
+        uint256 g_x;
+        uint256 g_y;
+    }
+    // TODO add rest of fields
+
+    struct RelaxedR1CSSNARKZeromorph {
+        RelaxedR1CSSNARK snark;
+        EvaluationArgumentZMProof eval_arg;
+    }
+
+    struct EvaluationArgumentZMProof {
+        uint256 pi_x;
+        uint256 pi_y;
+        uint256 cqhat_x;
+        uint256 cqhat_y;
+        Bn256.Bn256AffinePoint[] ck;
     }
 
     struct ROConstantsPasta {

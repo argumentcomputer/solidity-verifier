@@ -144,7 +144,7 @@ contract ZeromorphContract is Test {
         uint256 z = 0x1c5002f8d69058e9878a3fd49c1a0a908b8eacc3f7a9a37515ce765df4087b84;
         uint256 zm_evaluation = 0x120ac1a0d37696b7612fd0bbc91bd56ef277ae116a29139adb6c895e2193c7d9;
 
-        uint256[] memory scalars = Zeromorph.compose_scalars(eval_scalar, z, zm_evaluation, q_scalars);
+        uint256[] memory scalars = Zeromorph.compose_scalars(eval_scalar, Field.reverse256(z), zm_evaluation, q_scalars);
         assertEq(scalars[0], 1);
         assertEq(scalars[1], 0x1c5002f8d69058e9878a3fd49c1a0a908b8eacc3f7a9a37515ce765df4087b84);
         assertEq(scalars[2], 0x2a8416815dedd0ce9d6f3d5f7f9b148c738b047a75268f7102098f55cb13d13b);
@@ -162,7 +162,8 @@ contract ZeromorphContract is Test {
         point[1] = 0x10768d7096b0235e0f169e88cacbb3180d81088a8bc3a98120f4a02f4dee43ce;
         point[2] = 0x0b560e2d2d8d0033887c312bf7638de26efa39555a777f5ba76091605e3f5445;
 
-        (uint256 eval_scalar, uint256[] memory q_scalars) = Zeromorph.eval_and_quotient_scalars(y, x, z, point);
+        (uint256 eval_scalar, uint256[] memory q_scalars) =
+            Zeromorph.eval_and_quotient_scalars(Field.reverse256(y), Field.reverse256(x), Field.reverse256(z), point);
         assertEq(eval_scalar, 0x19cb8436c667bce0ca81531a9d6df3853534d938b8d55cd5207a804e0494a152);
         assertEq(q_scalars[0], 0x04b26c6892f5a4bf0e5c827d831ce8fa0231dc77dd8925eb92cb029ad4d6a108);
         assertEq(q_scalars[1], 0x14e0287e1f778c161a11825982fd4800f86da9da41ece78e8d4534526e43896d);

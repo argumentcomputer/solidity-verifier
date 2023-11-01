@@ -53,14 +53,14 @@ library Zeromorph {
         internal
         returns (uint256, uint256[] memory)
     {
+        x = Field.reverse256(x);
+        y = Field.reverse256(y);
+        z = Field.reverse256(z);
+
         uint256 index;
-
         uint256[] memory squares_of_x = compute_squares_of_x(u.length, x);
-
         uint256[] memory offsets_of_x = compute_offsets_of_x(u.length, squares_of_x);
-
         uint256[] memory vs = compute_vs(u.length, squares_of_x);
-
         uint256[] memory q_scalars = new uint256[](u.length);
         uint256 tmp = y;
         uint256 tmp1;
@@ -92,7 +92,7 @@ library Zeromorph {
         output[offset] = 1;
         offset += 1;
 
-        output[offset] = z;
+        output[offset] = Field.reverse256(z);
         offset += 1;
 
         output[offset] = mulmod(eval_scalar, zm_evaluation, Bn256.R_MOD);

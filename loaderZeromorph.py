@@ -736,7 +736,8 @@ PUSH_TO_PROOF_FUNC_SIG = "pushToProof((" \
 PUSH_TO_VK_FUNC_SIG = "pushToVk((" \
                       "uint256,uint256,uint256," \
                       "(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))," \
-                      "(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))" \
+                      "(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))," \
+                      "(uint256,uint256)" \
                       "))"
 
 PUSH_TO_CONSTANTS_PRIMARY_FUNC_SIG = "pushToPoseidonConstantsPrimary(uint256[],uint256,uint256)"
@@ -931,22 +932,21 @@ def pushToVkNoConstants(data):
     command = command + addNumber(data.vk_primary_S_comm_comm_col, True) + ','
     command = command + addNumber(data.vk_primary_S_comm_comm_col_read_ts, True) + ','
 
-    command = command + addNumber(data.vk_primary_S_comm_comm_col_audit_ts, True) + '))'
+    command = command + addNumber(data.vk_primary_S_comm_comm_col_audit_ts, True) + ')),('
+    command = command + addNumber(hex(1), False) + ','
+    command = command + addNumber(hex(1), False) + ')'
+
     #command = command + addNumber(data.vk_primary_S_comm_comm_col_audit_ts, True) + '),'
     #command = command + addNumber(data.vk_primary_digest, True) + ')'
 
     command = command + ')\" --private-key ' + PRIVATE_KEY
     command = command + ' --rpc-url ' + RPC_URL
-
-
-#cast send 0x9E545E3C0baAB3E08CdfD552C960A1050f373042 "pushToVk((uint256,uint256,uint256,(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))))" "(1,1,1,(1,1,(1,1,1,1,1,1,1,1,1,1)),(1,1,(1,1,1,1,1,1,1,1,1,1)))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
-#cast send 0x9E545E3C0baAB3E08CdfD552C960A1050f373042 "pushToVk((uint256,uint256,uint256,(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)),(uint256,uint256,(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))))" "(1,1,1,(1,1,(1,1,1,1,1,1,1,1,1,1),(1,1,(1,1,1,1,1,1,1,1,1,1))" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
-
-    print(command)
+    #print(command)
 
     if os.system(command) != 0:
         print("pushToVkNoConstants failed")
         exit(1)
+
 
 def pushToConstantsPrimary(data):
     command = 'cast send' + ' '

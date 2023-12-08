@@ -291,9 +291,7 @@ library PolyLib {
         }
 
         uint256 coeff_index = 0;
-        uint256[] memory coeffs = new uint256[](
-            poly.coeffs_except_linear_term.length + 1
-        );
+        uint256[] memory coeffs = new uint256[](poly.coeffs_except_linear_term.length + 1);
         coeffs[coeff_index] = poly.coeffs_except_linear_term[0];
         coeff_index++;
         coeffs[coeff_index] = linear_term;

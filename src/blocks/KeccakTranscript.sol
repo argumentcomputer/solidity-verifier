@@ -3,7 +3,6 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
-import "src/NovaVerifierAbstractions.sol";
 import "src/Utilities.sol";
 
 library ScalarFromUniformLib {
@@ -745,17 +744,6 @@ library KeccakTranscriptLib {
         require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Pallas)] unexpected length");
 
         return absorb(keccak, label, output);
-    }
-
-    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Abstractions.RelaxedR1CSInstance memory U)
-        public
-        view
-        returns (KeccakTranscript memory)
-    {
-        Pallas.PallasAffinePoint memory comm_W = Pallas.decompress(U.comm_W);
-        Pallas.PallasAffinePoint memory comm_E = Pallas.decompress(U.comm_E);
-
-        return absorb(keccak, label, comm_W, comm_E, U.X, U.u);
     }
 
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)

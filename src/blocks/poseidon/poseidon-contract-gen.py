@@ -176,7 +176,7 @@ if not os.path.exists(fn):
 
 libraryName = sys.argv[2]
 
-f = open(os.path.basename(fn))
+f = open(fn)
 data = json.load(f)
 
 t = int(data['state_size_field_elements'])

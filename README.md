@@ -33,6 +33,6 @@ Poseidon contracts in this repository have been generated with a help of corresp
 To re-generate them (for Pallas and Vesta curves) compatible to Neptune and "sharpened" for usage in Nova:
 
 ```
-python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
-python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
+python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
+python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
 ```

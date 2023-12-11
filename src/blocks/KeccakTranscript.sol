@@ -3,6 +3,8 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
 import "src/Utilities.sol";
 
 library ScalarFromUniformLib {
@@ -25,9 +27,27 @@ library ScalarFromUniformLib {
     uint256 public constant PALLAS_R2 = 0x3fffffffffffffffffffffffffffffff992c350be41914ad34786d38fffffffd;
     uint256 public constant PALLAS_R3 = 0x096d41af7b9cb7147797a99bc3c95d18d7d30dbd8b0de0e78c78ecb30000000f;
 
+    uint64 private constant BN256_INV = 0xc2e1f593efffffff;
+    uint64 private constant BN256_MODULUS_0 = 0x43e1f593f0000001;
+    uint64 private constant BN256_MODULUS_1 = 0x2833e84879b97091;
+    uint64 private constant BN256_MODULUS_2 = 0xb85045b68181585d;
+    uint64 private constant BN256_MODULUS_3 = 0x30644e72e131a029;
+    uint256 public constant BN256_R2 = 0x0e0a77c19a07df2f666ea36f7879462e36fc76959f60cd29ac96341c4ffffffb;
+    uint256 public constant BN256_R3 = 0x0216d0b17f4e44a58c49833d53bb808553fe3ab1e35c59e31bb8e645ae216da7;
+
+    uint64 private constant GRUMPKIN_INV = 0x87d20782e4866389;
+    uint64 private constant GRUMPKIN_MODULUS_0 = 0x3c208c16d87cfd47;
+    uint64 private constant GRUMPKIN_MODULUS_1 = 0x97816a916871ca8d;
+    uint64 private constant GRUMPKIN_MODULUS_2 = 0xb85045b68181585d;
+    uint64 private constant GRUMPKIN_MODULUS_3 = 0x30644e72e131a029;
+    uint256 public constant GRUMPKIN_R2 = 0x0e0a77c19a07df2f666ea36f7879462c0a78eb28f5c70b3dd35d438dc58f0d9d;
+    uint256 public constant GRUMPKIN_R3 = 0x06d89f71cab8351f47ab1eff0a417ff6b5e71911d44501fbf32cfc5b538afa89;
+
     enum Curve {
         PALLAS,
-        VESTA
+        VESTA,
+        BN256,
+        GRUMPKIN
     }
 
     function curvePallas() public pure returns (Curve) {
@@ -36,6 +56,14 @@ library ScalarFromUniformLib {
 
     function curveVesta() public pure returns (Curve) {
         return Curve.VESTA;
+    }
+
+    function curveBn256() public pure returns (Curve) {
+        return Curve.BN256;
+    }
+
+    function curveGrumpkin() public pure returns (Curve) {
+        return Curve.GRUMPKIN;
     }
 
     // 'from_uniform_bytes' in Rust
@@ -84,6 +112,54 @@ library ScalarFromUniformLib {
                 0
             );
             d1 = montgomeryReduceVesta(
+                getLimb(scalarUniform, 32, 40),
+                getLimb(scalarUniform, 40, 48),
+                getLimb(scalarUniform, 48, 56),
+                getLimb(scalarUniform, 56, 64),
+                0,
+                0,
+                0,
+                0
+            );
+        } else if (curve == Curve.BN256) {
+            modulus = Bn256.R_MOD;
+            R2 = BN256_R2;
+            R3 = BN256_R3;
+            d0 = montgomeryReduceBn256(
+                getLimb(scalarUniform, 0, 8),
+                getLimb(scalarUniform, 8, 16),
+                getLimb(scalarUniform, 16, 24),
+                getLimb(scalarUniform, 24, 32),
+                0,
+                0,
+                0,
+                0
+            );
+            d1 = montgomeryReduceBn256(
+                getLimb(scalarUniform, 32, 40),
+                getLimb(scalarUniform, 40, 48),
+                getLimb(scalarUniform, 48, 56),
+                getLimb(scalarUniform, 56, 64),
+                0,
+                0,
+                0,
+                0
+            );
+        } else if (curve == Curve.GRUMPKIN) {
+            modulus = Grumpkin.P_MOD;
+            R2 = GRUMPKIN_R2;
+            R3 = GRUMPKIN_R3;
+            d0 = montgomeryReduceGrumpkin(
+                getLimb(scalarUniform, 0, 8),
+                getLimb(scalarUniform, 8, 16),
+                getLimb(scalarUniform, 16, 24),
+                getLimb(scalarUniform, 24, 32),
+                0,
+                0,
+                0,
+                0
+            );
+            d1 = montgomeryReduceGrumpkin(
                 getLimb(scalarUniform, 32, 40),
                 getLimb(scalarUniform, 40, 48),
                 getLimb(scalarUniform, 48, 56),
@@ -319,6 +395,200 @@ library ScalarFromUniformLib {
 
         return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
     }
+
+    function montgomeryReduceBn256(
+        uint64 r0,
+        uint64 r1,
+        uint64 r2,
+        uint64 r3,
+        uint64 r4,
+        uint64 r5,
+        uint64 r6,
+        uint64 r7
+    ) public pure returns (uint256) {
+        assembly {
+            function mac(a, b, c, carry) -> ret1, ret2 {
+                let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc :=
+                    addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry :=
+                    addmod(
+                        addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff),
+                        carry,
+                        0xffffffffffffffffffffffffffffffff
+                    )
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_bc_add_carry)
+            }
+
+            function adc(a, b, carry) -> ret1, ret2 {
+                let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
+                let a_add_b_add_carry :=
+                    addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_b_add_carry)
+            }
+
+            let k := mulmod(r0, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            let carry := 0
+            let carry2 := 0
+
+            carry2, carry := mac(r0, k, BN256_MODULUS_0, 0) // carry2 is used as a stub
+            r1, carry := mac(r1, k, BN256_MODULUS_1, carry)
+            r2, carry := mac(r2, k, BN256_MODULUS_2, carry)
+            r3, carry := mac(r3, k, BN256_MODULUS_3, carry)
+            r4, carry2 := adc(r4, 0, carry)
+
+            k := mulmod(r1, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r1, k, BN256_MODULUS_0, 0) // r0 used as a stub
+            r2, carry := mac(r2, k, BN256_MODULUS_1, carry)
+            r3, carry := mac(r3, k, BN256_MODULUS_2, carry)
+            r4, carry := mac(r4, k, BN256_MODULUS_3, carry)
+            r5, carry2 := adc(r5, carry2, carry)
+
+            k := mulmod(r2, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r2, k, BN256_MODULUS_0, 0) // r0 used as a stub
+            r3, carry := mac(r3, k, BN256_MODULUS_1, carry)
+            r4, carry := mac(r4, k, BN256_MODULUS_2, carry)
+            r5, carry := mac(r5, k, BN256_MODULUS_3, carry)
+            r6, carry2 := adc(r6, carry2, carry)
+
+            k := mulmod(r3, BN256_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r3, k, BN256_MODULUS_0, 0) // r0 used as a stub
+            r4, carry := mac(r4, k, BN256_MODULUS_1, carry)
+            r5, carry := mac(r5, k, BN256_MODULUS_2, carry)
+            r6, carry := mac(r6, k, BN256_MODULUS_3, carry)
+            r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            // Result may be within MODULUS of the correct value
+
+            // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+            carry2 := 0
+            r0, carry2 := sbb(r4, BN256_MODULUS_0, carry2)
+            r1, carry2 := sbb(r5, BN256_MODULUS_1, carry2)
+            r2, carry2 := sbb(r6, BN256_MODULUS_2, carry2)
+            r3, carry2 := sbb(r7, BN256_MODULUS_3, carry2)
+
+            // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+            // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+            carry := 0
+            r0, carry := adc(r0, and(BN256_MODULUS_0, carry2), carry)
+            r1, carry := adc(r1, and(BN256_MODULUS_1, carry2), carry)
+            r2, carry := adc(r2, and(BN256_MODULUS_2, carry2), carry)
+            r3, carry := adc(r3, and(BN256_MODULUS_3, carry2), carry)
+        }
+
+        return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
+    }
+
+    function montgomeryReduceGrumpkin(
+        uint64 r0,
+        uint64 r1,
+        uint64 r2,
+        uint64 r3,
+        uint64 r4,
+        uint64 r5,
+        uint64 r6,
+        uint64 r7
+    ) public pure returns (uint256) {
+        assembly {
+            function mac(a, b, c, carry) -> ret1, ret2 {
+                let bc := mulmod(b, c, 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc :=
+                    addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff)
+                let a_add_bc_add_carry :=
+                    addmod(
+                        addmod(a, mulmod(b, c, 0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff),
+                        carry,
+                        0xffffffffffffffffffffffffffffffff
+                    )
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_bc_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_bc_add_carry)
+            }
+
+            function adc(a, b, carry) -> ret1, ret2 {
+                let a_add_b := addmod(a, b, 0xffffffffffffffffffffffffffffffff)
+                let a_add_b_add_carry :=
+                    addmod(addmod(a, b, 0xffffffffffffffffffffffffffffffff), carry, 0xffffffffffffffffffffffffffffffff)
+                // cast ret1 from uint128 to uint64
+                ret1 := and(a_add_b_add_carry, 0xffffffffffffffff)
+                ret2 := shr(64, a_add_b_add_carry)
+            }
+
+            let k := mulmod(r0, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            let carry := 0
+            let carry2 := 0
+
+            carry2, carry := mac(r0, k, GRUMPKIN_MODULUS_0, 0) // carry2 is used as a stub
+            r1, carry := mac(r1, k, GRUMPKIN_MODULUS_1, carry)
+            r2, carry := mac(r2, k, GRUMPKIN_MODULUS_2, carry)
+            r3, carry := mac(r3, k, GRUMPKIN_MODULUS_3, carry)
+            r4, carry2 := adc(r4, 0, carry)
+
+            k := mulmod(r1, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r1, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+            r2, carry := mac(r2, k, GRUMPKIN_MODULUS_1, carry)
+            r3, carry := mac(r3, k, GRUMPKIN_MODULUS_2, carry)
+            r4, carry := mac(r4, k, GRUMPKIN_MODULUS_3, carry)
+            r5, carry2 := adc(r5, carry2, carry)
+
+            k := mulmod(r2, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r2, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+            r3, carry := mac(r3, k, GRUMPKIN_MODULUS_1, carry)
+            r4, carry := mac(r4, k, GRUMPKIN_MODULUS_2, carry)
+            r5, carry := mac(r5, k, GRUMPKIN_MODULUS_3, carry)
+            r6, carry2 := adc(r6, carry2, carry)
+
+            k := mulmod(r3, GRUMPKIN_INV, 0x10000000000000000) // wrapping_mul over u64 (Rust)
+            r0, carry := mac(r3, k, GRUMPKIN_MODULUS_0, 0) // r0 used as a stub
+            r4, carry := mac(r4, k, GRUMPKIN_MODULUS_1, carry)
+            r5, carry := mac(r5, k, GRUMPKIN_MODULUS_2, carry)
+            r6, carry := mac(r6, k, GRUMPKIN_MODULUS_3, carry)
+            r7, r0 := adc(r7, carry2, carry) // r0 used as a stub
+
+            function sbb(a, b, borrow) -> ret1, ret2 {
+                let shift := shr(63, borrow)
+                let b_add_borrow_shifted := addmod(b, shift, 0xffffffffffffffffffffffffffffffff)
+                let a_minus := sub(a, b_add_borrow_shifted)
+                a_minus := and(a_minus, 0xffffffffffffffffffffffffffffffff)
+
+                ret1 := and(a_minus, 0xffffffffffffffff)
+                ret2 := shr(64, a_minus)
+            }
+
+            // Result may be within MODULUS of the correct value
+
+            // use carry as borrow; r0 as d0, r1 as d1, r2 as d2, r3 as d3
+            carry2 := 0
+            r0, carry2 := sbb(r4, GRUMPKIN_MODULUS_0, carry2)
+            r1, carry2 := sbb(r5, GRUMPKIN_MODULUS_1, carry2)
+            r2, carry2 := sbb(r6, GRUMPKIN_MODULUS_2, carry2)
+            r3, carry2 := sbb(r7, GRUMPKIN_MODULUS_3, carry2)
+
+            // If underflow occurred on the final limb, borrow = 0xfff...fff, otherwise
+            // borrow = 0x000...000. Thus, we use it as a mask to conditionally add the modulus.
+            carry := 0
+            r0, carry := adc(r0, and(GRUMPKIN_MODULUS_0, carry2), carry)
+            r1, carry := adc(r1, and(GRUMPKIN_MODULUS_1, carry2), carry)
+            r2, carry := adc(r2, and(GRUMPKIN_MODULUS_2, carry2), carry)
+            r3, carry := adc(r3, and(GRUMPKIN_MODULUS_3, carry2), carry)
+        }
+
+        return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
+    }
 }
 
 library KeccakTranscriptLib {
@@ -392,6 +662,34 @@ library KeccakTranscriptLib {
         }
 
         return updatedState;
+    }
+
+    function dom_sep(KeccakTranscript memory keccak, uint8[] memory dom_sep_input)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory transcript = new uint8[](keccak.transcript.length + 4 + dom_sep_input.length);
+        uint256 index = 0;
+        // copy current transcript
+        for (uint256 i = 0; i < keccak.transcript.length; i++) {
+            transcript[i] = keccak.transcript[i];
+        }
+        index += keccak.transcript.length;
+
+        // append DOM_SEP_TAG
+        transcript[index] = uint8((DOM_SEP_TAG >> 24) & 0xFF);
+        transcript[index + 1] = uint8((DOM_SEP_TAG >> 16) & 0xFF);
+        transcript[index + 2] = uint8((DOM_SEP_TAG >> 8) & 0xFF);
+        transcript[index + 3] = uint8(DOM_SEP_TAG & 0xFF);
+        index += 4;
+
+        // append dom_sep_input
+        for (uint256 i = 0; i < dom_sep_input.length; i++) {
+            transcript[index + i] = dom_sep_input[i];
+        }
+
+        return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
 
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input)
@@ -742,6 +1040,64 @@ library KeccakTranscriptLib {
         }
 
         require(index == output.length, "[KeccakTranscript::absorb(RelaxedR1CSInstance, Pallas)] unexpected length");
+
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint memory point)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[](32 * 2 + 1);
+        uint256 index = 0;
+        // write x coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.x)[31 - i]));
+            index++;
+        }
+        // write y coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.y)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether point is at infinity
+        if (Bn256.is_identity(point)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        return absorb(keccak, label, output);
+    }
+
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint[] memory points)
+        public
+        pure
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[]((32 * 2 + 1) * points.length);
+        uint256 index = 0;
+        for (uint256 j = 0; j < points.length; j++) {
+            // write x coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].x)[31 - i]));
+                index++;
+            }
+            // write y coordinate
+            for (uint256 i = 0; i < 32; i++) {
+                output[index] = uint8(bytes1(bytes32(points[j].y)[31 - i]));
+                index++;
+            }
+
+            // write byte indicating whether point is at infinity
+            if (Bn256.is_identity(points[j])) {
+                output[index] = 0x00;
+            } else {
+                output[index] = 0x01;
+            }
+            index++;
+        }
 
         return absorb(keccak, label, output);
     }

@@ -47,6 +47,18 @@ library Bn256 {
         return Bn256AffinePoint(uint256(mulResult[0]), uint256(mulResult[1]));
     }
 
+    function multiScalarMul(Bn256AffinePoint[] memory bases, uint256[] memory scalars)
+        public
+        returns (Bn256AffinePoint memory r)
+    {
+        require(scalars.length == bases.length, "MSM error: length does not match");
+
+        r = scalarMul(bases[0], scalars[0]);
+        for (uint256 i = 1; i < scalars.length; i++) {
+            r = add(r, scalarMul(bases[i], scalars[i]));
+        }
+    }
+
     function negate(Bn256AffinePoint memory a) public pure returns (Bn256AffinePoint memory) {
         return Bn256AffinePoint(a.x, P_MOD - (a.y % P_MOD));
     }

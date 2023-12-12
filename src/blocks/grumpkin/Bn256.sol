@@ -56,9 +56,9 @@ library Bn256 {
 
         bytes32[2] memory mulResult;
 
-    // Assembly code to call the pre-compiled Bn256 scalar multiplication contract for Bn256 curve operations, with
-    // error management.
-    assembly {
+        // Assembly code to call the pre-compiled Bn256 scalar multiplication contract for Bn256 curve operations, with
+        // error management.
+        assembly {
             let success := call(gas(), 0x07, 0, input, 0x60, mulResult, 0x40)
             switch success
             case 0 { revert(0, 0) }
@@ -69,19 +69,19 @@ library Bn256 {
     /**
      * @dev Performs multiple scalar multiplications on the Bn256 curve. Useful for batch processing, allowing multiple
      *      scalar multiplications to be performed in a single call.
-     * @param points An array of points on the Bn256 curve to be multiplied.
+     * @param bases An array of points on the Bn256 curve to be multiplied.
      * @param scalars An array of scalars by which to multiply the corresponding points.
      * @return r An array of points, each being the result of the scalar multiplication of the corresponding point and scalar.
      */
-    function multiScalarMul(Bn256AffinePoint[] memory points, uint256[] memory scalars)
+    function multiScalarMul(Bn256AffinePoint[] memory bases, uint256[] memory scalars)
         public
         returns (Bn256AffinePoint memory r)
     {
-        require(scalars.length == points.length, "MSM error: length does not match");
+        require(scalars.length == bases.length, "MSM error: length does not match");
 
-        r = scalarMul(points[0], scalars[0]);
+        r = scalarMul(bases[0], scalars[0]);
         for (uint256 i = 1; i < scalars.length; i++) {
-            r = add(r, scalarMul(points[i], scalars[i]));
+            r = add(r, scalarMul(bases[i], scalars[i]));
         }
     }
 

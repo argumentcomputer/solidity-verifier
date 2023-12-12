@@ -34,28 +34,45 @@ library Vesta {
         uint256 z;
     }
 
-    /// @return the generator
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Defines the generator point of the Vesta curve in affine coordinates.
+     * @return The generator point in affine coordinates.
+     */
     function AffineGenerator() internal pure returns (VestaAffinePoint memory) {
         return VestaAffinePoint(P_MOD - 1, 2);
     }
 
-    /// @return the generator
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Defines the generator point of the Vesta curve in projective coordinates.
+     * @return The generator point in projective coordinates.
+     */
     function ProjectiveGenerator() internal pure returns (VestaProjectivePoint memory) {
         return VestaProjectivePoint(P_MOD - 1, 2, 1);
     }
 
+    /**
+     * @dev Represents the point at infinity in affine coordinates on the Vesta curve. The point at infinity acts as the
+     *      identity element.
+     * @return The point at infinity in affine coordinates.
+     */
     function AffineInfinity() internal pure returns (VestaAffinePoint memory) {
         return VestaAffinePoint(0, 0);
     }
 
+    /**
+     * @dev Represents the point at infinity in projective coordinates on the Vesta curve.
+     * @return The point at infinity in projective coordinates.
+     */
     function ProjectiveInfinity() internal pure returns (VestaProjectivePoint memory) {
         return VestaProjectivePoint(1, 1, 0);
     }
 
-    /// @return the convert an affine point into projective
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Converts a VestaAffinePoint into a VestaProjectivePoint.
+     *      This conversion is useful for elliptic curve operations in projective coordinates.
+     * @param point The VestaAffinePoint to be converted.
+     * @return The converted point in projective coordinates.
+     */
     function IntoProjective(VestaAffinePoint memory point) internal pure returns (VestaProjectivePoint memory) {
         if (isInfinity(point)) {
             return ProjectiveInfinity();
@@ -64,8 +81,12 @@ library Vesta {
         return VestaProjectivePoint(point.x, point.y, 1);
     }
 
-    /// @return the convert a projective point into affine
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Converts a VestaProjectivePoint into a VestaAffinePoint. This is used when projective coordinate results need
+     *      to be represented in affine form.
+     * @param point The VestaProjectivePoint to be converted.
+     * @return The converted point in affine coordinates.
+     */
     function IntoAffine(VestaProjectivePoint memory point) internal view returns (VestaAffinePoint memory) {
         if (isInfinity(point)) {
             return AffineInfinity();
@@ -80,10 +101,14 @@ library Vesta {
         return VestaAffinePoint(x, y);
     }
 
-    /// @dev check if a VestaAffinePoint is Infinity
-    /// @notice (0, 0) VestaAffinePoint of Infinity,
-    /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
-    /// just use (0, 1) as affine coordinates (not on curve) to represents PoI.
+    /**
+     * @dev Checks if a VestaAffinePoint is the point at infinity. The point at infinity is represented as (0, 0) in affine
+     *      coordinates.
+     * @notice (0, 0) VestaAffinePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag to mark
+     *          PoI, and just use (0, 1) as affine coordinates (not on curve) to represents PoI.
+     * @param point The VestaAffinePoint to check.
+     * @return result True if the point is the point at infinity, false otherwise.
+     */
     function isInfinity(VestaAffinePoint memory point) internal pure returns (bool result) {
         assembly {
             let x := mload(point)
@@ -92,10 +117,13 @@ library Vesta {
         }
     }
 
-    /// @dev check if a VestaProjectivePoint is Infinity
-    /// @notice (0, 0, 0) VestaProjectivePoint of Infinity,
-    /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
-    /// just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+    /**
+     * @dev Checks if a VestaProjectivePoint is the point at infinity.
+     * @notice (0, 0, 0) VestaProjectivePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag to
+     *         mark PoI, and just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+     * @param point The VestaProjectivePoint to check.
+     * @return result True if the point is the point at infinity, false otherwise.
+     */
     function isInfinity(VestaProjectivePoint memory point) internal pure returns (bool result) {
         assembly {
             let x := mload(point)
@@ -105,7 +133,11 @@ library Vesta {
         }
     }
 
-    /// @return r the negation of p, i.e. p.add(p.negate()) should be zero.
+    /**
+     * @dev Negates a VestaAffinePoint on the Vesta curve.
+     * @param p The VestaAffinePoint to be negated.
+     * @return The negation of p, i.e. p.add(p.negate()) should be zero.
+     */
     function negate(VestaAffinePoint memory p) internal pure returns (VestaAffinePoint memory) {
         if (isInfinity(p)) {
             return p;
@@ -113,7 +145,12 @@ library Vesta {
         return VestaAffinePoint(p.x, P_MOD - (p.y % P_MOD));
     }
 
-    /// @return r the negation of p, i.e. p.add(p.negate()) should be zero.
+    /**
+     * @dev Negates a VestaProjectivePoint on the Vesta curve. Negation of a point results in a point such that its
+     *      addition with the original equals zero.
+     * @param p The VestaProjectivePoint to be negated.
+     * @return The negated point.
+     */
     function negate(VestaProjectivePoint memory p) internal pure returns (VestaProjectivePoint memory) {
         if (isInfinity(p)) {
             return p;
@@ -121,17 +158,30 @@ library Vesta {
         return VestaProjectivePoint(p.x, P_MOD - (p.y % P_MOD), p.z);
     }
 
-    /// @return res = -fr the negation of base field element.
+    /**
+     * @dev Negates a base field element in the context of the Vesta curve. This operation involves modular negation with
+     *      respect to the prime modulus P_MOD.
+     * @param fr The base field element to be negated.
+     * @return res = -fr the negation of base field element.
+     */
     function negateBase(uint256 fr) internal pure returns (uint256 res) {
         return P_MOD - (fr % P_MOD);
     }
 
-    /// @return res = -fr the negation of scalar field element.
+    /**
+     * @dev Negates a scalar field element within the context of the Vesta curve's operations.
+     * @param fr The scalar field element to be negated.
+     * @return res = -fr the negation of scalar field element.
+     */
     function negateScalar(uint256 fr) internal pure returns (uint256 res) {
         return R_MOD - (fr % R_MOD);
     }
 
-    /// @return 2*point
+    /**
+     * @dev Doubles a point in projective coordinates on the Vesta curve.
+     * @param point The point in projective coordinates to be doubled.
+     * @return The doubled point on the Vesta curve.
+     */
     function double(VestaProjectivePoint memory point) internal pure returns (VestaProjectivePoint memory) {
         if (isInfinity(point)) {
             return point;
@@ -179,7 +229,11 @@ library Vesta {
         return VestaProjectivePoint(x, y, z);
     }
 
-    /// @return 2*point
+    /**
+     * @dev Doubles a point in affine coordinates on the Vesta curve.
+     * @param point The point in affine coordinates to be doubled.
+     * @return The doubled point in affine coordinates.
+     */
     function double(VestaAffinePoint memory point) internal view returns (VestaAffinePoint memory) {
         if (isInfinity(point)) {
             return point;
@@ -218,7 +272,12 @@ library Vesta {
         return VestaAffinePoint(xPrime, yPrime);
     }
 
-    /// @return r the sum of two VestaAffinePoints
+    /**
+     * @dev Adds two VestaAffinePoints on the Vesta curve.
+     * @param p1 The first VestaAffinePoint to be added.
+     * @param p2 The second VestaAffinePoint to be added.
+     * @return The result of adding p1 and p2.
+     */
     function add(VestaAffinePoint memory p1, VestaAffinePoint memory p2)
         internal
         view
@@ -276,7 +335,12 @@ library Vesta {
         return VestaAffinePoint(x3, y3);
     }
 
-    /// @return r the sum of two VestaAffinePoints
+    /**
+     * @dev Adds two VestaProjectivePoints on the Vesta curve.
+     * @param p1 The first VestaProjectivePoint to be added.
+     * @param p2 The second VestaProjectivePoint to be added.
+     * @return The result of adding p1 and p2.
+     */
     function add(VestaProjectivePoint memory p1, VestaProjectivePoint memory p2)
         internal
         pure
@@ -374,8 +438,13 @@ library Vesta {
         return VestaProjectivePoint(x3, y3, z3);
     }
 
-    /// @return r the product of a VestaAffinePoint and a scalar, i.e.
-    /// p == p.mul(1) and p.add(p) == p.mul(2) for all VestaAffinePoints p.
+    /**
+     * @dev Multiplies a VestaAffinePoint by a scalar on the Vesta curve.
+     * @param p The VestaAffinePoint to be multiplied.
+     * @param s The scalar by which the point is to be multiplied.
+     * @return r the product of a VestaAffinePoint and a scalar, i.e. p == p.mul(1) and p.add(p) == p.mul(2) for all
+     *         VestaAffinePoints p.
+     */
     function scalarMul(VestaAffinePoint memory p, uint256 s) internal view returns (VestaAffinePoint memory r) {
         uint256 bit;
         uint256 i = 0;
@@ -392,8 +461,13 @@ library Vesta {
         }
     }
 
-    /// @return r the product of a VestaProjectivePoint and a scalar, i.e.
-    /// p == p.mul(1) and p.add(p) == p.mul(2) for all VestaProjectivePoint p.
+    /**
+     * @dev Multiplies a VestaProjectivePoint by a scalar on the Vesta curve.
+     * @param p The VestaProjectivePoint to be multiplied.
+     * @param s The scalar by which the point is to be multiplied.
+     * @return r the product of a VestaProjectivePoint and a scalar, i.e. p == p.mul(1) and p.add(p) == p.mul(2) for all
+     *         VestaProjectivePoint p.
+     */
     function scalarMul(VestaProjectivePoint memory p, uint256 s)
         internal
         pure
@@ -414,8 +488,13 @@ library Vesta {
         }
     }
 
-    /// @dev Multi-scalar Mulitiplication (MSM)
-    /// @return r = \Prod{B_i^s_i} where {s_i} are `scalars` and {B_i} are `bases`
+    /**
+     * @dev Performs multi-scalar multiplication (MSM) on the Vesta curve. Computes the product of points raised to respective
+     *      scalar values.
+     * @param bases An array of VestaAffinePoints that serve as bases for multiplication.
+     * @param scalars An array of scalars corresponding to each base point.
+     * @return r = \Prod{B_i^s_i} where {s_i} are `scalars` and {B_i} are `bases`
+     */
     function multiScalarMul(VestaAffinePoint[] memory bases, uint256[] memory scalars)
         internal
         view
@@ -430,15 +509,11 @@ library Vesta {
     }
 
     /**
-     * validate the following:
-     *   x != 0
-     *   y != 0
-     *   x < p
-     *   y < p
-     *   y^2 = x^3 + 5 mod p
+     * @dev Validates a VestaAffinePoint to ensure it lies on the Vesta curve. Checks that x and y coordinates are non-zero
+     *      (x != 0 && y != 0), less than P_MOD (x < p && y < p), and satisfy the curve equation y^2 = x^3 + 5 mod p.
+     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
+     * @param point The VestaAffinePoint to be validated.
      */
-    /// @dev validate VestaAffinePoint and check if it is on curve
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
     function validateCurvePoint(VestaAffinePoint memory point) internal pure {
         bool isWellFormed;
         uint256 p = P_MOD;
@@ -455,8 +530,11 @@ library Vesta {
         require(isWellFormed, "Vesta: invalid point");
     }
 
-    /// @dev Validate scalar field, revert if invalid (namely if fr > r_mod).
-    /// @notice Writing this inline instead of calling it might save gas.
+    /**
+     * @dev Validates a scalar field element for the Vesta curve. Checks if the scalar is less than R_MOD.
+     * @notice Writing this inline instead of calling it might save gas.
+     * @param fr The scalar value to be validated.
+     */
     function validateScalarField(uint256 fr) internal pure {
         bool isValid;
         assembly {
@@ -465,6 +543,11 @@ library Vesta {
         require(isValid, "Vesta: invalid scalar field");
     }
 
+    /**
+     * @dev Converts a byte array in little-endian format to a scalar field element. Performs modular reduction by R_MOD.
+     * @param leBytes The byte array in little-endian format.
+     * @return ret The resulting scalar field element.
+     */
     function fromLeBytesModOrder(bytes memory leBytes) internal pure returns (uint256 ret) {
         // TODO: Can likely be gas optimized by copying the first 31 bytes directly.
         for (uint256 i = 0; i < leBytes.length; i++) {
@@ -473,11 +556,21 @@ library Vesta {
         }
     }
 
-    /// @dev Check if y-coordinate of VestaAffinePoint is negative.
+    /**
+     * @dev Checks if the y-coordinate of a VestaAffinePoint is considered 'negative'. A y-coordinate is deemed 'negative'
+     *      if it is less than half of P_MOD.
+     * @param point The VestaAffinePoint to check.
+     * @return True if the y-coordinate is 'negative', false otherwise.
+     */
     function isYNegative(VestaAffinePoint memory point) internal pure returns (bool) {
         return point.y < P_MOD / 2;
     }
 
+    /**
+     * @dev Converts a compressed x-coordinate (with y-coordinate sign bit) into a VestaAffinePoint.
+     * @param compressed_x_coord A bytes32 representing the compressed x-coordinate and the sign of the y-coordinate.
+     * @return point The decompressed elliptic curve point.
+     */
     function fromBytes(bytes32 compressed_x_coord) public view returns (VestaAffinePoint memory point) {
         uint8 y_sign = uint8(compressed_x_coord[31]) >> 7;
 
@@ -516,6 +609,12 @@ library Vesta {
         point = VestaAffinePoint(x_coord, y_coord);
     }
 
+    /**
+     * @dev Decompresses a Vesta curve point given a compressed x-coordinate. This is a convenience function that delegates
+     *      to fromBytes.
+     * @param compressed_x_coord The compressed x-coordinate of the point.
+     * @return point The decompressed elliptic curve point.
+     */
     function decompress(uint256 compressed_x_coord) public view returns (VestaAffinePoint memory point) {
         return fromBytes(bytes32(compressed_x_coord));
     }

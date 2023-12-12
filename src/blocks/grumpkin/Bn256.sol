@@ -44,14 +44,14 @@ library Bn256 {
 
     /**
      * @dev Performs scalar multiplication on the Bn256 curve.
-     * @param p The point on the Bn256 curve to be multiplied.
-     * @param s The scalar by which to multiply the point.
+     * @param point The point on the Bn256 curve to be multiplied.
+     * @param scalar The scalar by which to multiply the point.
      * @return The result of scalar multiplication, which is another point on the curve.
      */
-    function scalarMul(Bn256AffinePoint memory a, uint256 scalar) public returns (Bn256AffinePoint memory) {
+    function scalarMul(Bn256AffinePoint memory point, uint256 scalar) public returns (Bn256AffinePoint memory) {
         bytes32[3] memory input;
-        input[0] = bytes32(a.x);
-        input[1] = bytes32(a.y);
+        input[0] = bytes32(point.x);
+        input[1] = bytes32(point.y);
         input[2] = bytes32(scalar);
 
         bytes32[2] memory mulResult;
@@ -71,17 +71,17 @@ library Bn256 {
      *      scalar multiplications to be performed in a single call.
      * @param points An array of points on the Bn256 curve to be multiplied.
      * @param scalars An array of scalars by which to multiply the corresponding points.
-     * @return An array of points, each being the result of the scalar multiplication of the corresponding point and scalar.
+     * @return r An array of points, each being the result of the scalar multiplication of the corresponding point and scalar.
      */
-    function multiScalarMul(Bn256AffinePoint[] memory bases, uint256[] memory scalars)
+    function multiScalarMul(Bn256AffinePoint[] memory points, uint256[] memory scalars)
         public
         returns (Bn256AffinePoint memory r)
     {
-        require(scalars.length == bases.length, "MSM error: length does not match");
+        require(scalars.length == points.length, "MSM error: length does not match");
 
-        r = scalarMul(bases[0], scalars[0]);
+        r = scalarMul(points[0], scalars[0]);
         for (uint256 i = 1; i < scalars.length; i++) {
-            r = add(r, scalarMul(bases[i], scalars[i]));
+            r = add(r, scalarMul(points[i], scalars[i]));
         }
     }
 
@@ -90,12 +90,13 @@ library Bn256 {
      * @param point The point on the Bn256 curve to be negated.
      * @return The negated point, also on the Bn256 curve.
      */
-    function negate(Bn256AffinePoint memory a) public pure returns (Bn256AffinePoint memory) {
-        return Bn256AffinePoint(a.x, P_MOD - (a.y % P_MOD));
+    function negate(Bn256AffinePoint memory point) public pure returns (Bn256AffinePoint memory) {
+        return Bn256AffinePoint(point.x, P_MOD - (point.y % P_MOD));
     }
 
     /**
      * @dev Negates the base point of the Bn256 curve. This is a specialized case of point negation for the curve's base point.
+     * @param scalar The scalar value to be negated.
      * @return The negated base point on the Bn256 curve.
      */
     function negateBase(uint256 scalar) internal pure returns (uint256) {
@@ -117,11 +118,11 @@ library Bn256 {
      * @param point The point on the Bn256 curve to be checked.
      * @return True if the point is the identity element, False otherwise.
      */
-    function is_identity(Bn256AffinePoint memory p1) public pure returns (bool) {
-        if (p1.x != 0) {
+    function is_identity(Bn256AffinePoint memory point) public pure returns (bool) {
+        if (point.x != 0) {
             return false;
         }
-        if (p1.y != 0) {
+        if (point.y != 0) {
             return false;
         }
         return true;
@@ -129,7 +130,7 @@ library Bn256 {
 
     /**
      * @dev This function takes a Bn256 compressed point and returns its uncompressed form.
-     * @param input The compressed point on the Bn256 curve.
+     * @param compressed The compressed point on the Bn256 curve.
      * @return The decompressed point, including both x and y coordinates.
      */
     function decompress(uint256 compressed) public view returns (Bn256AffinePoint memory) {

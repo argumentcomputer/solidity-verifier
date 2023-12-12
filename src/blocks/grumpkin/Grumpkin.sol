@@ -112,11 +112,11 @@ library Grumpkin {
      * @param point The point to be checked.
      * @return True if the point is the identity element, false otherwise.
      */
-    function is_identity(GrumpkinAffinePoint memory p1) public pure returns (bool) {
-        if (p1.x != 0) {
+    function is_identity(GrumpkinAffinePoint memory point) public pure returns (bool) {
+        if (point.x != 0) {
             return false;
         }
-        if (p1.y != 0) {
+        if (point.y != 0) {
             return false;
         }
         return true;
@@ -126,7 +126,9 @@ library Grumpkin {
      * @dev Converts a point from projective to affine coordinates on the Grumpkin curve.
      *      Affine coordinates are the common (x, y) representation, while projective coordinates add a third 'z'
      *      coordinate for efficiency.
-     * @param point The point in projective coordinates to be converted.
+     * @param x_input The x coordinate in projective coordinates to be converted.
+     * @param y_input The y coordinate in projective coordinates to be converted.
+     * @param z_input The z coordinate in projective coordinates to be converted.
      * @return The point in affine coordinates.
      */
     function to_affine(uint256 x_input, uint256 y_input, uint256 z_input) private view returns (uint256, uint256) {
@@ -139,9 +141,8 @@ library Grumpkin {
     }
 
     /**
-     * @dev Multiplies the curve coefficient B by 3 and applies it to a given point on the Grumpkin curve.Operation often used
-     *      for point doubling and addition.
-     * @param point The point on the Grumpkin curve to be multiplied.
+     * @dev Multiplies the curve coefficient B by 3 and applies it to a given scalar.
+     * @param t The scalar to be multiplied.
      * @return The resulting point after multiplication.
      */
     function mul_by_3b(uint256 t) private pure returns (uint256) {
@@ -159,8 +160,8 @@ library Grumpkin {
      * @param point The point on the Grumpkin curve to be negated.
      * @return The negated point, also on the Grumpkin curve.
      */
-    function negate(GrumpkinAffinePoint memory a) public pure returns (GrumpkinAffinePoint memory) {
-        return GrumpkinAffinePoint(a.x, P_MOD - (a.y % P_MOD));
+    function negate(GrumpkinAffinePoint memory point) public pure returns (GrumpkinAffinePoint memory) {
+        return GrumpkinAffinePoint(point.x, P_MOD - (point.y % P_MOD));
     }
 
     /**

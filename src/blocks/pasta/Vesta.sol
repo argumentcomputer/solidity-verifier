@@ -102,10 +102,10 @@ library Vesta {
     }
 
     /**
-     * @dev Checks if a VestaAffinePoint is the point at infinity. The point at infinity is represented as (0, 0) in affine
-     *      coordinates.
      * @notice (0, 0) VestaAffinePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag to mark
      *          PoI, and just use (0, 1) as affine coordinates (not on curve) to represents PoI.
+     * @dev Checks if a VestaAffinePoint is the point at infinity. The point at infinity is represented as (0, 0) in affine
+     *      coordinates.
      * @param point The VestaAffinePoint to check.
      * @return result True if the point is the point at infinity, false otherwise.
      */
@@ -118,9 +118,9 @@ library Vesta {
     }
 
     /**
-     * @dev Checks if a VestaProjectivePoint is the point at infinity.
      * @notice (0, 0, 0) VestaProjectivePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag to
      *         mark PoI, and just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+     * @dev Checks if a VestaProjectivePoint is the point at infinity.
      * @param point The VestaProjectivePoint to check.
      * @return result True if the point is the point at infinity, false otherwise.
      */
@@ -509,9 +509,9 @@ library Vesta {
     }
 
     /**
+     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
      * @dev Validates a VestaAffinePoint to ensure it lies on the Vesta curve. Checks that x and y coordinates are non-zero
      *      (x != 0 && y != 0), less than P_MOD (x < p && y < p), and satisfy the curve equation y^2 = x^3 + 5 mod p.
-     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
      * @param point The VestaAffinePoint to be validated.
      */
     function validateCurvePoint(VestaAffinePoint memory point) internal pure {
@@ -531,8 +531,8 @@ library Vesta {
     }
 
     /**
-     * @dev Validates a scalar field element for the Vesta curve. Checks if the scalar is less than R_MOD.
      * @notice Writing this inline instead of calling it might save gas.
+     * @dev Validates a scalar field element for the Vesta curve. Checks if the scalar is less than R_MOD.
      * @param fr The scalar value to be validated.
      */
     function validateScalarField(uint256 fr) internal pure {

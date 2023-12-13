@@ -18,6 +18,17 @@ library PoseidonU24Optimized {
         uint256 partialRounds;
     }
 
+    /**
+     * @dev Creates a new set of Poseidon constants for use in Poseidon hash function.
+     * @param m Matrix used in the Poseidon hash function. Should be 25x25.
+     * @param psm Partial state matrix, a 25x25 matrix used in the hash function.
+     * @param w_hats Array of w_hat values used in constructing sparse matrices. Length must equal `partialRounds`.
+     * @param v_rests Array of v_rest values used in constructing sparse matrices. Length must equal `partialRounds`.
+     * @param round_constants Array of constants used in each round of the Poseidon hash function.
+     * @param fullRounds The number of full rounds in the Poseidon hash function.
+     * @param partialRounds The number of partial rounds in the Poseidon hash function.
+     * @return Returns a struct containing all the necessary constants for Poseidon hash function.
+     */
     function newConstants(
         uint256[][] memory m,
         uint256[][] memory psm,
@@ -80,6 +91,14 @@ library PoseidonU24Optimized {
         uint256 t24;
     }
 
+    /**
+     * @notice This function directly modifies the input `HashInputs25` structure (`i`) by adding the round constants.
+     * @dev Applies the Add-Round-Key (ARK) transformation to a hash input. The ARK step adds round constants to the
+     *      state elements. This function modifies the input `HashInputs25` structure in place.
+     * @param i The hash input, a struct containing 25 uint256 elements.
+     * @param q The modulus for addmod operation, typically a prime number.
+     * @param c A `HashInputs25` struct containing the round constants to be added.
+     */
     function ark(HashInputs25 memory i, uint256 q, HashInputs25 memory c) internal pure {
         HashInputs25 memory o;
 
@@ -136,6 +155,15 @@ library PoseidonU24Optimized {
         i.t24 = o.t24;
     }
 
+    /**
+     * @notice This function directly modifies the input `HashInputs25` structure (`i`) by applying the power of 5 to
+     *         each element.
+     * @dev Applies the full S-Box (substitution box) transformation in Poseidon hash function. This function raises each
+     *      element of the state to the power of 5 (x^5). This is the non-linear part of the permutation in the Poseidon
+     *      hash function.
+     * @param i The hash input, a struct containing 25 uint256 elements. Represents the current state.
+     * @param q The modulus for mulmod operation, typically a prime number.
+     */
     function sbox_full(HashInputs25 memory i, uint256 q) internal pure {
         HashInputs25 memory o;
 
@@ -242,6 +270,15 @@ library PoseidonU24Optimized {
         i.t24 = o.t24;
     }
 
+    /**
+     * @notice This function directly modifies the input `HashInputs25` structure (`i`) by applying the sparse matrix
+     *         multiplication.
+     * @dev Applies the sparse mixing step to the state in the Poseidon hash function. This step involves a custom sparse
+     *      matrix multiplication, designed for efficiency.
+     * @param i The hash input, a struct containing 25 uint256 elements, representing the current state.
+     * @param sparseMatrix The sparse matrix used for the mixing step, represented as a `SparseMatrixU24` struct.
+     * @param q The modulus for mulmod and addmod operations, typically a prime number.
+     */
     function mix_sparse(HashInputs25 memory i, SparseMatrixU24 memory sparseMatrix, uint256 q) internal pure {
         HashInputs25 memory o;
         uint256 tmp;
@@ -469,6 +506,15 @@ library PoseidonU24Optimized {
         i.t24 = o.t24;
     }
 
+    /**
+     * @notice This function directly modifies the input `HashInputs25` structure (`i`) by applying the matrix-vector
+     *         multiplication.
+     * @dev Applies the mixing step to the state in the Poseidon hash function. This step involves a matrix-vector
+     *      multiplication using the state and the constant matrix `m`.
+     * @param i The hash input, a struct containing 25 uint256 elements, representing the current state.
+     * @param m The matrix used for the mixing step, an array of 25 arrays, each containing 25 uint256 elements.
+     * @param q The modulus for mulmod and addmod operations, typically a prime number.
+     */
     function mix(HashInputs25 memory i, uint256[][] memory m, uint256 q) internal pure {
         HashInputs25 memory o;
 
@@ -1174,6 +1220,15 @@ library PoseidonU24Optimized {
         i.t24 = o.t24;
     }
 
+    /**
+     * @notice This function directly modifies the input `HashInputs25` structure (`i`) by applying the power of 5 to the
+     *         first element.
+     * @dev Applies the partial S-Box (substitution box) transformation in Poseidon hash function. In the partial S-Box,
+     *      only the first element of the state is raised to the power of 5 (x^5). This is a part of the non-linear
+     *      transformations in the Poseidon hash function.
+     * @param i The hash input, a struct containing 25 uint256 elements. Represents the current state.
+     * @param q The modulus for mulmod operation, typically a prime number.
+     */
     function sbox_partial(HashInputs25 memory i, uint256 q) internal pure {
         HashInputs25 memory o;
 
@@ -1184,6 +1239,16 @@ library PoseidonU24Optimized {
         i.t0 = o.t0;
     }
 
+    /**
+     * @notice This function modifies the `HashInputs25` structure (`i`) by adding round constants to each element of the
+     *         state.
+     * @dev Adds round constants to the state in the Poseidon hash function. This is part of the linear transformation
+     *      process in the hashing algorithm.
+     * @param i The hash input, a struct containing 25 uint256 elements. Represents the current state.
+     * @param q The modulus for the addmod operation, typically a prime number.
+     * @param round_constants An array of uint256 elements representing the round constants.
+     * @param offset The starting index in the round_constants array for this addition operation.
+     */
     function add_round_constants(HashInputs25 memory i, uint256 q, uint256[] memory round_constants, uint256 offset)
         internal
         pure
@@ -1221,6 +1286,16 @@ library PoseidonU24Optimized {
         );
     }
 
+    /**
+     * @notice This function performs a series of transformations on the state `i`, including S-Box, mix, and add_round_constants
+     *         operations.
+     * @dev Performs the Poseidon hash function on the input. The Poseidon hash function is a part of the family of
+     *      sponge functions and is based on a permutation using a number of rounds.
+     * @param i The hash input, a struct containing 25 uint256 elements, representing the initial state.
+     * @param c The PoseidonConstantsU24 struct containing precomputed constants for the hash function.
+     * @param q The modulus for the addmod and mulmod operations, typically a prime number.
+     * @return The resulting hash value.
+     */
     function hash(HashInputs25 memory i, PoseidonConstantsU24 memory c, uint256 q) internal pure returns (uint256) {
         uint256 offset = 0;
         uint256 index = 0;

@@ -107,10 +107,10 @@ library Pallas {
     }
 
     /**
+     * @notice Precompile bn256Add at address(6) takes (0, 0) as PallasAffinePoint of Infinity, some crypto libraries
+     *         (such as arkwork) uses a boolean flag to mark PoI, and just use (0, 1) as affine coordinates (not on curve)
+     *         to represents PoI.
      * @dev Checks if a point in affine coordinates is the point at infinity on the Pallas curve.
-     * @notice Precompile bn256Add at address(6) takes (0, 0) as PallasAffinePoint of Infinity,
-     *         some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
-     *         just use (0, 1) as affine coordinates (not on curve) to represents PoI.
      * @param point The point in affine coordinates to check.
      * @return result True if the point is the point at infinity, false otherwise.
      */
@@ -123,9 +123,9 @@ library Pallas {
     }
 
     /**
-     * @dev Checks if a point in projective coordinates is the point at infinity on the Pallas curve.
      * @notice (0, 1, 0) PallasProjectivePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag
      *         to mark PoI, and just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+     * @dev Checks if a point in projective coordinates is the point at infinity on the Pallas curve.
      * @param point The point in projective coordinates to check.
      * @return result True if the point is the point at infinity, false otherwise.
      */
@@ -513,9 +513,9 @@ library Pallas {
     }
 
     /**
+     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
      * @dev Validates a PallasAffinePoint to ensure it lies on the Pallas curve. Checks that x and y coordinates are
      *      non-zero (x != 0 && y != 0), less than P_MOD (x < p && y < p), and satisfy the curve equation y^2 = x^3 + 5 mod p.
-     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
      * @param point The PallasAffinePoint to be validated.
      */
     function validateCurvePoint(PallasAffinePoint memory point) internal pure {
@@ -535,8 +535,8 @@ library Pallas {
     }
 
     /**
-     * @dev Validates a scalar field element for the Pallas curve. Checks if the scalar is less than R_MOD (fr > r_mod).
      * @notice Writing this inline instead of calling it might save gas.
+     * @dev Validates a scalar field element for the Pallas curve. Checks if the scalar is less than R_MOD (fr > r_mod).
      * @param fr The scalar value to be validated.
      */
     function validateScalarField(uint256 fr) internal pure {

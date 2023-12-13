@@ -4,7 +4,18 @@ pragma solidity ^0.8.16;
 import "@std/Test.sol";
 import "src/blocks/grumpkin/Bn256.sol";
 
+/**
+ * @title Zeromorph Library
+ */
 library Zeromorph {
+    /**
+     * @notice Executes a pairing check using BN256 curve points.
+     * @param c The G1 point (first curve point).
+     * @param minus_vk_s_offset The G2 point (second curve point) representing the negative vk_s offset.
+     * @param pi The G1 point (third curve point).
+     * @param vk_vp_beta_h_minus_vk_vp_h_mul_x The G2 point (fourth curve point).
+     * @return True if the pairing check passes, false otherwise.
+     */
     function runPairingCheck(
         Pairing.G1Point memory c,
         Pairing.G2Point memory minus_vk_s_offset,
@@ -14,6 +25,12 @@ library Zeromorph {
         return Pairing.pairingProd2(c, minus_vk_s_offset, pi, vk_vp_beta_h_minus_vk_vp_h_mul_x);
     }
 
+    /**
+     * @notice Computes squares of a given value 'x' for a specified number of variables.
+     * @param num_vars The number of variables to consider.
+     * @param x The base value to be squared.
+     * @return An array containing the squares of x for each variable.
+     */
     function compute_squares_of_x(uint256 num_vars, uint256 x) internal pure returns (uint256[] memory) {
         // x, x^3, x^5, x^7, ...
         uint256[] memory squares_of_x = new uint256[](1 + num_vars);
@@ -26,6 +43,12 @@ library Zeromorph {
         return squares_of_x;
     }
 
+    /**
+     * @notice Calculates offset values of 'x' for a given number of variables.
+     * @param num_vars The number of variables.
+     * @param squares_of_x An array of squared values of x.
+     * @return An array containing offset values for each variable.
+     */
     function compute_offsets_of_x(uint256 num_vars, uint256[] memory squares_of_x)
         internal
         pure
@@ -40,6 +63,12 @@ library Zeromorph {
         return offsets_of_x;
     }
 
+    /**
+     * @notice Computes v values for a given set of squared x values.
+     * @param num_vars Number of variables.
+     * @param squares_of_x Array of squared x values.
+     * @return An array of v values.
+     */
     function compute_vs(uint256 num_vars, uint256[] memory squares_of_x) internal view returns (uint256[] memory) {
         uint256[] memory vs = new uint256[](1 + num_vars);
         uint256 v_numer = addmod(squares_of_x[num_vars], Bn256.negateScalar(1), Bn256.R_MOD);
@@ -51,6 +80,15 @@ library Zeromorph {
         return vs;
     }
 
+    /**
+     * @notice Evaluates and calculates quotient scalars for polynomial evaluation in zero-knowledge proofs.
+     * @param y The y value in polynomial evaluation.
+     * @param x The x value in polynomial evaluation.
+     * @param z The z value in polynomial evaluation.
+     * @param u Array of u values in polynomial evaluation.
+     * @return uint256 The evaluated scalar.
+     * @return An array of quotient scalars.
+     */
     function eval_and_quotient_scalars(uint256 y, uint256 x, uint256 z, uint256[] memory u)
         internal
         view
@@ -85,6 +123,14 @@ library Zeromorph {
         return (mulmod(Bn256.negateScalar(vs[0]), z, Bn256.R_MOD), q_scalars);
     }
 
+    /**
+     * @notice Composes scalar values for zero-knowledge proof evaluations.
+     * @param eval_scalar The evaluated scalar from previous computations.
+     * @param z The z value used in evaluations.
+     * @param zm_evaluation The zm evaluation value.
+     * @param q_scalars Array of quotient scalars.
+     * @return An array of composed scalar values.
+     */
     function compose_scalars(uint256 eval_scalar, uint256 z, uint256 zm_evaluation, uint256[] memory q_scalars)
         internal
         pure
@@ -112,21 +158,35 @@ library Zeromorph {
     }
 }
 
-// Based on: https://gist.github.com/chriseth/f9be9d9391efc5beb9704255a8e2989d
+/**
+ * @title Pairing Library
+ * @notice Provides functionalities for elliptic curve pairing operations, specifically for BN256 curve. Based on:
+ *         https://gist.github.com/chriseth/f9be9d9391efc5beb9704255a8e2989d
+ * @dev This library is essential for cryptographic operations that require pairing checks.
+ */
 library Pairing {
+    // Represents a point on G1 (first group of BN256 curve).
     struct G1Point {
         Bn256.Bn256AffinePoint inner;
     }
-
+    // Represents a point on G2 (second group of BN256 curve).
     struct G2Point {
         uint256[2] X;
         uint256[2] Y;
     }
 
+    /**
+     * @notice Provides a predefined G1 point.
+     * @return A predefined point on G1.
+     */
     function P1() internal pure returns (G1Point memory) {
         return G1Point(Bn256.Bn256AffinePoint(1, 2));
     }
 
+    /**
+     * @notice Provides a predefined G2 point.
+     * @return A predefined point on G2.
+     */
     function P2() internal pure returns (G2Point memory) {
         return G2Point(
             [
@@ -140,22 +200,43 @@ library Pairing {
         );
     }
 
+    /**
+     * @notice Negates a G1 point.
+     * @param p The G1 point to negate.
+     * @return The negated G1 point.
+     */
     function negate(G1Point memory p) internal pure returns (G1Point memory) {
         return G1Point(Bn256.negate(p.inner));
     }
 
+    /**
+     * @notice Multiplies a G1 point with a scalar.
+     * @param p The G1 point to multiply.
+     * @param s The scalar to multiply with.
+     * @return The result of the multiplication.
+     */
     function mul(G1Point memory p, uint256 s) internal returns (G1Point memory) {
         return G1Point(Bn256.scalarMul(p.inner, s));
     }
 
+    /**
+     * @notice Adds two G1 points.
+     * @param p1 The first G1 point.
+     * @param p2 The second G1 point.
+     * @return The sum of the two G1 points.
+     */
     function add(G1Point memory p1, G1Point memory p2) internal returns (G1Point memory) {
         return G1Point(Bn256.add(p1.inner, p2.inner));
     }
 
-    /// @return the result of computing the pairing check
-    /// e(p1[0], p2[0]) *  .... * e(p1[n], p2[n]) == 1
-    /// For example pairing([P1(), P1().negate()], [P2(), P2()]) should
-    /// return true.
+    /**
+     * @notice Computes the pairing check of two sets of points.
+     * @param p1 Array of G1 points.
+     * @param p2 Array of G2 points.
+     * @return True if the pairing check passes, false otherwise.
+     * @dev For example pairing([P1(), P1().negate()], [P2(), P2()]) should
+     *      return true.
+     */
     function pairing(G1Point[] memory p1, G2Point[] memory p2) internal returns (bool) {
         require(p1.length == p2.length);
         uint256 elements = p1.length;
@@ -179,6 +260,14 @@ library Pairing {
         return out[0] != 0;
     }
 
+    /**
+     * @notice Computes the product of pairings for two pairs of points.
+     * @param a1 The first G1 point in the first pair.
+     * @param a2 The first G2 point in the first pair.
+     * @param b1 The second G1 point in the second pair.
+     * @param b2 The second G2 point in the second pair.
+     * @return True if the product of pairings check passes, false otherwise.
+     */
     function pairingProd2(G1Point memory a1, G2Point memory a2, G1Point memory b1, G2Point memory b2)
         internal
         returns (bool)

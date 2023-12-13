@@ -7,7 +7,21 @@ import "src/blocks/KeccakTranscript.sol";
 import "src/blocks/EqPolynomial.sol";
 import "src/Utilities.sol";
 
+/**
+ * @title Primary Sumcheck Library
+ * @notice Implements the primary sumcheck verification protocol.
+ */
 library PrimarySumcheck {
+    /**
+     * @notice Verifies the primary sumcheck proof.
+     * @param proof The sumcheck proof to be verified.
+     * @param claim The initial claim or value to verify against.
+     * @param num_rounds The number of rounds in the sumcheck protocol.
+     * @param degree_bound The degree bound of the polynomial.
+     * @param transcript The Keccak transcript used during verification.
+     * @return A tuple of 3 elements: the final value after all rounds of verification, the array of challenges used in
+     *         each round, and the updated Keccak transcript.
+     */
     function verify(
         PolyLib.SumcheckProof calldata proof,
         uint256 claim,
@@ -49,7 +63,21 @@ library PrimarySumcheck {
     }
 }
 
+/**
+ * @title Secondary Sumcheck Library
+ * @notice Implements the secondary sumcheck verification protocol.
+ */
 library SecondarySumcheck {
+    /**
+     * @notice Verifies the secondary sumcheck proof.
+     * @param proof The sumcheck proof to be verified.
+     * @param claim The initial claim or value to verify against.
+     * @param num_rounds The number of rounds in the sumcheck protocol.
+     * @param degree_bound The degree bound of the polynomial.
+     * @param transcript The Keccak transcript used during verification.
+     * @return A tuple of 3 elements: the final value after all rounds of verification, the array of challenges used in
+     *         each round, and the updated Keccak transcript.
+     */
     function verify(
         PolyLib.SumcheckProof calldata proof,
         uint256 claim,

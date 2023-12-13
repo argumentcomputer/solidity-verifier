@@ -7,6 +7,10 @@ import "src/blocks/grumpkin/Bn256.sol";
 import "src/blocks/grumpkin/Grumpkin.sol";
 import "src/Utilities.sol";
 
+/**
+ * @title Scalar From Uniform Library
+ * @dev This library provides functions to convert uniform random bytes into a scalar in various cryptographic groups.
+ */
 library ScalarFromUniformLib {
     uint256 private constant SCALAR_UNIFORM_BYTE_SIZE = 64;
 
@@ -50,23 +54,51 @@ library ScalarFromUniformLib {
         GRUMPKIN
     }
 
+    /**
+     * @notice Returns the enum value representing the Pallas curve.
+     * @dev This function is used to select the Pallas curve for operations requiring a specific curve context.
+     * @return Curve Enum value corresponding to the Pallas curve.
+     */
     function curvePallas() public pure returns (Curve) {
         return Curve.PALLAS;
     }
 
+    /**
+     * @notice Returns the enum value representing the Vesta curve.
+     * @dev This function is used to select the Vesta curve for operations requiring a specific curve context.
+     * @return Curve Enum value corresponding to the Vesta curve.
+     */
     function curveVesta() public pure returns (Curve) {
         return Curve.VESTA;
     }
 
+    /**
+     * @notice Returns the enum value representing the BN256 curve.
+     * @dev This function is used to select the BN256 curve for operations requiring a specific curve context.
+     * @return Curve Enum value corresponding to the BN256 curve.
+     */
     function curveBn256() public pure returns (Curve) {
         return Curve.BN256;
     }
 
+    /**
+     * @notice Returns the enum value representing the Grumpkin curve.
+     * @dev This function is used to select the Grumpkin curve for operations requiring a specific curve context.
+     * @return Curve Enum value corresponding to the Grumpkin curve.
+     */
     function curveGrumpkin() public pure returns (Curve) {
         return Curve.GRUMPKIN;
     }
 
-    // 'from_uniform_bytes' in Rust
+    /**
+     * @notice Converts uniform bytes into a scalar value within the field of a specified curve.
+     * @dev This function takes a sequence of bytes and maps it into the scalar field of the given curve,
+     *      ensuring the uniformity and cryptographic security of the scalar value for cryptographic operations. Comes
+     *      frpm 'from_uniform_bytes' in Rust.
+     * @param scalarUniform An array of uniform bytes.
+     * @param curve The cryptographic curve (Pallas, Vesta, BN256, Grumpkin) for which to generate the scalar.
+     * @return A scalar value within the field of the specified curve.
+     */
     function scalarFromUniform(uint8[] memory scalarUniform, Curve curve) public pure returns (uint256) {
         uint256 modulus;
         uint256 R2;
@@ -183,6 +215,14 @@ library ScalarFromUniformLib {
         return scalar;
     }
 
+    /**
+     * @notice Extracts a 64-bit limb from a byte array starting from a specific index.
+     * @dev This function is used to parse a 64-bit integer from a subset of a byte array.
+     * @param scalarUniform The byte array from which the limb is extracted.
+     * @param startIndex The starting index from which to begin extraction.
+     * @param endIndex The ending index (exclusive) where extraction stops.
+     * @return A 64-bit integer (limb) extracted from the specified range of the byte array.
+     */
     function getLimb(uint8[] memory scalarUniform, uint256 startIndex, uint256 endIndex)
         private
         pure
@@ -202,6 +242,13 @@ library ScalarFromUniformLib {
         return limb;
     }
 
+    /**
+     * @notice Performs Montgomery reduction on a multi-limb integer to obtain a single limb integer in Pallas curve modulus.
+     * @dev This function applies the Montgomery reduction algorithm to convert a large integer (represented as multiple
+     *      64-bit limbs) into a reduced form modulo the Pallas curve's prime modulus.
+     * @param r0-r7 The 64-bit limbs representing the large integer to be reduced.
+     * @return The Montgomery reduced result as a single integer modulo the Pallas curve's prime modulus.
+     */
     function montgomeryReducePallas(
         uint64 r0,
         uint64 r1,
@@ -299,6 +346,12 @@ library ScalarFromUniformLib {
         return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
     }
 
+    /**
+     * @notice Performs Montgomery reduction on a multi-limb integer to obtain a single limb integer in Vesta curve modulus.
+     * @dev Similar to montgomeryReducePallas, but specific to the Vesta curve's prime modulus.
+     * @param r0-r7 The 64-bit limbs representing the large integer to be reduced.
+     * @return The Montgomery reduced result as a single integer modulo the Vesta curve's prime modulus.
+     */
     function montgomeryReduceVesta(
         uint64 r0,
         uint64 r1,
@@ -396,6 +449,12 @@ library ScalarFromUniformLib {
         return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
     }
 
+    /**
+     * @notice Performs Montgomery reduction on a multi-limb integer to obtain a single limb integer in BN256 curve modulus.
+     * @dev Similar to montgomeryReducePallas and montgomeryReduceVesta, but specific to the BN256 curve's prime modulus.
+     * @param r0-r7 The 64-bit limbs representing the large integer to be reduced.
+     * @return The Montgomery reduced result as a single integer modulo the BN256 curve's prime modulus.
+     */
     function montgomeryReduceBn256(
         uint64 r0,
         uint64 r1,
@@ -493,6 +552,13 @@ library ScalarFromUniformLib {
         return (uint256(r3) << 192) ^ (uint256(r2) << 128) ^ (uint256(r1) << 64) ^ uint256(r0);
     }
 
+    /**
+     * @notice Performs Montgomery reduction on a multi-limb integer to obtain a single limb integer in Grumpkin curve
+     *         modulus.
+     * @dev Similar to the other montgomeryReduce functions, but specific to the Grumpkin curve's prime modulus.
+     * @param r0-r7 The 64-bit limbs representing the large integer to be reduced.
+     * @return The Montgomery reduced result as a single integer modulo the Grumpkin curve's prime modulus.
+     */
     function montgomeryReduceGrumpkin(
         uint64 r0,
         uint64 r1,
@@ -591,6 +657,11 @@ library ScalarFromUniformLib {
     }
 }
 
+/**
+ * @title Keccak Transcript Library
+ * @notice Provides functions for managing Keccak transcripts in cryptographic protocols.
+ * @dev This library handles the generation and manipulation of cryptographic transcripts using Keccak hash function.
+ */
 library KeccakTranscriptLib {
     uint32 private constant PERSONA_TAG = 0x4e6f5452;
     uint32 private constant DOM_SEP_TAG = 0x4e6f4453;
@@ -604,6 +675,12 @@ library KeccakTranscriptLib {
         uint8[] transcript;
     }
 
+    /**
+     * @notice Instantiates a new Keccak transcript.
+     * @dev Initializes a new transcript with a given label, which influences the initial state.
+     * @param label An array of bytes used as the label for transcript instantiation.
+     * @return A new instance of KeccakTranscript.
+     */
     function instantiate(uint8[] memory label) public pure returns (KeccakTranscript memory) {
         uint8[] memory input = new uint8[](label.length + 4);
 
@@ -624,7 +701,12 @@ library KeccakTranscriptLib {
         KeccakTranscript memory keccak = KeccakTranscript(0, computeUpdatedState(input), transcript);
         return keccak;
     }
-
+    /**
+     * @notice Computes an updated state for the Keccak transcript.
+     * @dev Internally used to update the state of the transcript based on the input and current state.
+     * @param input The array of bytes to be processed for updating the state.
+     * @return updatedState The new state after processing the input.
+     */
     function computeUpdatedState(uint8[] memory input) private pure returns (uint8[] memory updatedState) {
         uint8[] memory inputLo = new uint8[](input.length + 1);
         uint8[] memory inputHi = new uint8[](input.length + 1);
@@ -663,7 +745,13 @@ library KeccakTranscriptLib {
 
         return updatedState;
     }
-
+    /**
+     * @notice Domain separator for the Keccak transcript.
+     * @dev Appends a domain separator to the transcript. Useful for separating different parts or stages of a protocol.
+     * @param keccak The current state of the Keccak transcript.
+     * @param dom_sep_input Input for the domain separator.
+     * @return The updated Keccak transcript with the domain separator applied.
+     */
     function dom_sep(KeccakTranscript memory keccak, uint8[] memory dom_sep_input)
         public
         pure
@@ -691,7 +779,14 @@ library KeccakTranscriptLib {
 
         return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
-
+    /**
+     * @notice Absorbs additional data into the Keccak transcript.
+     * @dev Integrates new data into the transcript, updating its state. Used for adding various protocol-specific values.
+     * @param keccak The current state of the Keccak transcript.
+     * @param label A label to categorize or identify the data being absorbed.
+     * @param input The data to be absorbed into the transcript.
+     * @return The updated Keccak transcript with the new data absorbed.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input)
         public
         pure
@@ -721,6 +816,12 @@ library KeccakTranscriptLib {
         return KeccakTranscript(keccak.round, keccak.state, transcript);
     }
 
+    /**
+     * @notice Converts a uint256 scalar value into a bytes array.
+     * @dev The function splits a 256-bit number into 32 bytes.
+     * @param input The uint256 scalar value to be converted.
+     * @return The resulting 32-byte array.
+     */
     function scalarToBytes(uint256 input) private pure returns (uint8[] memory) {
         uint8[] memory input_bytes = new uint8[](32);
 
@@ -731,6 +832,14 @@ library KeccakTranscriptLib {
         return input_bytes;
     }
 
+    /**
+     * @notice Absorbs a uint256 scalar value into the Keccak transcript.
+     * @dev Converts the scalar to bytes and then uses the standard `absorb` function.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param input The uint256 scalar value to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256 input)
         public
         pure
@@ -739,7 +848,14 @@ library KeccakTranscriptLib {
         uint8[] memory input_bytes = scalarToBytes(input);
         return absorb(keccak, label, input_bytes);
     }
-
+    /**
+     * @notice Absorbs a Pallas affine point into the Keccak transcript.
+     * @dev Handles the affine point by converting its coordinates to bytes and handling the infinity case.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param point The Pallas affine point to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Pallas.PallasAffinePoint memory point)
         public
         pure
@@ -768,6 +884,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    /**
+     * @notice Absorbs an array of Pallas affine points into the Keccak transcript.
+     * @dev Processes each point and then absorbs the entire array.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param points The array of Pallas affine points to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Pallas.PallasAffinePoint[] memory points)
         public
         pure
@@ -799,6 +923,13 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Absorbs a Vesta affine point into the Keccak transcript, similar to the Pallas point absorption.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param point The Vesta affine point to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Vesta.VestaAffinePoint memory point)
         public
         pure
@@ -827,6 +958,13 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    /**
+     * @notice Absorbs an array of Vesta affine points into the Keccak transcript, similar to the Pallas array absorption.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param points The array of Vesta affine points to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Vesta.VestaAffinePoint[] memory points)
         public
         pure
@@ -858,6 +996,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Absorbs an array of uint256 scalars into the Keccak transcript.
+     * @dev Converts each scalar to bytes and absorbs them collectively.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param inputs The array of uint256 scalars to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint256[] memory inputs)
         public
         pure
@@ -876,6 +1022,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    /**
+     * @notice Absorbs a univariate polynomial into the Keccak transcript.
+     * @dev Converts the polynomial to bytes and uses the standard `absorb` function.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param poly The univariate polynomial to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, PolyLib.UniPoly memory poly)
         public
         pure
@@ -884,6 +1038,17 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, PolyLib.toTranscriptBytes(poly));
     }
 
+    /**
+     * @notice Absorbs Vesta affine points and additional data into the Keccak transcript.
+     * @dev Processes the affine points (comm_W, comm_E) and additional uint256 data (X, u) for absorption.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param comm_W The first Vesta affine point to be absorbed.
+     * @param comm_E The second Vesta affine point to be absorbed.
+     * @param X An array of uint256 values to be absorbed.
+     * @param u A uint256 value to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(
         KeccakTranscript memory keccak,
         uint8[] memory label,
@@ -964,6 +1129,17 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Absorbs Pallas affine points and additional data into the Keccak transcript.
+     * @dev Processes the affine points (comm_W, comm_E) and additional uint256 data (X, u) for absorption.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param comm_W The first Pallas affine point to be absorbed.
+     * @param comm_E The second Pallas affine point to be absorbed.
+     * @param X An array of uint256 values to be absorbed.
+     * @param u A uint256 value to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(
         KeccakTranscript memory keccak,
         uint8[] memory label,
@@ -1044,6 +1220,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Absorbs a Bn256 affine point into the Keccak transcript.
+     * @dev Converts the affine point's coordinates to bytes and handles the infinity case.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param point The Bn256 affine point to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint memory point)
         public
         pure
@@ -1071,6 +1255,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Absorbs an array of Bn256 affine points into the Keccak transcript.
+     * @dev Converts each point's coordinates to bytes and handles the infinity case for each point.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param points An array of Bn256 affine points to be absorbed.
+     * @return The updated Keccak transcript after absorbing the points.
+     */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Bn256.Bn256AffinePoint[] memory points)
         public
         pure
@@ -1102,6 +1294,14 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, output);
     }
 
+    /**
+     * @notice Generates a scalar from the Keccak transcript using a specified curve and updates the transcript.
+     * @dev Updates the Keccak transcript state and computes a scalar value based on the selected elliptic curve.
+     * @param keccak The existing Keccak transcript.
+     * @param curve The elliptic curve to be used for generating the scalar.
+     * @param label A byte array label used in the squeezing process.
+     * @return A tuple containing the updated Keccak transcript and the generated scalar.
+     */
     function squeeze(KeccakTranscript memory keccak, ScalarFromUniformLib.Curve curve, uint8[] memory label)
         public
         pure

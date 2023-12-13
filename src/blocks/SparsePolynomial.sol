@@ -4,13 +4,25 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 
-// Port of Nova' SparsePolynomial (https://github.com/microsoft/Nova/blob/main/src/spartan/polynomial.rs#L121)
+/**
+ * @title Sparse Polynomial Library
+ * @notice Library for handling sparse polynomial operations, based on the Nova implementation.
+ * @dev Provides functions for sparse polynomial setup and evaluation, ported from Nova's implementation,
+ *      (https://github.com/microsoft/Nova/blob/main/src/spartan/polynomial.rs#L121).
+ */
 library SparsePolynomialLib {
     struct Z {
         uint256 index;
         uint256 scalar;
     }
 
+    /**
+     * @notice Sets up a polynomial `X` with given terms.
+     * @param z0 The first term of the polynomial.
+     * @param z1 The second term of the polynomial.
+     * @param z2 The third term of the polynomial.
+     * @return An array of Z representing the polynomial.
+     */
     function setupPoly_X(
         SparsePolynomialLib.Z memory z0,
         SparsePolynomialLib.Z memory z1,
@@ -24,6 +36,16 @@ library SparsePolynomialLib {
         return poly_X;
     }
 
+    /**
+     * @notice Evaluates a sparse polynomial.
+     * @param num_vars The number of variables in the polynomial.
+     * @param poly_X The sparse polynomial represented as an array of Z.
+     * @param r_y The values of variables for evaluation.
+     * @param modulus The modulus to be used in calculations.
+     * @param negateBase A function to compute the negation of a base element.
+     * @return The result of the polynomial evaluation.
+     * @dev The function performs the evaluation using the provided values and modulus.
+     */
     function evaluate(
         uint256 num_vars,
         Z[] memory poly_X,

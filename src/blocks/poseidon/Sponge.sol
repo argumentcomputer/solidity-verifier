@@ -83,7 +83,7 @@ library SpongeOpLib {
 
     /**
      * @notice Retrieves the operation value from a `SpongeOp` structure with additional processing based on the operation
-               type.
+     *            type.
      * @dev For `Absorb` operations, it adds 2^31 to the value. For `Squeeze` operations, it returns the value as is.
      * @param val The `SpongeOp` structure from which the value is retrieved.
      * @return The processed value as a `uint32`.
@@ -223,6 +223,7 @@ library HasherLib {
      * @param domainSeparator A 128-bit domain separator used to finalize the hash value.
      * @return The final hash value as a 128-bit unsigned integer.
      */
+
     function finalize(Hasher memory h, uint128 domainSeparator) internal pure returns (uint128) {
         finishOp(h);
         update(h, domainSeparator);
@@ -291,7 +292,7 @@ library NovaSpongePallasLib {
     // elements required for cryptographic operations such as hashing.
     struct SpongeU24Pallas {
         IOPatternLib.IOPattern pattern; // Defines the input/output operation pattern for the sponge.
-        PoseidonU24Pallas.HashInputs25 state;  // Represents the internal state of the sponge, tailored for the Pallas curve.
+        PoseidonU24Pallas.HashInputs25 state; // Represents the internal state of the sponge, tailored for the Pallas curve.
         uint32 squeezeIndex; // Tracks the current position in the state array for the squeezing operation.
         uint32 IOCounter; // Counter for the number of input/output operations conducted.
         uint32 statePosition; // Indicates the current position in the state array for absorb and squeeze operations.

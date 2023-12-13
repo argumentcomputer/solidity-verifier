@@ -170,6 +170,7 @@ library Pairing {
         Bn256.Bn256AffinePoint inner;
     }
     // Represents a point on G2 (second group of BN256 curve).
+
     struct G2Point {
         uint256[2] X;
         uint256[2] Y;

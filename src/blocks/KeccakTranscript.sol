@@ -707,6 +707,7 @@ library KeccakTranscriptLib {
      * @param input The array of bytes to be processed for updating the state.
      * @return updatedState The new state after processing the input.
      */
+
     function computeUpdatedState(uint8[] memory input) private pure returns (uint8[] memory updatedState) {
         uint8[] memory inputLo = new uint8[](input.length + 1);
         uint8[] memory inputHi = new uint8[](input.length + 1);
@@ -752,6 +753,7 @@ library KeccakTranscriptLib {
      * @param dom_sep_input Input for the domain separator.
      * @return The updated Keccak transcript with the domain separator applied.
      */
+
     function dom_sep(KeccakTranscript memory keccak, uint8[] memory dom_sep_input)
         public
         pure
@@ -787,6 +789,7 @@ library KeccakTranscriptLib {
      * @param input The data to be absorbed into the transcript.
      * @return The updated Keccak transcript with the new data absorbed.
      */
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, uint8[] memory input)
         public
         pure
@@ -856,6 +859,7 @@ library KeccakTranscriptLib {
      * @param point The Pallas affine point to be absorbed.
      * @return The updated Keccak transcript after absorption.
      */
+
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Pallas.PallasAffinePoint memory point)
         public
         pure

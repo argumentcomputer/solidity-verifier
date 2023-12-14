@@ -5,7 +5,7 @@ This repository contains Solidity implementation of Nova-based proving system
 The idea is actually to gather required cryptographic building blocks (Pasta / Grumpkin curve operations, Poseidon, KeccakTranscript, Sumcheck protocol, etc.) in `main` branch, 
 evaluate them and check that they work as expected via test vectors provided by "trusted" reference Rust implementation ([Arecibo](https://github.com/lurk-lab/arecibo)).
 Since reference proving system is under active development, the original end-to-end verification flow is a subject of changes, that is why, full e2e contracts are located in various branches,
-depending on the Nova cryptographic feature. See [pasta](https://github.com/lurk-lab/solidity-verifier/tree/pasta) [grumpkin](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin), [zeromorph](https://github.com/lurk-lab/solidity-verifier/tree/zeromorph), [gas-optimizing](https://github.com/lurk-lab/solidity-verifier/tree/gas-optimizing) branches for more details.
+depending on the Nova cryptographic feature. See [pasta](https://github.com/lurk-lab/solidity-verifier/tree/pasta), [grumpkin](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin), [zeromorph](https://github.com/lurk-lab/solidity-verifier/tree/zeromorph), [gas-optimizing](https://github.com/lurk-lab/solidity-verifier/tree/gas-optimizing) branches for more details.
 
 # Commands to play with
 

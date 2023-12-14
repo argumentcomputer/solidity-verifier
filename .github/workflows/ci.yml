@@ -1,7 +1,6 @@
-name: Run tests
+name: Run unit tests
 
 on:
-  push:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
@@ -9,9 +8,6 @@ on:
 
 jobs:
   unit-tests:
-    strategy:
-      fail-fast: true
-
     name: Unit Tests
     runs-on: [self-hosted]
     steps:

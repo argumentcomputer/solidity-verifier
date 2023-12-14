@@ -1091,7 +1091,6 @@ library NovaSpongeVestaLib {
 library NovaSpongeLib {
     uint32 public constant STATE_SIZE = 25;
 
-
     // Represents the state and operational parameters of the sponge.
     struct SpongeU24 {
         IOPatternLib.IOPattern pattern;

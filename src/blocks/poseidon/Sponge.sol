@@ -1084,9 +1084,15 @@ library NovaSpongeVestaLib {
     }
 }
 
+/**
+ * @title NovaSpongeLib Library
+ * @dev Provides cryptographic sponge construction functionalities for cryptographic purposes, specifically designed for use with the PoseidonU24Optimized library.
+ */
 library NovaSpongeLib {
     uint32 public constant STATE_SIZE = 25;
 
+
+    // Represents the state and operational parameters of the sponge.
     struct SpongeU24 {
         IOPatternLib.IOPattern pattern;
         PoseidonU24Optimized.PoseidonConstantsU24 constants;
@@ -1096,6 +1102,11 @@ library NovaSpongeLib {
         uint32 statePosition;
     }
 
+    /**
+     * @notice Initializes the state of the sponge with a given pValue.
+     * @param pValue The initial value to start the sponge state.
+     * @return Returns the initialized state of the sponge.
+     */
     function initializeState(uint128 pValue) internal pure returns (PoseidonU24Optimized.HashInputs25 memory) {
         PoseidonU24Optimized.HashInputs25 memory state = PoseidonU24Optimized.HashInputs25(
             uint256(pValue),
@@ -1127,6 +1138,13 @@ library NovaSpongeLib {
         return state;
     }
 
+    /**
+     * @notice Starts the sponge operation with a specific pattern, domain separator, and constants.
+     * @param pattern The I/O pattern to be used by the sponge.
+     * @param domainSeparator The domain separator for domain separation purposes.
+     * @param constants The Poseidon constants used for the hash function.
+     * @return Returns the initialized sponge instance.
+     */
     function start(
         IOPatternLib.IOPattern memory pattern,
         uint32 domainSeparator,
@@ -1141,6 +1159,13 @@ library NovaSpongeLib {
         return sponge;
     }
 
+    /**
+     * @notice Absorbs an array of scalars into the sponge's state.
+     * @param sponge The sponge instance.
+     * @param scalars The array of scalars to absorb.
+     * @param modulus The modulus used for arithmetic operations.
+     * @return Returns the updated sponge instance after absorption.
+     */
     function absorb(SpongeU24 memory sponge, uint256[] memory scalars, uint256 modulus)
         public
         pure
@@ -1176,6 +1201,13 @@ library NovaSpongeLib {
         return sponge;
     }
 
+    /**
+     * @notice Squeezes output from the sponge.
+     * @param sponge The sponge instance.
+     * @param length The length of the output array.
+     * @param modulus The modulus used for arithmetic operations.
+     * @return tuple containing the updated sponge instance and the squeezed output array.
+     */
     function squeeze(SpongeU24 memory sponge, uint32 length, uint256 modulus)
         public
         pure
@@ -1207,6 +1239,12 @@ library NovaSpongeLib {
         return (sponge, out);
     }
 
+    /**
+     * @notice Converts the sponge's state from a PoseidonU24Optimized.HashInputs25 structure to an array.
+     * @dev This is an internal helper function to facilitate state manipulation.
+     * @param state The PoseidonU24Optimized.HashInputs25 state to be converted.
+     * @return The state represented as an array.
+     */
     function stateToArray(PoseidonU24Optimized.HashInputs25 memory state) internal pure returns (uint256[] memory) {
         uint256[] memory result = new uint256[](STATE_SIZE);
         result[0] = state.t0;
@@ -1237,6 +1275,12 @@ library NovaSpongeLib {
         return result;
     }
 
+    /**
+     * @notice Converts the sponge's state from an array back to a PoseidonU24Optimized.HashInputs25 structure.
+     * @dev This is an internal helper function for state manipulation and ensures the array length matches the expected state size.
+     * @param state The array representing the state.
+     * @return The state represented as PoseidonU24Optimized.HashInputs25.
+     */
     function arrayToState(uint256[] memory state) internal pure returns (PoseidonU24Optimized.HashInputs25 memory) {
         require(state.length == STATE_SIZE, "[NovaSpongeBn256Lib::arrayToState] state.length != STATE_SIZE");
         PoseidonU24Optimized.HashInputs25 memory tempState = PoseidonU24Optimized.HashInputs25(
@@ -1269,10 +1313,23 @@ library NovaSpongeLib {
         return tempState;
     }
 
+    /**
+     * @notice Determines the current position for absorption in the sponge's state.
+     * @dev This function helps in identifying where the next element should be absorbed in the state array.
+     * @param sponge The sponge instance.
+     * @return The current position for absorption in the sponge's state.
+     */
     function absorbPosition(SpongeU24 memory sponge) internal pure returns (uint32) {
         return sponge.statePosition - 1;
     }
 
+    /**
+     * @notice Applies the permutation function to the sponge's state, ensuring the security and correctness of the
+     *         sponge construction.
+     * @param sponge The sponge instance.
+     * @param modulus The modulus used for arithmetic operations in the permutation.
+     * @return The new state array after permutation.
+     */
     function permute(SpongeU24 memory sponge, uint256 modulus) internal pure returns (uint256[] memory) {
         PoseidonU24Optimized.HashInputs25 memory temp_state = sponge.state;
 
@@ -1285,28 +1342,63 @@ library NovaSpongeLib {
         return stateToArray(temp_state);
     }
 
+    /**
+     * @notice Sets the absorption position index in the sponge's state.
+     * @param sponge The sponge instance.
+     * @param index The new position index for absorption.
+     */
     function setAbsorbPosition(SpongeU24 memory sponge, uint32 index) internal pure {
         sponge.statePosition = index + 1;
     }
 
+    /**
+     * @notice Sets the squeezing position index in the sponge's state.
+     * @param sponge The sponge instance.
+     * @param index The new position index for squeezing.
+     */
     function setSqueezePosition(SpongeU24 memory sponge, uint32 index) internal pure {
         sponge.squeezeIndex = index;
     }
 
+    /**
+     * @notice Increments the IO counter of the sponge.
+     * @param sponge The sponge instance whose IO counter is to be incremented.
+     * @return The value of the IO counter before the increment.
+     */
     function incrementIOCounter(SpongeU24 memory sponge) internal pure returns (uint32) {
         uint32 oldIOCounter = sponge.IOCounter;
         sponge.IOCounter++;
         return oldIOCounter;
     }
 
+    /**
+     * @notice Adds an element to the rate part of the sponge's state at a specified offset.
+     * @dev This is an internal function used during the absorb phase of the sponge operation.
+     * @param state The state array of the sponge.
+     * @param offset The offset in the state array where the element is to be added.
+     * @param element The element to add to the state array.
+     */
     function addRateElement(uint256[] memory state, uint32 offset, uint256 element) internal pure {
         state[offset + 1] = element;
     }
 
+    /**
+     * @notice Reads an element from the rate part of the sponge's state at a specified offset.
+     * @dev This function is used during the squeezing phase to read elements from the state array.
+     * @param state The state array of the sponge.
+     * @param offset The offset in the state array from where the element is to be read.
+     * @return The element at the specified offset in the state array.
+     */
     function readRateElement(uint256[] memory state, uint32 offset) internal pure returns (uint256) {
         return getElement(state, offset + 1);
     }
 
+    /**
+     * @notice Retrieves an element from a specified index in the state array.
+     * @param state The state array of the sponge.
+     * @param index The index in the state array from where the element is to be retrieved.
+     * @return The element at the specified index in the state array.
+     */
     function getElement(uint256[] memory state, uint32 index) internal pure returns (uint256) {
         return state[index];
     }

@@ -3,6 +3,9 @@ pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
 import "src/blocks/poseidon/Sponge.sol";
+import "src/blocks/grumpkin/Bn256.sol";
+import "src/blocks/grumpkin/Grumpkin.sol";
+import "test/utils.t.sol";
 
 // TODO: add other sponge (in simplex mode) tests from neptune: https://github.com/lurk-lab/neptune/blob/master/src/sponge/vanilla.rs#L501
 contract SpongeContractTest is Test {
@@ -170,5 +173,61 @@ contract SpongeContractTest is Test {
         IOPatternLib.IOPattern memory p3 = IOPatternLib.IOPattern(pattern3);
 
         assertEq(340282366920938463463374607090318361668, IOPatternLib.value(p3, 0));
+    }
+
+    function testNovaSpongeBn256() public {
+        uint32 absorbLen = 19;
+        uint32 sqeezeLen = 1;
+        uint32 domainSeparator = 0;
+
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, sqeezeLen);
+        SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
+        pattern[0] = absorb;
+        pattern[1] = squeeze;
+        IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
+
+        NovaSpongeLib.SpongeU24 memory sponge =
+            NovaSpongeLib.start(p, domainSeparator, TestUtilities.loadBn256Constants());
+
+        uint256[] memory scalars = new uint256[](absorbLen);
+        for (uint32 i = 0; i < absorbLen; i++) {
+            scalars[i] = 0x2f84ba2d19e9ddd19a1c31e99146be2346cbdeb53c268d0b8f7f70d41cde0883;
+        }
+
+        sponge = NovaSpongeLib.absorb(sponge, scalars, Bn256.R_MOD);
+
+        uint256[] memory output;
+        (sponge, output) = NovaSpongeLib.squeeze(sponge, sqeezeLen, Bn256.R_MOD);
+        assertEq(output.length, sqeezeLen);
+        assertEq(output[0], uint256(0x1ef0e6a5980781cf56df9a4d1dc7c892903296b099a02ca7d7d43cbabf62b11e));
+    }
+
+    function testNovaSpongeGrumpkin() public {
+        uint32 absorbLen = 19;
+        uint32 sqeezeLen = 1;
+        uint32 domainSeparator = 0;
+
+        SpongeOpLib.SpongeOp memory absorb = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Absorb, absorbLen);
+        SpongeOpLib.SpongeOp memory squeeze = SpongeOpLib.SpongeOp(SpongeOpLib.SpongeOpType.Squeeze, sqeezeLen);
+        SpongeOpLib.SpongeOp[] memory pattern = new SpongeOpLib.SpongeOp[](2);
+        pattern[0] = absorb;
+        pattern[1] = squeeze;
+        IOPatternLib.IOPattern memory p = IOPatternLib.IOPattern(pattern);
+
+        NovaSpongeLib.SpongeU24 memory sponge =
+            NovaSpongeLib.start(p, domainSeparator, TestUtilities.loadGrumpkinConstants());
+
+        uint256[] memory scalars = new uint256[](absorbLen);
+        for (uint32 i = 0; i < absorbLen; i++) {
+            scalars[i] = 0x022adeeb1771a44aa7ba41cf5d3df5662e88f7e6a60dcabdf21575cb07f1a289;
+        }
+
+        sponge = NovaSpongeLib.absorb(sponge, scalars, Grumpkin.P_MOD);
+
+        uint256[] memory output;
+        (sponge, output) = NovaSpongeLib.squeeze(sponge, sqeezeLen, Grumpkin.P_MOD);
+        assertEq(output.length, sqeezeLen);
+        assertEq(output[0], uint256(0x2222ebe34c5e5c2954eb33d46412a0ddd160bb42d3bd03c5e59f0a0ca42796d5));
     }
 }

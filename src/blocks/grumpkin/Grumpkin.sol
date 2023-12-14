@@ -1,11 +1,15 @@
+// SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.16;
 
 import "@std/Test.sol";
 import "src/Utilities.sol";
 
 library Grumpkin {
+    // The prime modulus of the finite field over which the Grumpkin curve is defined.
     uint256 public constant P_MOD = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;
+    // The order of the base point of the Grumpkin elliptic curve.
     uint256 public constant R_MOD = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001;
+    // Coefficient in the Grumpkin equation.
     uint256 public constant B = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593effffff0;
 
     struct GrumpkinAffinePoint {
@@ -13,10 +17,21 @@ library Grumpkin {
         uint256 y;
     }
 
+    /**
+     * @dev Defines the identity element (point at infinity) for the Grumpkin curve. The identity element is a special
+     *      point that acts as the 'zero' element in point addition.
+     * @return The identity element represented in the curve's coordinate system.
+     */
     function Identity() public pure returns (GrumpkinAffinePoint memory) {
         return GrumpkinAffinePoint(0, 0);
     }
 
+    /**
+     * @dev Adds two points on the Grumpkin curve.
+     * @param p1 The first point to add.
+     * @param p2 The second point to add.
+     * @return The result of adding p1 and p2, another point on the curve.
+     */
     function add(GrumpkinAffinePoint memory p1, GrumpkinAffinePoint memory p2)
         public
         view
@@ -92,16 +107,30 @@ library Grumpkin {
         return GrumpkinAffinePoint(t[0], t[1]);
     }
 
-    function is_identity(GrumpkinAffinePoint memory p1) public pure returns (bool) {
-        if (p1.x != 0) {
+    /**
+     * @dev Checks if a given point on the Grumpkin curve is the identity element (point at infinity).
+     * @param point The point to be checked.
+     * @return True if the point is the identity element, false otherwise.
+     */
+    function is_identity(GrumpkinAffinePoint memory point) public pure returns (bool) {
+        if (point.x != 0) {
             return false;
         }
-        if (p1.y != 0) {
+        if (point.y != 0) {
             return false;
         }
         return true;
     }
 
+    /**
+     * @dev Converts a point from projective to affine coordinates on the Grumpkin curve.
+     *      Affine coordinates are the common (x, y) representation, while projective coordinates add a third 'z'
+     *      coordinate for efficiency.
+     * @param x_input The x coordinate in projective coordinates to be converted.
+     * @param y_input The y coordinate in projective coordinates to be converted.
+     * @param z_input The z coordinate in projective coordinates to be converted.
+     * @return The point in affine coordinates.
+     */
     function to_affine(uint256 x_input, uint256 y_input, uint256 z_input) private view returns (uint256, uint256) {
         require(z_input != 0, "[Grumpkin::to_affine] can't invert zero");
 
@@ -111,6 +140,11 @@ library Grumpkin {
         return (x, y);
     }
 
+    /**
+     * @dev Multiplies the curve coefficient B by 3 and applies it to a given scalar.
+     * @param t The scalar to be multiplied.
+     * @return The resulting point after multiplication.
+     */
     function mul_by_3b(uint256 t) private pure returns (uint256) {
         // In Rust:
         //        static ref CONST_3B: $base = $constant_b + $constant_b + $constant_b;
@@ -121,18 +155,38 @@ library Grumpkin {
         return mulmod(t, 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffce, R_MOD);
     }
 
-    function negate(GrumpkinAffinePoint memory a) public pure returns (GrumpkinAffinePoint memory) {
-        return GrumpkinAffinePoint(a.x, P_MOD - (a.y % P_MOD));
+    /**
+     * @dev Negates a point on the Grumpkin curve. This operation inverts the point over the x-axis on the elliptic curve.
+     * @param point The point on the Grumpkin curve to be negated.
+     * @return The negated point, also on the Grumpkin curve.
+     */
+    function negate(GrumpkinAffinePoint memory point) public pure returns (GrumpkinAffinePoint memory) {
+        return GrumpkinAffinePoint(point.x, P_MOD - (point.y % P_MOD));
     }
 
+    /**
+     * @dev Negates the base point of the Grumpkin curve. This is a specialized case of point negation for the curve's base point.
+     * @param scalar The scalar value to be negated.
+     * @return The negated base point on the Grumpkin curve.
+     */
     function negateBase(uint256 scalar) internal pure returns (uint256) {
         return P_MOD - (scalar % P_MOD);
     }
 
+    /**
+     * @dev Negates a scalar value. This operation performs modular arithmetic negation of a scalar.
+     * @param scalar The scalar value to be negated.
+     * @return The negated scalar value.
+     */
     function negateScalar(uint256 scalar) internal pure returns (uint256) {
         return R_MOD - (scalar % R_MOD);
     }
 
+    /**
+     * @dev Performs the point doubling operation on the Grumpkin curve.
+     * @param point The point on the Grumpkin curve to be doubled.
+     * @return The doubled point, another point on the curve.
+     */
     function double(GrumpkinAffinePoint memory point) public view returns (GrumpkinAffinePoint memory) {
         if (is_identity(point)) {
             return point;
@@ -178,6 +232,12 @@ library Grumpkin {
         return GrumpkinAffinePoint(x, y);
     }
 
+    /**
+     * @dev Performs scalar multiplication on the Grumpkin curve.
+     * @param point The point on the Grumpkin curve to be multiplied.
+     * @param scalar The scalar by which to multiply the point.
+     * @return The result of scalar multiplication, which is another point on the curve.
+     */
     function scalarMul(GrumpkinAffinePoint memory point, uint256 scalar)
         public
         view
@@ -198,6 +258,11 @@ library Grumpkin {
         return acc;
     }
 
+    /**
+     * @dev This function converts the compressed Grumpkin point back into the full point representation.
+     * @param compressed The compressed representation of the point.
+     * @return The decompressed point on the Grumpkin curve.
+     */
     function decompress(uint256 compressed) public view returns (GrumpkinAffinePoint memory) {
         uint8 is_inf = uint8(bytes32(compressed)[0]) >> 7;
         uint8 y_sign = uint8(bytes32(compressed)[0]) >> 6;

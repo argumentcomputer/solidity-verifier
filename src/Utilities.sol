@@ -3,12 +3,21 @@ pragma solidity ^0.8.16;
 
 import "src/blocks/EqPolynomial.sol";
 
+/**
+ * @title Field Library
+ * @notice Provides arithmetic operations in finite fields, including inversion, exponentiation, and square root.
+ */
 library Field {
     uint256 constant ZERO = 0;
     uint256 constant ONE = 1;
 
-    /// @dev Compute f^-1 for f \in Fr scalar field
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
+    /**
+     * @notice Credit: Aztec, Spilsbury Holdings Ltd
+     * @dev Compute f^-1 for f \in Fr scalar field
+     * @param _x The field element to invert.
+     * @param _mod The modulus of the field.
+     * @return output The inverse of the field element.
+     */
     function invert(uint256 _x, uint256 _mod) public view returns (uint256 output) {
         assembly {
             let mPtr := mload(0x40)
@@ -23,6 +32,14 @@ library Field {
         }
     }
 
+    /**
+     * @notice Performs modular exponentiation.
+     * @dev This function uses precompiled contract for big modular exponentiation.
+     * @param _base The base for exponentiation.
+     * @param _exp The exponent.
+     * @param _mod The modulus.
+     * @return result The result of base^exp mod mod.
+     */
     function fieldpow(uint256 _base, uint256 _exp, uint256 _mod) public view returns (uint256 result) {
         assembly {
             // Free memory pointer
@@ -43,10 +60,14 @@ library Field {
         }
     }
 
-    // @dev Perform a modular exponentiation.
-    // @return base^exponent (mod modulus)
-    // This method is ideal for small exponents (~64 bits or less), as it is cheaper than using the pow precompile
-    // @notice credit: credit: Aztec, Spilsbury Holdings Ltd
+    /**
+     * @notice Credit: credit: Aztec, Spilsbury Holdings Ltd
+     * @dev This method is ideal for small exponents (~64 bits or less).
+     * @param base The base for exponentiation.
+     * @param exponent The small exponent.
+     * @param modulus The modulus.
+     * @return The result of base^exponent mod modulus.
+     */
     function powSmall(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
         uint256 result = 1;
         uint256 input = base;
@@ -65,6 +86,14 @@ library Field {
     // Implementation of the Tonelli-Shanks square root algorithm
     // NOTE: It is assumed that _mod is a prime for this algorithm to work, and when _mod is congruent to 3 mod 4
     // a direct calculation is used instead.
+    /**
+     * @notice Computes the square root of a field element.
+     * @dev Implements the Tonelli-Shanks square root algorithm. It is assumed that _mod is a prime for this algorithm
+     *      to work, and when _mod is congruent to 3 mod 4 a direct calculation is used instead.
+     * @param _x The field element.
+     * @param _mod The modulus, assumed to be prime.
+     * @return The square root of x in the field.
+     */
 
     function sqrt(uint256 _x, uint256 _mod) public view returns (uint256) {
         assembly {
@@ -141,6 +170,12 @@ library Field {
         revert();
     }
 
+    /**
+     * @notice Reverses the byte order of a 256-bit integer.
+     * @dev This function reverses the byte order of a 256-bit integer.
+     * @param input The integer to reverse.
+     * @return v The reversed integer.
+     */
     function reverse256(uint256 input) public pure returns (uint256 v) {
         v = input;
 
@@ -164,7 +199,11 @@ library Field {
         v = (v >> 128) | (v << 128);
     }
 
-    // Returns the 4 limbs in little-endian order of a 256-bit field element.
+    /**
+     * @notice Extracts the 4 limbs of a 256-bit field element in little-endian order.
+     * @param x The field element.
+     * @return The 4 limbs of the field element.
+     */
     function extractLimbs(uint256 x) public pure returns (uint256, uint256, uint256, uint256) {
         uint256 limb1 = (0x000000000000000000000000000000000000000000000000ffffffffffffffff & x);
         uint256 limb2 = (0x00000000000000000000000000000000ffffffffffffffff0000000000000000 & x) >> 64;
@@ -174,6 +213,11 @@ library Field {
         return (limb1, limb2, limb3, limb4);
     }
 
+    /**
+     * @notice Converts a uint8 array to a bytes32.
+     * @param input The uint8 array.
+     * @return The converted bytes32.
+     */
     function uint8ArrayToBytes32(uint8[32] memory input) public pure returns (bytes32) {
         bytes32 output;
 
@@ -185,7 +229,17 @@ library Field {
     }
 }
 
+/**
+ * @title Common Utilities Library
+ * @dev Library providing common utility functions.
+ */
 library CommonUtilities {
+    /**
+     * @notice Calculates the base-2 logarithm of a given number.
+     * @dev This function uses bitwise operations to efficiently compute the log2 of the input.
+     * @param x The number to calculate the logarithm for.
+     * @return y The base-2 logarithm of the input number.
+     */
     function log2(uint256 x) public pure returns (uint256 y) {
         assembly {
             let arg := x
@@ -217,6 +271,14 @@ library CommonUtilities {
         }
     }
 
+    /**
+     * @notice Generates an array of powers of a given base up to a specified length.
+     * @dev Computes s^0, s^1, ..., s^(len-1) modulo a given modulus.
+     * @param s The base to raise to successive powers.
+     * @param len The number of powers to compute.
+     * @param modulus The modulus to use for the calculation.
+     * @return An array containing the computed powers of s.
+     */
     function powers(uint256 s, uint256 len, uint256 modulus) public pure returns (uint256[] memory) {
         require(len >= 1);
         uint256[] memory result = new uint256[](len);
@@ -230,6 +292,9 @@ library CommonUtilities {
     }
 }
 
+/**
+ * @title Polynomial Library
+ */
 library PolyLib {
     struct UniPoly {
         uint256[] coeffs;
@@ -243,14 +308,30 @@ library PolyLib {
         PolyLib.CompressedUniPoly[] compressed_polys;
     }
 
+    /**
+     * @notice Determines the degree of a univariate polynomial.
+     * @param poly The polynomial to determine the degree of.
+     * @return The degree of the polynomial.
+     */
     function degree(UniPoly memory poly) public pure returns (uint256) {
         return poly.coeffs.length - 1;
     }
 
+    /**
+     * @notice Evaluates the polynomial at zero.
+     * @param poly The polynomial to evaluate.
+     * @return The value of the polynomial at zero.
+     */
     function evalAtZero(UniPoly memory poly) public pure returns (uint256) {
         return poly.coeffs[0];
     }
 
+    /**
+     * @notice Evaluates the polynomial at one.
+     * @param poly The polynomial to evaluate.
+     * @param mod The modulus for the computation.
+     * @return result The value of the polynomial at one.
+     */
     function evalAtOne(UniPoly memory poly, uint256 mod) public pure returns (uint256 result) {
         for (uint256 i = 0; i < poly.coeffs.length; i++) {
             // result += poly.coeffs[i];
@@ -258,6 +339,13 @@ library PolyLib {
         }
     }
 
+    /**
+     * @notice Evaluates the polynomial at a given point.
+     * @param poly The polynomial to evaluate.
+     * @param r The point at which to evaluate the polynomial.
+     * @param mod The modulus for the computation.
+     * @return The value of the polynomial at point r.
+     */
     function evaluate(UniPoly memory poly, uint256 r, uint256 mod) public pure returns (uint256) {
         uint256 power = r;
         uint256 result = poly.coeffs[0];
@@ -271,10 +359,23 @@ library PolyLib {
         return result;
     }
 
+    /**
+     * @notice Negates a given field element.
+     * @param x The field element to negate.
+     * @param mod The modulus for the computation.
+     * @return The negation of x in the field.
+     */
     function negate(uint256 x, uint256 mod) internal pure returns (uint256) {
         return mod - (x % mod);
     }
 
+    /**
+     * @notice Decompresses a compressed univariate polynomial.
+     * @param poly The compressed polynomial to decompress.
+     * @param hint A hint used in the decompression algorithm.
+     * @param mod The modulus for the computation.
+     * @return A decompressed univariate polynomial.
+     */
     function decompress(CompressedUniPoly calldata poly, uint256 hint, uint256 mod)
         public
         pure
@@ -305,6 +406,11 @@ library PolyLib {
         return UniPoly(coeffs);
     }
 
+    /**
+     * @notice Converts a uint256 to an array of uint8.
+     * @param input The uint256 input.
+     * @return An array of uint8 representing the input.
+     */
     function toUInt8Array(uint256 input) private pure returns (uint8[] memory) {
         uint8[] memory result = new uint8[](32);
 
@@ -316,6 +422,13 @@ library PolyLib {
         return result;
     }
 
+    /**
+     * @notice Converts a univariate polynomial to an array of bytes for use in a transcript.
+     * @dev The method converts each coefficient of the polynomial into a byte array in little-endian order
+     * and concatenates these arrays to form the final byte array representation of the polynomial.
+     * @param poly The univariate polynomial to convert.
+     * @return An array of bytes representing the polynomial's coefficients in a format suitable for a transcript.
+     */
     function toTranscriptBytes(UniPoly memory poly) public pure returns (uint8[] memory) {
         uint8[] memory result = new uint8[](32 * (poly.coeffs.length - 1));
 

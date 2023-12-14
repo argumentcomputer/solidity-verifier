@@ -233,8 +233,8 @@ library Grumpkin {
     }
 
     /**
-     * @dev Performs scalar multiplication on the Bn256 curve.
-     * @param point The point on the Bn256 curve to be multiplied.
+     * @dev Performs scalar multiplication on the Grumpkin curve.
+     * @param point The point on the Grumpkin curve to be multiplied.
      * @param scalar The scalar by which to multiply the point.
      * @return The result of scalar multiplication, which is another point on the curve.
      */

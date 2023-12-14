@@ -47,7 +47,8 @@ noted that each of these branches have dedicated e2e testing, documented in thei
 [Feature branch: `pasta`](https://github.com/lurk-lab/solidity-verifier/tree/pasta)
 
 Orignal feature branch, implementing the [Nova](https://github.com/microsoft/Nova) Verifier over
-[Pallas/Vesta (Pasta) curve cycles](https://electriccoin.co/blog/the-pasta-curves-for-halo-2-and-beyond/).
+[Pallas/Vesta (Pasta) curve cycles](https://electriccoin.co/blog/the-pasta-curves-for-halo-2-and-beyond/). The reference Nova implementation over Pasta can be found over [the lurk-lab/Nova
+repository]( https://github.com/lurk-lab/Nova/tree/solidity-verifier-pp-spartan).
 
 Development is nearly finalized but there are some compatibility checks to be run between the latest version of [Arecibo](https://github.com/lurk-lab/arecibo)
 and our solidity verifier.
@@ -57,7 +58,8 @@ and our solidity verifier.
 [Feature branch: `grumpkin`](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin)
 
 Feature branch aiming to implement our Nova Verifier over BN254/Grumpkin curve cycle instead of Pasta, to keep up with the
-development on the Rust implementation side.
+development on the Rust implementation side. As for Pasta, the reference implementation can be found over [the lurk-lab/Nova
+repository]( https://github.com/lurk-lab/Nova/tree/solidity-verifier-pp-spartan).
 
 Development is nearly finalized but there are some compatibility checks to be run between the latest version of [Arecibo](https://github.com/lurk-lab/arecibo)
 and our solidity verifier.
@@ -68,7 +70,7 @@ and our solidity verifier.
 
 The goal is to take into account the [Zeromorph](https://eprint.iacr.org/2023/917.pdf) feature done in Arecibo. Zeromorph
 impacts how we generate prover randomness at proving time, and allows us to have a new (and faster) Polynomial Commitment
-Scheme (PCS).
+Scheme (PCS). The reference implementation for the Zeromorph feature can be found in [the Arecibo repository](https://github.com/lurk-lab/arecibo/tree/solidity-verifier-zeromorph ).
 
 The branch needs to integrate the [lastest updates pushed over Arecibo](https://github.com/lurk-lab/arecibo/pull/145) and will
 most likely need some development in Assembly to properly work.
@@ -79,7 +81,8 @@ most likely need some development in Assembly to properly work.
 
 This last branch contains development in [Assembly](https://docs.soliditylang.org/en/latest/assembly.html), leveraging 
 [Yul](https://docs.soliditylang.org/en/latest/yul.html). This development will allow optimization on gas consumption, readying
-our contracts for production. In the end, it should implement a Grumpkin contract in Yul.
+our contracts for production. Based on the [Grumpkin feature branch](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin),
+it should aim to implement a Grumpkin contract in Yul.
 
 The verification steps 1 and 2 have been implemented but the rest of the steps need to be developed.
 

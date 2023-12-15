@@ -6,6 +6,11 @@ import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/Utilities.sol";
 
+/**
+ * @title PolyEvalInstance Library
+ * @notice Library for polynomial evaluations.
+ * @dev Provides functionality to handle polynomial evaluation instances in cryptographic contexts.
+ */
 library PolyEvalInstanceLib {
     struct PolyEvalInstance {
         // c is an affine point
@@ -15,6 +20,12 @@ library PolyEvalInstanceLib {
         uint256 e;
     }
 
+    /**
+     * @notice Pads polynomial evaluation instances to have uniform length.
+     * @dev Extends the length of each instance's `x` array to match the maximum length found in `p`.
+     * @param p Array of PolyEvalInstance to be padded.
+     * @return Array of padded PolyEvalInstance.
+     */
     function pad(PolyEvalInstance[] memory p) public pure returns (PolyEvalInstance[] memory) {
         uint256 j;
         uint256 i;
@@ -39,6 +50,15 @@ library PolyEvalInstanceLib {
         return p;
     }
 
+    /**
+     * @notice Batch computes primary polynomial evaluations.
+     * @dev Uses Pallas curve for polynomial evaluation.
+     * @param comm_vec Array of affine points for computation.
+     * @param x Array of x values for each evaluation.
+     * @param eval_vec Array of values to be evaluated.
+     * @param s Scalar value used in evaluations.
+     * @return PolyEvalInstance representing the result of the batch evaluation.
+     */
     function batchPrimary(
         Pallas.PallasAffinePoint[] memory comm_vec,
         uint256[] memory x,
@@ -66,6 +86,15 @@ library PolyEvalInstanceLib {
         return PolyEvalInstance(c_out.x, c_out.y, x, e);
     }
 
+    /**
+     * @notice Batch computes secondary polynomial evaluations.
+     * @dev Uses Vesta curve for polynomial evaluation.
+     * @param comm_vec Array of affine points for computation.
+     * @param x Array of x values for each evaluation.
+     * @param eval_vec Array of values to be evaluated.
+     * @param s Scalar value used in evaluations.
+     * @return PolyEvalInstance representing the result of the batch evaluation.
+     */
     function batchSecondary(
         Vesta.VestaAffinePoint[] memory comm_vec,
         uint256[] memory x,

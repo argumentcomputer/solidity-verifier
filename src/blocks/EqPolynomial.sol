@@ -4,7 +4,20 @@ pragma solidity ^0.8.16;
 import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 
-library EqPolinomialLib {
+/**
+ * @title EqPolynomial Library
+ * @dev Provides functions for evaluating equality polynomials in cryptographic protocols..
+ */
+library EqPolynomialLib {
+    /**
+     * @notice Evaluates the equation polynomial.
+     * @dev This function computes the evaluation of an equation polynomial based on the given parameters. It iteratively computes the polynomial evaluation using assembly for optimized gas efficiency.
+     * @param r The array of 'r' values, representing one part of the inputs to the polynomial.
+     * @param rx The array of 'rx' values, representing another part of the inputs to the polynomial.
+     * @param modulus The modulus to be used for the polynomial computation, ensuring calculations are done in a finite field.
+     * @param negateBase A function that negates a base element in the finite field.
+     * @return The result of the polynomial evaluation.
+     */
     function evaluate(
         uint256[] memory r,
         uint256[] memory rx,
@@ -50,6 +63,14 @@ library EqPolinomialLib {
         return result;
     }
 
+    /**
+     * @notice Computes evaluations of a polynomial for all combinations of inputs.
+     * @dev Iteratively calculates the evaluations for all possible combinations of 'r' values. This function is used to generate a full set of evaluations for a given polynomial.
+     * @param r The array of 'r' values, representing the inputs to the polynomial.
+     * @param modulus The modulus to be used for polynomial computation.
+     * @param negateBase A function that negates a base element in the finite field.
+     * @return An array containing the evaluations for all input combinations.
+     */
     function evals(uint256[] memory r, uint256 modulus, function (uint256) returns (uint256) negateBase)
         internal
         returns (uint256[] memory)

@@ -2,9 +2,15 @@
 //
 //
 // Copyright 2022 Zhenfei Zhang
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to
+// whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import "src/Utilities.sol";
 
 pragma solidity ^0.8.16;
@@ -17,9 +23,11 @@ library Pallas {
     // E has the equation:
     //   E: y^2 = x^3 + 5
 
+    // Prime modulus defining the finite field over which the Pallas curve is defined.
     uint256 public constant P_MOD = 28948022309329048855892746252171976963363056481941560715954676764349967630337;
+    // Order of the base point on the Pallas curve.
     uint256 public constant R_MOD = 28948022309329048855892746252171976963363056481941647379679742748393362948097;
-
+    // A constant value representing 3/2, useful in some of our curve operations.
     uint256 private constant _THREE_OVER_TWO =
         14474011154664524427946373126085988481681528240970780357977338382174983815170;
 
@@ -34,28 +42,43 @@ library Pallas {
         uint256 z;
     }
 
-    /// @return the affine generator
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Defines the generator point of the Pallas curve in affine coordinates.
+     * @return The generator point in affine coordinates.
+     */
     function AffineGenerator() internal pure returns (PallasAffinePoint memory) {
         return PallasAffinePoint(P_MOD - 1, 2);
     }
 
-    /// @return the projective generator
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Defines the generator point of the Pallas curve in projective coordinates.
+     * @return The generator point in projective coordinates.
+     */
     function ProjectiveGenerator() internal pure returns (PallasProjectivePoint memory) {
         return PallasProjectivePoint(P_MOD - 1, 2, 1);
     }
 
+    /**
+     * @dev Represents the point at infinity in affine coordinates on the Pallas curve. Acts as the identity element.
+     * @return The point at infinity in affine coordinates.
+     */
     function AffineInfinity() internal pure returns (PallasAffinePoint memory) {
         return PallasAffinePoint(0, 0);
     }
 
+    /**
+     * @dev Represents the point at infinity in projective coordinates on the Pallas curve.
+     * @return The point at infinity in projective coordinates.
+     */
     function ProjectiveInfinity() internal pure returns (PallasProjectivePoint memory) {
         return PallasProjectivePoint(1, 1, 0);
     }
 
-    /// @return the convert an affine point into projective
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Converts a point from affine to projective coordinates on the Pallas curve.
+     * @param point The point in affine coordinates to be converted.
+     * @return The point in projective coordinates.
+     */
     function IntoProjective(PallasAffinePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
             return ProjectiveInfinity();
@@ -64,8 +87,11 @@ library Pallas {
         return PallasProjectivePoint(point.x, point.y, 1);
     }
 
-    /// @return the convert a projective point into affine
-    // solhint-disable-next-line func-name-mixedcase
+    /**
+     * @dev Converts a point from projective to affine coordinates on the Pallas curve.
+     * @param point The point in projective coordinates to be converted.
+     * @return The point in affine coordinates.
+     */
     function IntoAffine(PallasProjectivePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
             return AffineInfinity();
@@ -80,10 +106,14 @@ library Pallas {
         return PallasAffinePoint(x, y);
     }
 
-    /// @dev check if a PallasAffinePoint is Infinity
-    /// @notice precompile bn256Add at address(6) takes (0, 0) as PallasAffinePoint of Infinity,
-    /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
-    /// just use (0, 1) as affine coordinates (not on curve) to represents PoI.
+    /**
+     * @notice Precompile bn256Add at address(6) takes (0, 0) as PallasAffinePoint of Infinity, some crypto libraries
+     *         (such as arkwork) uses a boolean flag to mark PoI, and just use (0, 1) as affine coordinates (not on curve)
+     *         to represents PoI.
+     * @dev Checks if a point in affine coordinates is the point at infinity on the Pallas curve.
+     * @param point The point in affine coordinates to check.
+     * @return result True if the point is the point at infinity, false otherwise.
+     */
     function isInfinity(PallasAffinePoint memory point) internal pure returns (bool result) {
         assembly {
             let x := mload(point)
@@ -92,10 +122,13 @@ library Pallas {
         }
     }
 
-    /// @dev check if a PallasProjectivePoint is Infinity
-    /// @notice (0, 1, 0) PallasProjectivePoint of Infinity,
-    /// some crypto libraries (such as arkwork) uses a boolean flag to mark PoI, and
-    /// just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+    /**
+     * @notice (0, 1, 0) PallasProjectivePoint of Infinity, some crypto libraries (such as arkwork) uses a boolean flag
+     *         to mark PoI, and just use (0, 1, 0) as affine coordinates (not on curve) to represents PoI.
+     * @dev Checks if a point in projective coordinates is the point at infinity on the Pallas curve.
+     * @param point The point in projective coordinates to check.
+     * @return result True if the point is the point at infinity, false otherwise.
+     */
     function isInfinity(PallasProjectivePoint memory point) internal pure returns (bool result) {
         assembly {
             let x := mload(point)
@@ -105,7 +138,11 @@ library Pallas {
         }
     }
 
-    /// @return r the negation of p, i.e. p.add(p.negate()) should be zero.
+    /**
+     * @dev Negates a point in affine coordinates on the Pallas curve. The negation of a point is its reflection over the x-axis.
+     * @param p The point in affine coordinates to be negated.
+     * @return The negation of p, i.e. p.add(p.negate()) should be zero.
+     */
     function negate(PallasAffinePoint memory p) internal pure returns (PallasAffinePoint memory) {
         if (isInfinity(p)) {
             return p;
@@ -113,7 +150,11 @@ library Pallas {
         return PallasAffinePoint(p.x, P_MOD - (p.y % P_MOD));
     }
 
-    /// @return r the negation of p, i.e. p.add(p.negate()) should be zero.
+    /**
+     * @dev Negates a point in projective coordinates on the Pallas curve. The negation of a point is its reflection over the x-axis.
+     * @param p The point in projective coordinates to be negated.
+     * @return The negation of p, i.e. p.add(p.negate()) should be zero.
+     */
     function negate(PallasProjectivePoint memory p) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(p)) {
             return p;
@@ -121,17 +162,31 @@ library Pallas {
         return PallasProjectivePoint(p.x, P_MOD - (p.y % P_MOD), p.z);
     }
 
+    /**
+     * @dev Negates a base field element in the context of the Pallas curve. This operation involves modular negation
+     *      with respect to the prime modulus P_MOD.
+     * @param fr The base field element to be negated.
+     * @return res = -fr the negation of base field element.
+     */
     /// @return res = -fr the negation of base field element.
     function negateBase(uint256 fr) internal pure returns (uint256 res) {
         return P_MOD - (fr % P_MOD);
     }
 
-    /// @return res = -fr the negation of scalar field element.
+    /**
+     * @dev Negates a scalar value within the context of the Pallas curve's operations.
+     * @param fr The scalar value to be negated.
+     * @return res = -fr the negation of scalar field element.
+     */
     function negateScalar(uint256 fr) internal pure returns (uint256 res) {
         return R_MOD - (fr % R_MOD);
     }
 
-    /// @return 2*point
+    /**
+     * @dev Doubles a point in projective coordinates on the Pallas curve.
+     * @param point The point in projective coordinates to be doubled.
+     * @return The doubled point on the Pallas curve.
+     */
     function double(PallasProjectivePoint memory point) internal pure returns (PallasProjectivePoint memory) {
         if (isInfinity(point)) {
             return point;
@@ -179,6 +234,11 @@ library Pallas {
         return PallasProjectivePoint(x, y, z);
     }
 
+    /**
+     * @dev Doubles a point in affine coordinates on the Pallas curve.
+     * @param point The point in affine coordinates to be doubled.
+     * @return The doubled point in affine coordinates.
+     */
     function double(PallasAffinePoint memory point) internal view returns (PallasAffinePoint memory) {
         if (isInfinity(point)) {
             return point;
@@ -217,7 +277,12 @@ library Pallas {
         return PallasAffinePoint(xPrime, yPrime);
     }
 
-    /// @return r the sum of two PallasAffinePoints
+    /**
+     * @dev Adds two points in affine coordinates on the Pallas curve.
+     * @param p1 The first point in affine coordinates to be added.
+     * @param p2 The second point in affine coordinates to be added.
+     * @return The sum of p1 and p2.
+     */
     function add(PallasAffinePoint memory p1, PallasAffinePoint memory p2)
         internal
         view
@@ -275,7 +340,12 @@ library Pallas {
         return PallasAffinePoint(x3, y3);
     }
 
-    /// @return r the sum of two PallasProjectivePoints
+    /**
+     * @dev Adds two points in projective coordinates on the Pallas curve.
+     * @param p1 The first point in projective coordinates to be added.
+     * @param p2 The second point in projective coordinates to be added.
+     * @return The sum of p1 and p2 on the Pallas curve.
+     */
     function add(PallasProjectivePoint memory p1, PallasProjectivePoint memory p2)
         internal
         pure
@@ -315,7 +385,7 @@ library Pallas {
         }
 
         // TODO! Below is the original assembly block from https://github.com/zhenfeizhang/pasta-solidity. It produces "Stack too deep" error.
-        // TODO! The most trivial recommendation for such errors is reducing number of ingtermediate variables, so original assembly block is commented and
+        // TODO! The most trivial recommendation for such errors is reducing number of intermediate variables, so original assembly block is commented and
         // TODO! refactored one is used, with less variables introduced, which sacrifices code readability. It would be nice to revisit this weird fix.
 
         assembly {
@@ -373,8 +443,13 @@ library Pallas {
         return PallasProjectivePoint(x3, y3, z3);
     }
 
-    /// @return r the product of a PallasAffinePoint on Pallas and a scalar, i.e.
-    /// p == p.mul(1) and p.add(p) == p.mul(2) for all PallasAffinePoints p.
+    /**
+     * @dev Multiplies a point by a scalar in affine coordinates on the Pallas curve.
+     * @param p The point in affine coordinates to be multiplied.
+     * @param s The scalar by which the point is to be multiplied.
+     * @return r the product of a PallasAffinePoint on Pallas and a scalar, i.e. p == p.mul(1) and p.add(p) == p.mul(2)
+     *         for all PallasAffinePoints p.
+     */
     function scalarMul(PallasAffinePoint memory p, uint256 s) internal view returns (PallasAffinePoint memory r) {
         uint256 bit;
         uint256 i = 0;
@@ -391,8 +466,13 @@ library Pallas {
         }
     }
 
-    /// @return r the product of a PallasProjectivePoint and a scalar, i.e.
-    /// p == p.mul(1) and p.add(p) == p.mul(2) for all PallasProjectivePoint p.
+    /**
+     * @dev Multiplies a point by a scalar in projective coordinates on the Pallas curve.
+     *      Scalar multiplication is a key operation in elliptic curve cryptographic algorithms.
+     * @param p The point in projective coordinates to be multiplied.
+     * @param s The scalar by which the point is to be multiplied.
+     * @return r the product of a PallasProjectivePoint and a scalar, i.e. p == p.mul(1) and p.add(p) == p.mul(2) for all PallasProjectivePoint p.
+     */
     function scalarMul(PallasProjectivePoint memory p, uint256 s)
         internal
         pure
@@ -413,8 +493,12 @@ library Pallas {
         }
     }
 
-    /// @dev Multi-scalar Mulitiplication (MSM)
-    /// @return r = \Prod{B_i^s_i} where {s_i} are `scalars` and {B_i} are `bases`
+    /**
+     * @dev Multi-scalar multiplication (MSM) on the Pallas curve.
+     * @param bases An array of PallasAffinePoints that serve as bases for multiplication.
+     * @param scalars An array of scalars corresponding to each base point.
+     * @return r = \Prod{B_i^s_i} where {s_i} are `scalars` and {B_i} are `bases`
+     */
     function multiScalarMul(PallasAffinePoint[] memory bases, uint256[] memory scalars)
         internal
         view
@@ -429,15 +513,11 @@ library Pallas {
     }
 
     /**
-     * validate the following:
-     *   x != 0
-     *   y != 0
-     *   x < p
-     *   y < p
-     *   y^2 = x^3 + 5 mod p
+     * @notice Credit to Aztec, Spilsbury Holdings Ltd for the implementation.
+     * @dev Validates a PallasAffinePoint to ensure it lies on the Pallas curve. Checks that x and y coordinates are
+     *      non-zero (x != 0 && y != 0), less than P_MOD (x < p && y < p), and satisfy the curve equation y^2 = x^3 + 5 mod p.
+     * @param point The PallasAffinePoint to be validated.
      */
-    /// @dev validate PallasAffinePoint and check if it is on curve
-    /// @notice credit: Aztec, Spilsbury Holdings Ltd
     function validateCurvePoint(PallasAffinePoint memory point) internal pure {
         bool isWellFormed;
         uint256 p = P_MOD;
@@ -454,8 +534,11 @@ library Pallas {
         require(isWellFormed, "Pallas: invalid point");
     }
 
-    /// @dev Validate scalar field, revert if invalid (namely if fr > r_mod).
-    /// @notice Writing this inline instead of calling it might save gas.
+    /**
+     * @notice Writing this inline instead of calling it might save gas.
+     * @dev Validates a scalar field element for the Pallas curve. Checks if the scalar is less than R_MOD (fr > r_mod).
+     * @param fr The scalar value to be validated.
+     */
     function validateScalarField(uint256 fr) internal pure {
         bool isValid;
         assembly {
@@ -464,6 +547,11 @@ library Pallas {
         require(isValid, "Pallas: invalid scalar field");
     }
 
+    /**
+     * @dev Converts a byte array in little-endian format to a scalar field element. Performs modular reduction by R_MOD.
+     * @param leBytes The byte array in little-endian format.
+     * @return ret The resulting scalar field element.
+     */
     function fromLeBytesModOrder(bytes memory leBytes) internal pure returns (uint256 ret) {
         // TODO: Can likely be gas optimized by copying the first 31 bytes directly.
         for (uint256 i = 0; i < leBytes.length; i++) {
@@ -472,11 +560,21 @@ library Pallas {
         }
     }
 
-    /// @dev Check if y-coordinate of PallasAffinePoint is negative.
+    /**
+     * @dev Checks if the y-coordinate of a PallasAffinePoint is considered 'negative'. A y-coordinate is deemed 'negative'
+     *      if it is less than half of P_MOD.
+     * @param point The PallasAffinePoint to check.
+     * @return True if the y-coordinate is 'negative', false otherwise.
+     */
     function isYNegative(PallasAffinePoint memory point) internal pure returns (bool) {
         return point.y < P_MOD / 2;
     }
 
+    /**
+     * @dev Converts a compressed x-coordinate (with y-coordinate sign bit) into a PallasAffinePoint.
+     * @param compressed_x_coord A bytes32 representing the compressed x-coordinate and the sign of the y-coordinate.
+     * @return point The decompressed elliptic curve point.
+     */
     function fromBytes(bytes32 compressed_x_coord) public view returns (PallasAffinePoint memory point) {
         uint8 y_sign = uint8(compressed_x_coord[31]) >> 7;
 
@@ -515,6 +613,12 @@ library Pallas {
         point = PallasAffinePoint(x_coord, y_coord);
     }
 
+    /**
+     * @dev Decompresses a Pallas curve point given a compressed x-coordinate. This is a convenience function that
+     *      delegates to fromBytes.
+     * @param compressed_x_coord The compressed x-coordinate of the point.
+     * @return point The decompressed elliptic curve point.
+     */
     function decompress(uint256 compressed_x_coord) public view returns (PallasAffinePoint memory point) {
         return fromBytes(bytes32(compressed_x_coord));
     }

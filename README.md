@@ -1,8 +1,11 @@
 # solidity-verifier
 
-This repository will eventually contain Solidity implementation of Nova proving system.
+This repository contains Solidity implementation of Nova-based proving system
 
-The idea is actually to gather required cryptographic building blocks (pasta curves, Poseidon, etc.), evaluate them and check that they work as expected via test vectors provided by "trusted" Rust implementations and finally come up with working Nova verifier that can be deployed to the Filecoin network.
+The idea is actually to gather required cryptographic building blocks (Pasta / Grumpkin curve operations, Poseidon, KeccakTranscript, Sumcheck protocol, etc.) in `main` branch, 
+evaluate them and check that they work as expected via test vectors provided by "trusted" reference Rust implementation ([Arecibo](https://github.com/lurk-lab/arecibo)).
+Since reference proving system is under active development, the original end-to-end verification flow is a subject of changes, that is why, full e2e contracts are located in various branches,
+depending on the Nova cryptographic feature. See [pasta](https://github.com/lurk-lab/solidity-verifier/tree/pasta), [grumpkin](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin), [zeromorph](https://github.com/lurk-lab/solidity-verifier/tree/zeromorph), [gas-optimizing](https://github.com/lurk-lab/solidity-verifier/tree/gas-optimizing) branches for more details.
 
 # Commands to play with
 
@@ -11,7 +14,7 @@ To cleanup current build artifacts:
 forge clean
 ```
 
-To build contracts:
+To build:
 ```
 forge build
 ```
@@ -21,50 +24,75 @@ To run Solidity unit-tests:
 forge test --match-path test/* -vv
 ```
 
-To run Anvil node locally (with maximum gas-limit and code-size-limit):
-
-```
-anvil --gas-limit 18446744073709551615 --code-size-limit 18446744073709551615
-```
-
-To deploy the e2e verification contract to locally running Anvil node (`PRIVATE_KEY` can be obtained from output of running Anvil):
-
-```
-forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url http://127.0.0.1:8545 --private-key <PRIVATE_KEY> --broadcast
-```
-
-To load proof and verifier-key into the blockchain (`CONTRACT_ADDRESS` can be obtained from the output of previous step):
-
-```
-python loader.py pp-verifier-key.json pp-compressed-snark.json <CONTRACT_ADDRESS> http://127.0.0.1:8545 <PRIVATE_KEY>
-```
-
-To run the verification logic:
-
-```
-cast call <CONTRACT_ADDRESS> "verify(uint32,uint256[],uint256[])(bool)" "3" "[1]" "[0]" --private-key <PRIVATE_KEY> --rpc-url http://127.0.0.1:8545
-```
-
 More details about Foundry tooling is [here](https://book.getfoundry.sh/).
 
-P.S.: This E2E integration testing flow is enforced by Github Actions with our cloud-based Anvil node. See `integration-tests-e2e` job description from `.github/workflows/test.yml` for more details.
+# Repository structure
+
+```
+├── lib
+|   └── forge-std       # Forge standard library for testing utilities.
+├── src
+|   ├── blocks          # Cryptographic building blocks shared between all our features.
+|   └── Utilities.sol   # Mostly Mathematical building blocks such as Field operations or Polynomial-related methods. 
+└── test                # Unit test for our contracts.
+```
+
+# Features
+
+This section aims to describe the main features currently being developed and outline their specificities. It has to be
+noted that each of these branches have dedicated e2e testing, documented in their respective README.
+
+## Pasta
+
+[Feature branch: `pasta`](https://github.com/lurk-lab/solidity-verifier/tree/pasta)
+
+Orignal feature branch, implementing the [Nova](https://github.com/microsoft/Nova) Verifier over
+[Pallas/Vesta (Pasta) curve cycles](https://electriccoin.co/blog/the-pasta-curves-for-halo-2-and-beyond/). The reference Nova implementation over Pasta can be found over [the lurk-lab/Nova
+repository]( https://github.com/lurk-lab/Nova/tree/solidity-verifier-pp-spartan).
+
+Development is nearly finalized but there are some compatibility checks to be run between the latest version of [Arecibo](https://github.com/lurk-lab/arecibo)
+and our solidity verifier.
+
+## Grumpkin
+
+[Feature branch: `grumpkin`](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin)
+
+Feature branch aiming to implement our Nova Verifier over BN254/Grumpkin curve cycle instead of Pasta, to keep up with the
+development on the Rust implementation side. As for Pasta, the reference implementation can be found over [the lurk-lab/Nova
+repository]( https://github.com/lurk-lab/Nova/tree/solidity-verifier-pp-spartan).
+
+Development is nearly finalized but there are some compatibility checks to be run between the latest version of [Arecibo](https://github.com/lurk-lab/arecibo)
+and our solidity verifier.
+
+## Zeromorph
+
+[Feature branch: `zeromorph`](https://github.com/lurk-lab/solidity-verifier/tree/zeromorph)
+
+The goal is to take into account the [Zeromorph](https://eprint.iacr.org/2023/917.pdf) feature done in Arecibo. Zeromorph
+impacts how we generate prover randomness at proving time, and allows us to have a new (and faster) Polynomial Commitment
+Scheme (PCS). The reference implementation for the Zeromorph feature can be found in [the Arecibo repository](https://github.com/lurk-lab/arecibo/tree/solidity-verifier-zeromorph ).
+
+The branch needs to integrate the [lastest updates pushed over Arecibo](https://github.com/lurk-lab/arecibo/pull/145) and will
+most likely need some development in Assembly to properly work.
+
+## Gas Optimization
+
+[Feature branch: `gas-optimizing`](https://github.com/lurk-lab/solidity-verifier/tree/gas-optimizing)
+
+This last branch contains development in [Assembly](https://docs.soliditylang.org/en/latest/assembly.html), leveraging 
+[Yul](https://docs.soliditylang.org/en/latest/yul.html). This development will allow optimization on gas consumption, readying
+our contracts for production. Based on the [Grumpkin feature branch](https://github.com/lurk-lab/solidity-verifier/tree/grumpkin),
+it should aim to implement a Grumpkin contract in Yul.
+
+The verification steps 1 and 2 have been implemented but the rest of the steps need to be developed.
 
 # Solidity contracts generation
 
-Some contracts in this repository have been generated with a help of correspondent Python scripts.
+Poseidon contracts in this repository have been generated with a help of correspondent Python scripts.
 
-To re-generate Poseidon contracts (for Pallas and Vesta curves) compatible to Neptune and "sharpened" for usage in Nova:
-
-```
-python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/poseidon/PoseidonNeptuneU24pallas.sol
-python src/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/poseidon/PoseidonNeptuneU24vesta.sol
-```
-
-To re-generate contract-helper for correspondent step of Nova verification:
+To re-generate them (for Pallas and Vesta curves) compatible to Neptune and "sharpened" for usage in Nova:
 
 ```
-python src/verifier/step1/step1-data-contract-gen.py compressed-snark.json > src/verifier/step1/Step1Data.sol
-python src/verifier/step2/step2-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step2/Step2Data.sol
-python src/verifier/step3/step3-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step3/Step3Data.sol
-python src/verifier/step4/sumcheck-data-contract-gen.py verifier-key.json compressed-snark.json > src/verifier/step4/SumcheckData.sol
+python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
+python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
 ```

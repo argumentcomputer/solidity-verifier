@@ -1,55 +1,13 @@
-name: Run tests
+name: Run unit tests
 
 on:
-  push:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
   workflow_dispatch:
 
 jobs:
-  integration-tests-e2e:
-    name: E2E verification
-    # Run on merge_group and workflow_dispatch only
-    if: (github.event_name != 'push' && github.event_name != 'pull_request')  || github.event.action == 'enqueued'
-    runs-on: [self-hosted]
-    env:
-      ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
-      ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-
-      - name: Deploy main contract
-        run: |
-          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
-        id: deployment
-
-      - name: Load proof and public parameters
-        run: |
-          python loader.py pp-verifier-key.json pp-compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
-
-      - name: Check proof verification status
-        run: |
-          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
-
   unit-tests:
-    strategy:
-      fail-fast: true
-
     name: Unit Tests
     runs-on: [self-hosted]
     steps:
@@ -68,8 +26,8 @@ jobs:
 
       - name: Regenerate Contracts
         run: |
-          python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
-          python src/blocks/poseidon/poseidon-contract-gen.py neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
+          python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
+          python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
 
       - name: Run forge fmt on re-generated contracts
         run: |

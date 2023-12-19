@@ -155,7 +155,7 @@ library Pairing {
         require(p1.length == p2.length);
         uint256 elements = p1.length;
         uint256 inputSize = elements * 6;
-        uint256[] memory input = new uint[](inputSize);
+        uint256[] memory input = new uint256[](inputSize);
         for (uint256 i = 0; i < elements; i++) {
             input[i * 6 + 0] = p1[i].inner.x;
             input[i * 6 + 1] = p1[i].inner.y;

@@ -282,3 +282,62 @@ contract GrumpkinCurvesContractTests is Test {
         assertEq(point.y, 0x2f7039df869b2f301490e03faedf85d7b6079ee4e389fb09e87425446ec2133d);
     }
 }
+
+contract G2Tests is Test {
+    function testG2Addition() public {
+        G2.Fq2 memory x = G2.Fq2(
+            0x2aa3ce49b85caf169cd1e93e5b01be13688dd65660371ff08e6351a6b031028f,
+            0x2e6c1f338a4fd2cafe04883a9721f890448bcb8ea26bf2aefbb891267318f63c
+        );
+        G2.Fq2 memory y = G2.Fq2(
+            0x242215fb12e6bd34d1cf146dfd3ec7f6ce0240978e17191ff0829d15eca3e761,
+            0x0e1fa4978a7aa2206a1e230edeefaf91ccbfaf8587b9921bc2a7c92d94803f2b
+        );
+
+        G2.G2Affine memory a = G2.G2Affine(x, y);
+        G2.G2Affine memory b = G2.G2Affine(x, y);
+
+        G2.G2Affine memory sum = G2.g2Add(a, b);
+
+        assertEq(sum.x.c0, 0x25fe1ef5bd43a6ae6de0880632bbeb5087686c53a4189192f58a8afb1778c76d);
+        assertEq(sum.x.c1, 0x07dc5f2daaa695fd9eb789ec6ad02e07ac2cf24495a3da6cfb6b6e586585cc36);
+        assertEq(sum.y.c0, 0x2f18e5677cdb4afa5ac1b227bf6d3868d597edffc903fa65cd8d5e8111d5671f);
+        assertEq(sum.y.c1, 0x240fd5c6b31aaed215732836ce1328a2cd81bb73c60c9f3e2327bb5c99374b8c);
+    }
+
+    function testFq2Negation() public {
+        G2.Fq2 memory a = G2.Fq2(
+            0x2aa3ce49b85caf169cd1e93e5b01be13688dd65660371ff08e6351a6b031028f,
+            0x2e6c1f338a4fd2cafe04883a9721f890448bcb8ea26bf2aefbb891267318f63c
+        );
+
+        G2.Fq2 memory negation = G2.subFq2(a, a);
+
+        assertEq(negation.c0, 0);
+        assertEq(negation.c1, 0);
+    }
+
+    function testFq2Addition() public {
+        G2.Fq2 memory a = G2.Fq2(
+            0x2aa3ce49b85caf169cd1e93e5b01be13688dd65660371ff08e6351a6b031028f,
+            0x2e6c1f338a4fd2cafe04883a9721f890448bcb8ea26bf2aefbb891267318f63c
+        );
+
+        G2.Fq2 memory addition = G2.addFq2(a, a);
+
+        assertEq(addition.c0, 0x24e34e208f87be0381538cc6348223c9399a421b57fc7553e0a6173687e507d7);
+        assertEq(addition.c1, 0x2c73eff4336e056c43b8cabeacc298c2f1962c8bdc661ad0bb5096360db4ef31);
+    }
+
+    function testFq2Multiplication() public {
+        G2.Fq2 memory a = G2.Fq2(
+            0x2aa3ce49b85caf169cd1e93e5b01be13688dd65660371ff08e6351a6b031028f,
+            0x2e6c1f338a4fd2cafe04883a9721f890448bcb8ea26bf2aefbb891267318f63c
+        );
+
+        G2.Fq2 memory addition = G2.multFq2(a, a);
+
+        assertEq(addition.c0, 0x0ba0bf2ab3bd48bcaca08fa1bc4cf4a0924c481a37a02bbd0433e1b8dadb6d28);
+        assertEq(addition.c1, 0x1b69ffffc834b76a1ca5b1848799af5b59b8a326137d8c3d84073ac925f8d252);
+    }
+}

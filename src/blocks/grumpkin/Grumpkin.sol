@@ -259,8 +259,8 @@ library Grumpkin {
     }
 
     function multiScalarMul(GrumpkinAffinePoint[] memory bases, uint256[] memory scalars)
-    public
-    returns (GrumpkinAffinePoint memory r)
+        public
+        returns (GrumpkinAffinePoint memory r)
     {
         require(scalars.length == bases.length, "MSM error: length does not match");
 

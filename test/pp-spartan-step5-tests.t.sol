@@ -460,9 +460,10 @@ contract PpSpartanStep5Computations is Test {
         uint256[] memory eval_output_arr
     ) private pure returns (uint256[] memory) {
         uint256 index = 0;
-        uint256[] memory eval_vec =
-        new uint256[](eval_left_arr.length + eval_right_arr.length + eval_output_arr.length + eval_A_B_C_z.length + evals_E.length + evals_val.length);
-
+        uint256[] memory eval_vec = new uint256[](
+            eval_left_arr.length + eval_right_arr.length + eval_output_arr.length + eval_A_B_C_z.length + evals_E.length
+                + evals_val.length
+        );
         for (uint256 i = 0; i < eval_A_B_C_z.length; i++) {
             eval_vec[index] = eval_A_B_C_z[i];
             index++;

@@ -1,4 +1,5 @@
-# Run integration tests when a maintainer comments `!test` on a PR
+# Run integration tests when a maintainer comments `!test` on a PR to feature branch
+# Fails when base branch is `main`, as it doesn't support e2e tests
 name: End to end integration tests
 
 on:
@@ -11,17 +12,24 @@ env:
 
 jobs:
   integration-tests-e2e:
-    strategy:
-      fail-fast: true
-
     name: E2E verification
-    runs-on: [self-hosted]
+    runs-on: buildjet-16vcpu-ubuntu-2204
     if:
       github.event.issue.pull_request
       && github.event.issue.state == 'open'
       && contains(github.event.comment.body, '!test')
       && (github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
     steps:
+      - uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Exit if base branch is `main`
+        if: ${{ steps.comment-branch.outputs.base_ref == 'main' }}
+        run: |
+          echo "Cannot run end2end integration tests on PR targeting `main`"
+          exit 1
+        continue-on-error: false
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive

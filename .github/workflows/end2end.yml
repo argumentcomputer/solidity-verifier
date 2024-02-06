@@ -3,8 +3,10 @@
 name: End to end integration tests
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches-ignore:
+      - main
 
 env:
   ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
@@ -14,31 +16,10 @@ jobs:
   integration-tests-e2e:
     name: E2E verification
     runs-on: buildjet-16vcpu-ubuntu-2204
-    if:
-      github.event.issue.pull_request
-      && github.event.issue.state == 'open'
-      && contains(github.event.comment.body, '!test')
-      && (github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
     steps:
-      - uses: xt0rted/pull-request-comment-branch@v2
-        id: comment-branch
-
-      - name: Exit if base branch is `main`
-        if: ${{ steps.comment-branch.outputs.base_ref == 'main' }}
-        run: |
-          echo "Cannot run end2end integration tests on PR targeting `main`"
-          exit 1
-        continue-on-error: false
-
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Checkout PR branch
-        run: gh pr checkout $PR_NUMBER
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.issue.number }}
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -62,12 +43,3 @@ jobs:
       - name: Check proof verification status
         run: |
           [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
-
-      - name: Comment on successful run
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            End-to-end `!test` action succeeded! :rocket:
-
-            https://github.com/lurk-lab/solidity-verifier/actions/runs/${{ github.run_id }}

@@ -55,9 +55,13 @@ jobs:
           echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
         id: deployment
 
+      - name: Generate proof and public parameters from commit hash
+        run: |
+          python ci_pasta_keys_verifier_script.py https://github.com/lurk-lab/Nova.git d5f5fb5e557b99cb111f2d5693aa34fe30722750
+
       - name: Load proof and public parameters
         run: |
-          python loader.py pp-verifier-key.json pp-compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+          python loader.py vk.json compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
 
       - name: Check proof verification status
         run: |

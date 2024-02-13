@@ -5,6 +5,7 @@ import "src/blocks/pasta/Vesta.sol";
 import "src/blocks/pasta/Pallas.sol";
 import "src/blocks/grumpkin/Bn256.sol";
 import "src/blocks/grumpkin/Grumpkin.sol";
+import "src/blocks/IpaPcs.sol";
 import "src/Utilities.sol";
 
 /**
@@ -1260,6 +1261,41 @@ library KeccakTranscriptLib {
     }
 
     /**
+     * @notice Absorbs a Grumpkin affine point into the Keccak transcript.
+     * @dev Converts the affine point's coordinates to bytes and handles the infinity case.
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param point The Grumpkin affine point to be absorbed.
+     * @return The updated Keccak transcript after absorption.
+     */
+    function absorb(KeccakTranscript memory keccak, uint8[] memory label, Grumpkin.GrumpkinAffinePoint memory point)
+        public
+        returns (KeccakTranscript memory)
+    {
+        uint8[] memory output = new uint8[](32 * 2 + 1);
+        uint256 index = 0;
+        // write x coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.x)[31 - i]));
+            index++;
+        }
+        // write y coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(point.y)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether point is at infinity
+        if (Grumpkin.is_identity(point)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
+    /**
      * @notice Absorbs an array of Bn256 affine points into the Keccak transcript.
      * @dev Converts each point's coordinates to bytes and handles the infinity case for each point.
      * @param keccak The existing Keccak transcript.
@@ -1292,6 +1328,54 @@ library KeccakTranscriptLib {
             } else {
                 output[index] = 0x01;
             }
+            index++;
+        }
+
+        return absorb(keccak, label, output);
+    }
+
+    /**
+     * @notice Absorbs an instance of InnerProductArgument into the Keccak transcript.
+     * @dev Writes 'comm_a_vec', 'c' fields of InnerProductArgument into the transcript
+     * @param keccak The existing Keccak transcript.
+     * @param label A byte array label used in the absorption process.
+     * @param ipa_input An instance of InnerProductArgument to be absorbed.
+     * @return The updated Keccak transcript after absorbing the points.
+     */
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        InnerProductArgument.InstanceGrumpkin memory ipa_input
+    ) public returns (KeccakTranscript memory) {
+        uint256 output_length = 0;
+        output_length += 32 * 2 + 1; // comm_a_vec
+        // we don't write b_vec to transcript according to reference implementation
+        output_length += 32; // c
+
+        uint8[] memory output = new uint8[](output_length);
+        uint256 index = 0;
+
+        // write x coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(ipa_input.comm_a_vec.x)[31 - i]));
+            index++;
+        }
+        // write y coordinate
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(ipa_input.comm_a_vec.y)[31 - i]));
+            index++;
+        }
+
+        // write byte indicating whether point is at infinity
+        if (Grumpkin.is_identity(ipa_input.comm_a_vec)) {
+            output[index] = 0x00;
+        } else {
+            output[index] = 0x01;
+        }
+        index++;
+
+        for (uint256 i = 0; i < 32; i++) {
+            output[index] = uint8(bytes1(bytes32(ipa_input.c)[31 - i]));
             index++;
         }
 

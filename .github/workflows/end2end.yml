@@ -34,6 +34,15 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Parse PR comment
+        id: parse-comment
+        run:
+            # Extract NOVA_URL and NOVA_COMMIT from the comment body
+            export NOVA_URL=$(echo "${{ github.event.comment.body }}" | grep -oE 'NOVA_URL=(.*?)[[:space:]]' | cut -d'=' -f2 | xargs)
+            export NOVA_COMMIT=$(echo "${{ github.event.comment.body }}" | grep -oE 'NOVA_COMMIT=(.*?)[[:space:]]' | cut -d'=' -f2 | xargs)
+            echo "::set-env name=NOVA_URL::$NOVA_URL"
+            echo "::set-env name=NOVA_COMMIT::$NOVA_COMMIT"    
+
       - name: Checkout PR branch
         run: gh pr checkout $PR_NUMBER
         env:
@@ -57,7 +66,7 @@ jobs:
 
       - name: Generate proof and public parameters from commit hash
         run: |
-          python ci_pasta_keys_verifier_script.py https://github.com/lurk-lab/Nova.git d5f5fb5e557b99cb111f2d5693aa34fe30722750
+          python ci_pasta_keys_verifier_script.py $NOVA_URL $NOVA_COMMIT
 
       - name: Load proof and public parameters
         run: |

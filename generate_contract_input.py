@@ -49,7 +49,7 @@ def add_function_before_last_brace(file_path, function_definition):
         file.writelines(lines)
 
 
-# python3 generate_contract_input.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
+# python generate_contract_input.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
 if __name__ == "__main__":
     nova_repo_arg = ""
     nova_commit_arg = ""

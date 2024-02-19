@@ -5,17 +5,6 @@ import re
 
 file_path = 'rust-reference-info.txt'
 
-solidity_compatibility_e2e_pasta_code = '''
-  #[test]
-  #[ignore]
-  fn solidity_compatibility_e2e() {
-    type G1 = pasta_curves::pallas::Point;
-    type G2 = pasta_curves::vesta::Point;
-    test_ivc_nontrivial_with_compression_with::<G1, G2>(true);
-  }
-'''
-
-
 def parse_variables_from_file(file_path):
     variables = {}
     with open(file_path, 'r') as file:
@@ -60,7 +49,7 @@ def add_function_before_last_brace(file_path, function_definition):
         file.writelines(lines)
 
 
-# python3 ci_pasta_keys_verifier_script.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
+# python3 generate_contract_input.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
 if __name__ == "__main__":
     nova_repo_arg = ""
     nova_commit_arg = ""
@@ -77,14 +66,6 @@ if __name__ == "__main__":
     target_directory = "verify_cache"
     nova_directory = "nova"
 
-    # Main logic
-    print("Deleting generated jsons from solidity-verifier project...")
-    os.system(f"rm -rf neptune-constants-U24-pallas.json")
-    os.system(f"rm -rf neptune-constants-U24-vesta.json")
-    os.system(f"rm -rf pp-compressed-snark.json")
-    os.system(f"rm -rf pp-verifier-key.json")
-    os.system(f"rm -rf verifier-key.json")
-
     if os.path.exists(target_directory):
         subprocess.run(['rm', '-rf', target_directory], check=True)
     os.mkdir(target_directory)
@@ -95,8 +76,6 @@ if __name__ == "__main__":
     os.system(f"git checkout {nova_commit_hash}")
 
     # Build the Nova project
-    file_path = 'src/lib.rs'
-    add_function_before_last_brace(file_path, solidity_compatibility_e2e_pasta_code)
-    os.system(f"cargo test solidity_compatibility_e2e --release -- --ignored")
+    os.system(f"cargo test solidity_compatibility_e2e_pasta --release -- --ignored")
     print("Copy generated keys from Nova...")
     os.system(f"cp vk.json compressed-snark.json ../../.")

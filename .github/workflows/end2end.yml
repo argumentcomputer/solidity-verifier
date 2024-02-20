@@ -78,7 +78,7 @@ jobs:
 
       - name: Generate proof and public parameters from commit hash
         run: |
-          python generate_contract_input.py ${{ env.NOVA_URL }} ${{ env.$NOVA_COMMIT }} ${{ env.NOVA_TEST_NAME }}
+          python generate_contract_input.py ${{ env.NOVA_URL }} ${{ env.NOVA_COMMIT }} ${{ env.NOVA_TEST_NAME }}
 
       - name: Deploy main contract
         run: |

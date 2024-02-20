@@ -12,16 +12,20 @@ def parse_variables_from_file(file_path):
         # Define regex patterns for matching variables
         nova_url_pattern = r'\$NOVA_URL\s*=\s*\"(.+?)\"'
         nova_commit_pattern = r'\$NOVA_COMMIT\s*=\s*\"(.+?)\"'
+        nova_test_name_pattern = r'\$NOVA_TEST_NAME\s*=\s*\"(.+?)\"'
 
         # Match variables using regular expressions
         nova_url_match = re.search(nova_url_pattern, content)
         nova_commit_match = re.search(nova_commit_pattern, content)
+        nova_test_name_match = re.search(nova_test_name_pattern, content)
 
         # Extract matched variables
         if nova_url_match:
             variables['NOVA_URL'] = nova_url_match.group(1)
         if nova_commit_match:
             variables['NOVA_COMMIT'] = nova_commit_match.group(1)
+        if nova_commit_match:
+            variables['NOVA_TEST_NAME'] = nova_test_name_match.group(1)
 
     return variables
 
@@ -29,15 +33,19 @@ def parse_variables_from_file(file_path):
 if __name__ == "__main__":
     nova_repo_arg = ""
     nova_commit_arg = ""
+    nova_test_name_arg = ""
 
     if len(sys.argv) > 1:
         nova_repo_arg = sys.argv[1]
         nova_commit_arg = sys.argv[2]
+        nova_test_name_arg = sys.argv[3]
 
     # Configurations
     parsed_variables = parse_variables_from_file(file_path)
     nova_repo_url = nova_repo_arg if nova_repo_arg else parsed_variables['NOVA_URL']
     nova_commit_hash = nova_commit_arg if nova_commit_arg else parsed_variables['NOVA_COMMIT']
+    nova_test_name = nova_test_name_arg if nova_test_name_arg else parsed_variables['NOVA_TEST_NAME']
+
     print("Pulling project from: " + nova_repo_url + " " + nova_commit_hash)
     target_directory = "verify_cache"
     nova_directory = "nova"
@@ -52,6 +60,6 @@ if __name__ == "__main__":
     os.system(f"git checkout {nova_commit_hash}")
 
     # Build the Nova project
-    os.system(f"cargo test solidity_compatibility_e2e_pasta --release -- --ignored")
+    os.system(f"cargo test {nova_test_name} --release -- --ignored")
     print("Copy generated keys from Nova...")
     os.system(f"cp vk.json compressed-snark.json ../../.")

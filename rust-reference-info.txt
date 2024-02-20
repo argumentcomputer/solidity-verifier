@@ -1,0 +1,7 @@
+# generate_contract_input.py script params
+
+# NOVA_URL variable
+$NOVA_URL = "https://github.com/lurk-lab/Nova.git"
+
+# NOVA_COMMIT variable
+$NOVA_COMMIT = "d5f5fb5e557b99cb111f2d5693aa34fe30722750"

@@ -25,30 +25,6 @@ def parse_variables_from_file(file_path):
 
     return variables
 
-
-def add_function_before_last_brace(file_path, function_definition):
-    # Read the content of the file
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    # Find the position of the last "}" character
-    last_brace_index = None
-    for i in range(len(lines) - 1, -1, -1):
-        if '}' in lines[i]:
-            last_brace_index = i
-            break
-
-    if last_brace_index is None:
-        raise ValueError("No closing brace found in the file.")
-
-    # Insert the function definition before the last "}" position
-    lines.insert(last_brace_index, f"\n{function_definition}\n")
-
-    # Write the updated content back to the file
-    with open(file_path, 'w') as file:
-        file.writelines(lines)
-
-
 # python generate_contract_input.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
 if __name__ == "__main__":
     nova_repo_arg = ""

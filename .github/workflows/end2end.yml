@@ -1,0 +1,118 @@
+# Run integration tests when a maintainer comments `!test` on a PR to feature branch
+#
+# Default env vars specified in `rust-reference-info.env`
+# Overrides default env vars when input to `!test` comment, e.g.
+# `!test NOVA_URL=https://github.com/lurk-lab/Nova NOVA_COMMIT=ea4f75c225cb29f523780858ec84f1ff51c229bc NOVA_TEST_NAME=solidity_compatibility_e2e_pasta`
+#
+# Fails when base branch is `main`, as it doesn't support e2e tests
+name: End to end integration tests
+
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  ANVIL_PRIVATE_KEY: ${{secrets.ANVIL_PRIVATE_KEY}}
+  ANVIL_URL: ${{secrets.ANVIL_RPC_URL}}
+
+jobs:
+  integration-tests-e2e:
+    name: E2E verification
+    runs-on: buildjet-16vcpu-ubuntu-2204
+    if:
+      github.event.issue.pull_request
+      && github.event.issue.state == 'open'
+      && contains(github.event.comment.body, '!test')
+      && (github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
+    steps:
+      - uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Exit if base branch is `main`
+        if: ${{ steps.comment-branch.outputs.base_ref == 'main' }}
+        run: |
+          echo "Cannot run end2end integration tests on PR targeting `main`"
+          exit 1
+        continue-on-error: false
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout PR branch
+        run: gh pr checkout $PR_NUMBER
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Load env defaults
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: 'rust-reference-info.env'
+
+      - name: Set env from comment body
+        run: |
+          printf '${{ github.event.comment.body }}' > comment.txt
+          NOVA_URL=$(echo $BODY | awk -F'[ =]' '{for (i=1; i<=NF; i++) {if ($i ~ /^NOVA_URL/) {print $(i+1) }}}')
+          if [[ ! -z $NOVA_URL ]]; then
+            echo "NOVA_URL=$NOVA_URL" | tee -a $GITHUB_ENV
+          fi
+          NOVA_COMMIT=$(echo $BODY | awk -F'[ =]' '{for (i=1; i<=NF; i++) {if ($i ~ /^NOVA_COMMIT/) {print $(i+1) }}}')
+          if [[ ! -z $NOVA_COMMIT ]]; then
+            echo "NOVA_COMMIT=$NOVA_COMMIT" | tee -a $GITHUB_ENV
+          fi
+          NOVA_TEST_NAME=$(echo $BODY | awk -F'[ =]' '{for (i=1; i<=NF; i++) {if ($i ~ /^NOVA_TEST_NAME/) {print $(i+1) }}}')
+          if [[ ! -z $NOVA_TEST_NAME ]]; then
+            echo "NOVA_TEST_NAME=$NOVA_TEST_NAME" | tee -a $GITHUB_ENV
+          fi
+
+      - name: Generate proof and public parameters from commit hash
+        run: |
+          python generate_contract_input.py ${{ env.NOVA_URL }} ${{ env.$NOVA_COMMIT }} ${{ env.NOVA_TEST_NAME }}
+
+      - name: Deploy main contract
+        run: |
+          echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
+        id: deployment
+
+      - name: Load proof and public parameters
+        run: |
+          python loader.py pp-verifier-key.json pp-compressed-snark.json ${{steps.deployment.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+
+      - name: Check proof verification status
+        run: |
+          [[ $(cast call ${{steps.deployment.outputs.CONTRACT_ADDRESS}} "verify(uint32,uint256[],uint256[],bool)(bool)" "3" "[1]" "[0]" "true" --private-key $ANVIL_PRIVATE_KEY --rpc-url $ANVIL_URL) == true ]] && exit 0 || exit 1
+
+      - name: Gather status in a single variable
+        if: steps.tests.outcome == 'success' && steps.gadget-tests.outcome == 'success'
+        run: echo "status=true" | tee -a $GITHUB_ENV
+
+      - name: Comment on successful run
+        if: success()
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            End-to-end `!test` action succeeded! :rocket:
+
+            https://github.com/lurk-lab/solidity-verifier/actions/runs/${{ github.run_id }}
+
+      - name: Comment on failing run
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            End-to-end `!test` action failed :x:
+
+            https://github.com/lurk-lab/solidity-verifier/actions/runs/${{ github.run_id }}

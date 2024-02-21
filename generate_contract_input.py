@@ -1,18 +1,20 @@
+# Run with `python generate_contract_input.py` or e.g. `python generate_contract_input.py https://github.com/lurk-lab/Nova.git ea4f75c225cb29f523780858ec84f1ff51c229bc solidity_compatibility_e2e_pasta`
+
 import subprocess
 import sys
 import os
 import re
 
-file_path = 'rust-reference-info.txt'
+file_path = 'rust-reference-info.env'
 
 def parse_variables_from_file(file_path):
     variables = {}
     with open(file_path, 'r') as file:
         content = file.read()
         # Define regex patterns for matching variables
-        nova_url_pattern = r'\$NOVA_URL\s*=\s*\"(.+?)\"'
-        nova_commit_pattern = r'\$NOVA_COMMIT\s*=\s*\"(.+?)\"'
-        nova_test_name_pattern = r'\$NOVA_TEST_NAME\s*=\s*\"(.+?)\"'
+        nova_url_pattern = r'NOVA_URL=\"(.+?)\"'
+        nova_commit_pattern = r'NOVA_COMMIT=\"(.+?)\"'
+        nova_test_name_pattern = r'NOVA_TEST_NAME=\"(.+?)\"'
 
         # Match variables using regular expressions
         nova_url_match = re.search(nova_url_pattern, content)
@@ -29,7 +31,6 @@ def parse_variables_from_file(file_path):
 
     return variables
 
-# python generate_contract_input.py https://github.com/artem-bakuta/Nova.git 3838031868ca3f2783c01299546849860bfd36d2
 if __name__ == "__main__":
     nova_repo_arg = ""
     nova_commit_arg = ""

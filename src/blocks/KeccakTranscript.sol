@@ -1027,6 +1027,46 @@ library KeccakTranscriptLib {
         return absorb(keccak, label, input);
     }
 
+    function absorb(
+        KeccakTranscript memory keccak,
+        uint8[] memory label,
+        uint256[] memory inputs_0,
+        uint256[] memory inputs_1,
+        uint256[] memory inputs_2
+    ) public returns (KeccakTranscript memory) {
+        uint8[] memory input = new uint8[](32 * inputs_0.length + 32 * inputs_1.length + 32 * inputs_2.length);
+
+        uint256 input_index = 0;
+        for (uint256 i = 0; i < inputs_0.length; i++) {
+            uint8[] memory input_bytes = scalarToBytes(inputs_0[i]);
+
+            for (uint256 j = 0; j < 32; j++) {
+                input[input_index] = input_bytes[j];
+                input_index++;
+            }
+        }
+
+        for (uint256 i = 0; i < inputs_1.length; i++) {
+            uint8[] memory input_bytes = scalarToBytes(inputs_1[i]);
+
+            for (uint256 j = 0; j < 32; j++) {
+                input[input_index] = input_bytes[j];
+                input_index++;
+            }
+        }
+
+        for (uint256 i = 0; i < inputs_2.length; i++) {
+            uint8[] memory input_bytes = scalarToBytes(inputs_2[i]);
+
+            for (uint256 j = 0; j < 32; j++) {
+                input[input_index] = input_bytes[j];
+                input_index++;
+            }
+        }
+
+        return absorb(keccak, label, input);
+    }
+
     /**
      * @notice Absorbs a univariate polynomial into the Keccak transcript.
      * @dev Converts the polynomial to bytes and uses the standard `absorb` function.
@@ -1252,7 +1292,7 @@ library KeccakTranscriptLib {
         }
 
         // write byte indicating whether point is at infinity
-        if (Bn256.is_identity(point)) {
+        if (!Bn256.is_identity(point)) {
             output[index] = 0x00;
         } else {
             output[index] = 0x01;
@@ -1270,6 +1310,7 @@ library KeccakTranscriptLib {
      */
     function absorb(KeccakTranscript memory keccak, uint8[] memory label, Grumpkin.GrumpkinAffinePoint memory point)
         public
+        pure
         returns (KeccakTranscript memory)
     {
         uint8[] memory output = new uint8[](32 * 2 + 1);
@@ -1286,7 +1327,7 @@ library KeccakTranscriptLib {
         }
 
         // write byte indicating whether point is at infinity
-        if (Grumpkin.is_identity(point)) {
+        if (!Grumpkin.is_identity(point)) {
             output[index] = 0x00;
         } else {
             output[index] = 0x01;
@@ -1323,7 +1364,7 @@ library KeccakTranscriptLib {
             }
 
             // write byte indicating whether point is at infinity
-            if (Bn256.is_identity(points[j])) {
+            if (!Bn256.is_identity(points[j])) {
                 output[index] = 0x00;
             } else {
                 output[index] = 0x01;

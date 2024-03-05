@@ -61,8 +61,8 @@ library Pairing {
      * @return True if the product of pairings check passes, false otherwise.
      */
     function pairingProd2(G1Point memory a1, G2Point memory a2, G1Point memory b1, G2Point memory b2)
-    internal
-    returns (bool)
+        internal
+        returns (bool)
     {
         G1Point[] memory p1 = new G1Point[](2);
         G2Point[] memory p2 = new G2Point[](2);

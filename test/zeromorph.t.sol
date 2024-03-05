@@ -8,11 +8,20 @@ import "src/blocks/KeccakTranscript.sol";
 
 contract ZeromorphContract is Test {
     function testPairingUsage() public {
-        Pairing.G1Point memory g1_0 = Pairing.P1();
-        Pairing.G2Point memory g2_0 = Pairing.P2();
+        Pairing.G1Point memory g1_0 = Pairing.G1Point(Bn256.Bn256AffinePoint(1, 2));
+        Pairing.G2Point memory g2_0 = Pairing.G2Point(
+            [
+            10857046999023057135944570762232829481370756359578518086990519993285655852781,
+            11559732032986387107991004021392285783925812861821192530917403151452391805634
+            ],
+            [
+            8495653923123431417604973247489272438418190587263600148770280649306958101930,
+            4082367875863433681332203403145435568316851327593401208105741076214120093531
+            ]
+        );
 
-        Pairing.G1Point memory g1_1 = Pairing.negate(Pairing.P1());
-        Pairing.G2Point memory g2_1 = Pairing.P2();
+        Pairing.G1Point memory g1_1 = Pairing.G1Point(Bn256.negate(Bn256.Bn256AffinePoint(1, 2)));
+        Pairing.G2Point memory g2_1 = g2_0;
 
         bool pairingResult = Pairing.pairingProd2(g1_0, g2_0, g1_1, g2_1);
         assert(pairingResult);

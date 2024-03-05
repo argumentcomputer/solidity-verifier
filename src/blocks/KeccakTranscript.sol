@@ -1033,7 +1033,7 @@ library KeccakTranscriptLib {
         uint256[] memory inputs_0,
         uint256[] memory inputs_1,
         uint256[] memory inputs_2
-    ) public returns (KeccakTranscript memory) {
+    ) public pure returns (KeccakTranscript memory) {
         uint8[] memory input = new uint8[](32 * inputs_0.length + 32 * inputs_1.length + 32 * inputs_2.length);
 
         uint256 input_index = 0;
@@ -1387,7 +1387,7 @@ library KeccakTranscriptLib {
         KeccakTranscript memory keccak,
         uint8[] memory label,
         InnerProductArgument.InstanceGrumpkin memory ipa_input
-    ) public returns (KeccakTranscript memory) {
+    ) public pure returns (KeccakTranscript memory) {
         uint256 output_length = 0;
         output_length += 32 * 2 + 1; // comm_a_vec
         // we don't write b_vec to transcript according to reference implementation

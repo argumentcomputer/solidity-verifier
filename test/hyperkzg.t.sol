@@ -5,10 +5,10 @@ import "@std/Test.sol";
 import "src/blocks/KeccakTranscript.sol";
 import "src/blocks/grumpkin/Bn256.sol";
 import "src/Utilities.sol";
-import "src/blocks/ZeromorphEngine.sol";
+import "src/blocks/Pairing.sol";
 
 contract HyperKzgTest is Test {
-    function pushElement(uint256[] memory input, uint256 element) private returns (uint256[] memory) {
+    function pushElement(uint256[] memory input, uint256 element) private pure returns (uint256[] memory) {
         uint256[] memory output = new uint256[](input.length + 1);
         for (uint256 i = 0; i < input.length; i++) {
             output[i] = input[i];
@@ -19,6 +19,7 @@ contract HyperKzgTest is Test {
 
     function insertPoint(Bn256.Bn256AffinePoint[] memory input, Bn256.Bn256AffinePoint memory point, uint256 index)
         private
+        pure
         returns (Bn256.Bn256AffinePoint[] memory)
     {
         require(index <= input.length, "unexpected index");
@@ -41,7 +42,7 @@ contract HyperKzgTest is Test {
         uint256[] memory point_in,
         uint256 r,
         uint256 p_of_x
-    ) private returns (bool) {
+    ) private pure returns (bool) {
         require(pi_evals_0.length == point_in.length, "unexpected length of pi_evals_0");
         require(pi_evals_1.length == point_in.length, "unexpected length of pi_evals_1");
         require(pi_evals_2.length == point_in.length, "unexpected length of pi_evals_2");
@@ -148,7 +149,7 @@ contract HyperKzgTest is Test {
         Pairing.G2Point h;
     }
 
-    function composeHyperKzgInput() private returns (HyperKzgInput memory) {
+    function composeHyperKzgInput() private pure returns (HyperKzgInput memory) {
         Bn256.Bn256AffinePoint[] memory pi_comms = new Bn256.Bn256AffinePoint[](2);
         pi_comms[0] = Bn256.Bn256AffinePoint(
             0x1e252582f77d12b3fbf9376aa756426e7c9c6496be4f60f35f5b6a09cd65b580,

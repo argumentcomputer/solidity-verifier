@@ -1,0 +1,60 @@
+name: Run unit tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: buildjet-16vcpu-ubuntu-2204
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Check formatting
+        run: |
+          forge fmt --check
+
+      - name: Regenerate Contracts
+        run: |
+          python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-pallas.json PoseidonU24Pallas > src/blocks/poseidon/PoseidonNeptuneU24pallas.sol
+          python src/blocks/poseidon/poseidon-contract-gen.py src/blocks/poseidon/neptune-constants-U24-vesta.json PoseidonU24Vesta > src/blocks/poseidon/PoseidonNeptuneU24vesta.sol
+
+      - name: Run forge fmt on re-generated contracts
+        run: |
+          forge fmt
+
+      - name: Check discrepancies
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            echo "There are discrepancies between the repository and the source. Please ensure the contracts are up to date."
+            exit 1
+          fi
+
+      - name: Run Forge build
+        run: |
+          forge --version
+          forge build
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+
+      - name: Get sizes of compiled contracts
+        run: |
+          forge --version
+          forge build --sizes || true

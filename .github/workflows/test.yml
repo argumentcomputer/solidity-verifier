@@ -35,9 +35,13 @@ jobs:
           echo "CONTRACT_ADDRESS=$(forge script script/Deployment.s.sol:NovaGrumpkinVerifierDeployer --fork-url $ANVIL_URL --private-key $ANVIL_PRIVATE_KEY --broadcast --non-interactive | sed -n 's/.*Contract Address: //p' | tail -1)" >> $GITHUB_OUTPUT
         id: deployment-grumpkin
 
+      - name: Generate compressed snark json and verifier key json
+        run: |
+          python grumpkin_json_generator.py https://github.com/lurk-lab/Nova.git 78cf0361f45bc7182084a149b5ed7ceec3d7eb0f  
+
       - name: Load proof and public parameters
         run: |
-          python loaderGrumpkin.py verifier-key-grumpkin.json compressed-snark-grumpkin.json ${{steps.deployment-grumpkin.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
+          python loaderGrumpkin.py vk-grumpkin.json compressed-snark-grumpkin.json ${{steps.deployment-grumpkin.outputs.CONTRACT_ADDRESS}} $ANVIL_URL $ANVIL_PRIVATE_KEY
 
       - name: Check proof verification status
         run: |

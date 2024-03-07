@@ -422,4 +422,99 @@ contract KeccakTranscriptContractTest is Test {
         uint256 r_expected = 0x26dbed0c0b99929de85b3c8d4c501f5216b0c3fa951b92afb75b6044c7b6885d;
         assertEq(r_expected, r);
     }
+
+    function testKeccakTranscriptIPAGrumpkin3varComputations() public {
+        // b"TestEval" in Rust
+        uint8[] memory label = new uint8[](8);
+        label[0] = 0x54;
+        label[1] = 0x65;
+        label[2] = 0x73;
+        label[3] = 0x74;
+        label[4] = 0x45;
+        label[5] = 0x76;
+        label[6] = 0x61;
+        label[7] = 0x6c;
+        KeccakTranscriptLib.KeccakTranscript memory transcript = KeccakTranscriptLib.instantiate(label);
+
+        // b"IPA" in Rust
+        label = new uint8[](3);
+        label[0] = 0x49;
+        label[1] = 0x50;
+        label[2] = 0x41;
+
+        transcript = KeccakTranscriptLib.dom_sep(transcript, label);
+
+        // b"U" in Rust
+        label = new uint8[](1);
+        label[0] = 0x55;
+
+        Grumpkin.GrumpkinAffinePoint memory commitment = Grumpkin.GrumpkinAffinePoint(
+            0x05761e8168395518effb6191ca6315def59beaeb766682188e649908011d9fcd,
+            0x018180ce00e30e9873b2a7420b5e64d8fabe7d0644a7b26ce8a0e80f24f8043e
+        );
+
+        uint256[] memory b_vec = new uint256[](8);
+        b_vec[0] = 0x05b322aa937a781cec574903649a10e6f8f99b62bbbfbcf2d4800abfdd2ab88b;
+        b_vec[1] = 0x0628d577156fed33480196c7a0af00f2fa4370d7a30a846e0bc9835c42764d6f;
+        b_vec[2] = 0x21189ff55063834a2b2298000044a241cea1f1bae7acafec03683abcd8da9cf2;
+        b_vec[3] = 0x1945b00ee8f84aac5d30df7a58902b2418f016536a89f3efb45a8d93256ed826;
+        b_vec[4] = 0x1369fd4b6b257d31d8cfe272f34172660a2e222fdef8c640d7780e717e47300c;
+        b_vec[5] = 0x06e2b7834a4648b74e219c655efc67a36860867bd090feffd775a250d6b03dbf;
+        b_vec[6] = 0x1f52f509b0be148cec62fbe669188d7bbed991174497c07fa035a60627c7cf9f;
+        b_vec[7] = 0x1152f95a5b24d2c058efff1f6b0fc253ba4cf1a89432f4aacd31f70feecd3f5a;
+
+        transcript = KeccakTranscriptLib.absorb(
+            transcript,
+            label,
+            InnerProductArgument.InstanceGrumpkin(
+                commitment, b_vec, 0x1f057ef7b42d1590fd90a0c6cebc777b3e080079c6215e8ded00109107055b7e
+            )
+        );
+
+        // b"r" in Rust
+        label = new uint8[](1);
+        label[0] = 0x72;
+        uint256 r;
+        (transcript, r) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveGrumpkin(), label);
+
+        // b"L" in Rust
+        label = new uint8[](1);
+        label[0] = 0x4c;
+        transcript = KeccakTranscriptLib.absorb(
+            transcript, label, 0x1ed4bae9714e4e28fc63fdcc1b54b1f4ac8ec079aca2cca4b92b7e45d63b1395
+        );
+
+        // b"R" in Rust
+        label = new uint8[](1);
+        label[0] = 0x52;
+        transcript = KeccakTranscriptLib.absorb(
+            transcript, label, 0x1b32544e236d677739086e7725aa4ae01f1a664092225af076a4fb72f1002e75
+        );
+
+        // b"r" in Rust
+        label = new uint8[](1);
+        label[0] = 0x72;
+        (transcript, r) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveGrumpkin(), label);
+        assertEq(r, 0x033f2da016bf9248bcefaf0a99d533df518a40729fb72f27e0b68b228df22583);
+
+        // b"L" in Rust
+        label = new uint8[](1);
+        label[0] = 0x4c;
+        transcript = KeccakTranscriptLib.absorb(
+            transcript, label, 0x1cb0ba55ddf67148f5fa7a8ef3f9c8cafdfe56bea23b1d5a6253e0857e56ad82
+        );
+
+        // b"R" in Rust
+        label = new uint8[](1);
+        label[0] = 0x52;
+        transcript = KeccakTranscriptLib.absorb(
+            transcript, label, 0x5325e7f1c0e1bf320bc2649d3b5764d8795abcf137d8325b3fbf3198774085e1
+        );
+
+        // b"r" in Rust
+        label = new uint8[](1);
+        label[0] = 0x72;
+        (transcript, r) = KeccakTranscriptLib.squeeze(transcript, ScalarFromUniformLib.curveGrumpkin(), label);
+        assertEq(r, 0x1744e670b565ff687a3d35ddb3bd3c800b65d3297f59747846e2076f2da92655);
+    }
 }

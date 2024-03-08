@@ -9,8 +9,8 @@ library InnerProductArgument {
         Grumpkin.GrumpkinAffinePoint[] ck_v;
         Grumpkin.GrumpkinAffinePoint[] ck_s;
         uint256[] point;
-        Grumpkin.GrumpkinAffinePoint[] L_vec;
-        Grumpkin.GrumpkinAffinePoint[] R_vec;
+        uint256[] L_vec;
+        uint256[] R_vec;
         Grumpkin.GrumpkinAffinePoint commitment;
         uint256 eval;
         uint256 a_hat;
@@ -215,11 +215,11 @@ library InnerProductArgument {
         msm_index = 0;
         Grumpkin.GrumpkinAffinePoint[] memory bases = new Grumpkin.GrumpkinAffinePoint[](msm_len);
         for (uint256 index = 0; index < input.L_vec.length; index++) {
-            bases[msm_index] = input.L_vec[index];
+            bases[msm_index] = Grumpkin.decompress(input.L_vec[index]);
             msm_index++;
         }
         for (uint256 index = 0; index < input.R_vec.length; index++) {
-            bases[msm_index] = input.R_vec[index];
+            bases[msm_index] = Grumpkin.decompress(input.R_vec[index]);
             msm_index++;
         }
         bases[msm_index] = P;
@@ -291,11 +291,11 @@ library InnerProductArgument {
         for (uint256 index = 0; index < r_vec.length; index++) {
             // b"L" in Rust
             label[0] = 0x4c;
-            transcript = KeccakTranscriptLib.absorb(transcript, label, input.L_vec[index].x);
+            transcript = KeccakTranscriptLib.absorb(transcript, label, input.L_vec[index]);
 
             // b"R" in Rust
             label[0] = 0x52;
-            transcript = KeccakTranscriptLib.absorb(transcript, label, input.R_vec[index].x);
+            transcript = KeccakTranscriptLib.absorb(transcript, label, input.R_vec[index]);
 
             // b"r" in Rust
             label[0] = 0x72;

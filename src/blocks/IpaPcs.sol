@@ -156,6 +156,7 @@ library InnerProductArgument {
 
     function compute_P_hat_right(P_hat_right_input memory input)
         private
+        view
         returns (Grumpkin.GrumpkinAffinePoint memory)
     {
         uint256[] memory s = new uint256[](input.n);
@@ -194,6 +195,7 @@ library InnerProductArgument {
 
     function compute_P_hat_left(IpaInputGrumpkin memory input, R memory r_vec, Grumpkin.GrumpkinAffinePoint memory ck_c)
         private
+        view
         returns (Grumpkin.GrumpkinAffinePoint memory)
     {
         Grumpkin.GrumpkinAffinePoint memory P = Grumpkin.add(input.commitment, Grumpkin.scalarMul(ck_c, input.eval));
@@ -232,7 +234,7 @@ library InnerProductArgument {
         uint256 a_hat,
         Grumpkin.GrumpkinAffinePoint memory ck_hat,
         Grumpkin.GrumpkinAffinePoint memory ck_c
-    ) private returns (Grumpkin.GrumpkinAffinePoint memory) {
+    ) private view returns (Grumpkin.GrumpkinAffinePoint memory) {
         Grumpkin.GrumpkinAffinePoint[] memory bases = new Grumpkin.GrumpkinAffinePoint[](2);
         bases[0] = ck_hat;
         bases[1] = ck_c;

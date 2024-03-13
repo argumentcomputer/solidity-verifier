@@ -44,6 +44,10 @@ library Grumpkin {
         uint256 self_z = 1;
         uint256 rhs_z = 1;
 
+        if (is_identity(p1) && is_identity(p2)) {
+            return Identity();
+        }
+
         if (is_identity(p1)) {
             self_x = 0;
             self_y = 1;
@@ -304,5 +308,61 @@ library Grumpkin {
         }
 
         return GrumpkinAffinePoint(x, y);
+    }
+
+    function getAt(uint256 segment, uint256 c, uint256 scalar) public returns (uint256) {
+        uint256 skipBits = segment * c;
+        if (skipBits >= 256) {
+            return 0;
+        }
+
+        uint256 res = (scalar >> skipBits) % (1 << c);
+        return res;
+    }
+
+    function multiScalarMulSerial(GrumpkinAffinePoint[] memory bases, uint256[] memory scalars)
+        public
+        returns (GrumpkinAffinePoint memory r)
+    {
+        require(scalars.length == bases.length, "MSM error: length does not match");
+
+        uint256 c;
+        if (bases.length < 4) {
+            c = 1;
+        } else if (bases.length < 32) {
+            c = 3;
+        } else {
+            c = CommonUtilities.log2(bases.length);
+        }
+        
+        GrumpkinAffinePoint[] memory buckets = new GrumpkinAffinePoint[]((1 << c) - 1);
+        GrumpkinAffinePoint memory res = Identity();
+
+        uint256 segments = (256 / c) + 1;
+        for (uint256 segment = segments; segment > 0; segment--) {
+
+            for (uint256 i = 0; i < c; i++) {
+                res = double(res);
+            }
+
+            for (uint256 i = 0; i < buckets.length; i++) {
+                buckets[i] = Identity();
+            }
+
+            for (uint256 i = 0; i < bases.length; i++) {
+                uint256 limb = getAt(segment - 1, c, scalars[i]);
+                if (limb != 0) {
+                    buckets[limb - 1] = add(buckets[limb - 1], bases[i]);
+                }
+            }
+
+            GrumpkinAffinePoint memory runningSum = Identity();
+            for (uint256 i = buckets.length; i > 0; i--) {
+                runningSum = add(buckets[i - 1], runningSum);
+                res = add(res, runningSum);
+            }
+        }
+
+        r = res;
     }
 }

@@ -62,8 +62,8 @@ contract MultiscalarMulTest is Test {
 
         Grumpkin.GrumpkinAffinePoint memory out = Grumpkin.multiScalarMulSerial(bases, scalars);
 
-        assertEq(bytes32(out.x), bytes32(0x165389a47641d35a1bcc942716c09360aed233841ff5d2101f04a6fa911cc9b5));
-        assertEq(bytes32(out.y), bytes32(0x1b815148c1522708d6b4af5102b6f34a625880b4fe50de70080348af1dc54d6e));
+        assertEq(bytes32(out.x), bytes32(0x14df709e5f2820818a45604d280f1a21088aeee4b37cbc7ba41a7fe9b2005c41));
+        assertEq(bytes32(out.y), bytes32(0x1780bfb139af4e3905ab498d514d1cbbab9e0bc2839fdfdf18464ff857cb6b4c));
     }
 
     function testGrumpkin3Unoptimized() public {
@@ -113,12 +113,12 @@ contract MultiscalarMulTest is Test {
 
         Grumpkin.GrumpkinAffinePoint memory out = Grumpkin.multiScalarMul(bases, scalars);
 
-        assertEq(bytes32(out.x), bytes32(0x165389a47641d35a1bcc942716c09360aed233841ff5d2101f04a6fa911cc9b5));
-        assertEq(bytes32(out.y), bytes32(0x1b815148c1522708d6b4af5102b6f34a625880b4fe50de70080348af1dc54d6e));
+        assertEq(bytes32(out.x), bytes32(0x14df709e5f2820818a45604d280f1a21088aeee4b37cbc7ba41a7fe9b2005c41));
+        assertEq(bytes32(out.y), bytes32(0x1780bfb139af4e3905ab498d514d1cbbab9e0bc2839fdfdf18464ff857cb6b4c));
     }
 
     function testGrumpkin4Serial() public {
-                Grumpkin.GrumpkinAffinePoint[] memory bases = new Grumpkin.GrumpkinAffinePoint[](16);
+        Grumpkin.GrumpkinAffinePoint[] memory bases = new Grumpkin.GrumpkinAffinePoint[](16);
         bases[0] = Grumpkin.GrumpkinAffinePoint(
             0x15afa1c1de43e186ee615ee76389d1ca9de572d426869ab062a03f1ba65808a2,
             0x28d6d43cb5ba89778111ceaa56cb8bf2c34a5fb6013988513d5798a60846d423
@@ -204,8 +204,8 @@ contract MultiscalarMulTest is Test {
 
         Grumpkin.GrumpkinAffinePoint memory out = Grumpkin.multiScalarMulSerial(bases, scalars);
 
-        assertEq(bytes32(out.x), bytes32(0x165389a47641d35a1bcc942716c09360aed233841ff5d2101f04a6fa911cc9b5));
-        assertEq(bytes32(out.y), bytes32(0x1b815148c1522708d6b4af5102b6f34a625880b4fe50de70080348af1dc54d6e));
+        assertEq(bytes32(out.x), bytes32(0x1d7f6b43dcf51bc977e8ccbf52ca4b684b3e45eb4fd8a4e8db460dc0083b6de5));
+        assertEq(bytes32(out.y), bytes32(0x1dd8577b2b2eec3c167344c48aaaa28f3496a55c71e04621ae228260c806e211));
     }
 
     function testGrumpkin4Unoptimized() public {
@@ -295,7 +295,7 @@ contract MultiscalarMulTest is Test {
 
         Grumpkin.GrumpkinAffinePoint memory out = Grumpkin.multiScalarMul(bases, scalars);
 
-        assertEq(bytes32(out.x), bytes32(0x165389a47641d35a1bcc942716c09360aed233841ff5d2101f04a6fa911cc9b5));
-        assertEq(bytes32(out.y), bytes32(0x1b815148c1522708d6b4af5102b6f34a625880b4fe50de70080348af1dc54d6e));
+        assertEq(bytes32(out.x), bytes32(0x1d7f6b43dcf51bc977e8ccbf52ca4b684b3e45eb4fd8a4e8db460dc0083b6de5));
+        assertEq(bytes32(out.y), bytes32(0x1dd8577b2b2eec3c167344c48aaaa28f3496a55c71e04621ae228260c806e211));
     }
 }

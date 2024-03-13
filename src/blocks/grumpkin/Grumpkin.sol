@@ -334,13 +334,12 @@ library Grumpkin {
         } else {
             c = CommonUtilities.log2(bases.length);
         }
-        
+
         GrumpkinAffinePoint[] memory buckets = new GrumpkinAffinePoint[]((1 << c) - 1);
         GrumpkinAffinePoint memory res = Identity();
 
         uint256 segments = (256 / c) + 1;
         for (uint256 segment = segments; segment > 0; segment--) {
-
             for (uint256 i = 0; i < c; i++) {
                 res = double(res);
             }

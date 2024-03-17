@@ -249,6 +249,16 @@ contract GrumpkinCurvesContractTests is Test {
         assertEq(a_add_b.y, 0x001a2f39bd6cddd97502bc15b89c9d3376c3bf227a1ef667ba593fc9ed1361cd);
     }
 
+    function testGrumpkinPointsAddition11() public {
+        Grumpkin.GrumpkinAffinePoint memory a = Grumpkin.Identity();
+        Grumpkin.GrumpkinAffinePoint memory b = Grumpkin.Identity();
+
+        Grumpkin.GrumpkinAffinePoint memory a_add_b = Grumpkin.add(a, b);
+
+        assertEq(a_add_b.x, 0);
+        assertEq(a_add_b.y, 0);
+    }
+
     function testGrumpkinScalarMultiplication() public {
         uint256 scalar = 0x29bd9a803cd11224817183fc6bceb32d59926fd9aa37d3cfb1c7845cbf7fae0d;
 
